@@ -1,13 +1,20 @@
 package ru.fusionsoft.dereferencer;
 
-/**
- * Hello world!
- *
- */
-public class App 
+import java.io.IOException;
+import java.net.URISyntaxException;
+
+import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.databind.DatabindException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import ru.fusionsoft.dereferencer.exception.ReferenceException;
+
+public class App
 {
-    public static void main( String[] args )
+    static ObjectMapper objectMapper = new ObjectMapper();
+
+    public static void main( String[] args ) throws URISyntaxException, StreamReadException, DatabindException, IOException, ReferenceException
     {
-        System.out.println( "Hello World!" );
+        System.out.println(Dereferencer.dereference("/home/who/js.json"));
     }
 }
