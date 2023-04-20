@@ -1,0 +1,12 @@
+{
+  "type": "object",
+    "properties": {
+      "foo":{   "oneOf": [
+    { "$ref": "#/additionalProperties" },
+    { "$ref": "#/additionalProperties" }
+      ]},      "bar": { "$ref": "#/properties/foo" }
+    },
+    "additionalProperties": 2,
+    "add": {"$ref":"fragments/test.json#/some"}
+}
+
