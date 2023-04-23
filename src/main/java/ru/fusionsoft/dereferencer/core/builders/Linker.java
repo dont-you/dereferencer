@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import ru.fusionsoft.dereferencer.core.reference.Reference;
 import ru.fusionsoft.dereferencer.core.reference.factories.ReferenceFactory;
 import ru.fusionsoft.dereferencer.core.reference.impl.RemoteReference;
-import ru.fusionsoft.dereferencer.core.reference.impl.URLReference;
 import ru.fusionsoft.dereferencer.enums.ReferenceType;
 import ru.fusionsoft.dereferencer.exception.ReferenceException;
 
