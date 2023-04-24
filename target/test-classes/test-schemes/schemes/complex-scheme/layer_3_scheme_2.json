@@ -1,0 +1,5 @@
+{
+  "age": {"$ref": "#/numberCopy"},
+  "numberCopy": {"$ref": "#/number"},
+  "number": 23
+}

@@ -35,4 +35,12 @@ public class DereferencerTest{
 
         assertEquals(expected, actual);
     }
+
+    @Test
+    public void Test_complex_scheme_With_nesting() throws StreamReadException, DatabindException, ReferenceException, IOException{
+        JsonNode actual = Dereferencer.dereference("./src/test/resources/test-schemes/schemes/complex-scheme/layer_1_scheme_1.json");
+        JsonNode expected = mapper.readTree(Paths.get("./src/test/resources/test-schemes/expected-result/dereferenced_complex_scheme.json").toFile());
+
+        assertEquals(expected, actual);
+    }
 }

@@ -8,7 +8,9 @@ import java.nio.file.Paths;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
+import ru.fusionsoft.dereferencer.Dereferencer;
 import ru.fusionsoft.dereferencer.core.reference.Reference;
 import ru.fusionsoft.dereferencer.core.reference.factories.ReferenceFactory;
 import ru.fusionsoft.dereferencer.enums.ReferenceType;
@@ -47,14 +49,19 @@ public class RemoteReference implements Reference{
     }
 
     @Override
-    public JsonNode getSource() {
-        ObjectMapper mapper = new ObjectMapper();
+    public JsonNode getSource() throws ReferenceException {
         try {
-            return mapper.readTree(file.toFile());
+            String fileName = file.getFileName().toString();
+            if(fileName.substring(fileName.lastIndexOf(".")).equals("yaml")){
+                ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+                Object obj = yamlMapper.readValue(file.toFile(),Object.class);
+                return Dereferencer.objectMapper.readTree(Dereferencer.objectMapper.writeValueAsString(obj));
+            }
+            return Dereferencer.objectMapper.readTree(file.toFile());
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new ReferenceException("error while reading document from -{" + file
+                    + "} with message - \n" + e.getMessage());
         }
-        return null;
     }
 
     public Path getDirectory() {
@@ -69,7 +76,6 @@ public class RemoteReference implements Reference{
         return fragment;
     }
 
-    @Override
     public Reference createUsingCurrent(String newPath) throws ReferenceException{
         try {
             return ReferenceFactory.create(new URI(directory+"/"+newPath));

@@ -1,0 +1,6 @@
+{
+  "prop1": {"$ref": "./layer_2_scheme_1.json#/descriptionCopy"},
+  "prop2": {"$ref": "#/prop4/classes"},
+  "prop3": {"$ref": "#/prop2/car"},
+  "prop4": {"$ref": "layer-2/layer_2_scheme_2.json"}
+}
