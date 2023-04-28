@@ -1,9 +1,8 @@
 package ru.fusionsoft.dereferencer.core.reference.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
@@ -19,17 +18,11 @@ import ru.fusionsoft.dereferencer.exception.ReferenceException;
 
 
 public class RemoteReference implements Reference{
-    URI uri;
-    private Path directory;
-    private Path file;
-    private String fragment;
+    private URI uri;
     private JsonNode source = null;
 
     public RemoteReference(URI uri) {
         this.uri = uri;
-        this.directory = Paths.get(uri.getPath()).toAbsolutePath().getParent();
-        this.file = Paths.get(uri.getPath()).toAbsolutePath();
-        this.fragment = uri.getFragment();
     }
 
     @Override
@@ -44,9 +37,7 @@ public class RemoteReference implements Reference{
 
         RemoteReference rightReference = (RemoteReference) obj;
 
-        if(!file.toAbsolutePath().toString().equals(rightReference.file.toAbsolutePath().toString()))
-            return false;
-        if(!fragment.equals(rightReference.fragment))
+        if(!uri.toString().equals(rightReference.uri.toString()))
             return false;
 
         return true;
@@ -55,12 +46,12 @@ public class RemoteReference implements Reference{
 
     @Override
     public int hashCode() {
-        return Objects.hash(file.toAbsolutePath(), fragment);
+        return Objects.hash(uri);
     }
 
     @Override
     public String toString() {
-        return file.toAbsolutePath().toString() + "#" + fragment;
+        return uri.toString();
     }
 
     @Override
@@ -70,64 +61,39 @@ public class RemoteReference implements Reference{
 
     @Override
     public JsonNode getSource() throws ReferenceException {
-        try {
-            if(source == null){
-
-                String fileName = file.getFileName().toString();
+        if(source == null){
+            String fileName = uri.getPath().substring(uri.getPath().lastIndexOf("/")+1);
+            File file = Paths.get(uri.getPath()).toFile();
+            try{
                 if(fileName.substring(fileName.lastIndexOf(".")).equals("yaml")){
                     ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
-                    Object obj = yamlMapper.readValue(file.toFile(),Object.class);
+                    Object obj = yamlMapper.readValue(file,Object.class);
                     source =  Dereferencer.objectMapper.readTree(Dereferencer.objectMapper.writeValueAsString(obj));
                     return source;
                 }
-                source = Dereferencer.objectMapper.readTree(file.toFile());
+                source = Dereferencer.objectMapper.readTree(file);
+            } catch (IOException e) {
+                throw new ReferenceException("error while reading document from -{" + fileName
+                                         + "} with message - \n" + e.getMessage());
             }
-            if (fragment!=""){
-                return source.at(fragment);
-            }
-            return source;
-
-        } catch (IOException e) {
-            throw new ReferenceException("error while reading document from -{" + file
-                    + "} with message - \n" + e.getMessage());
         }
-    }
+        return source;
 
-    public Path getDirectory() {
-        return directory;
-    }
-
-    public Path getFile() {
-        return file;
-    }
-
-    public String getFragment() {
-        return fragment;
     }
 
     @Override
     public Reference createNewReference(String uri) throws ReferenceException {
-        try {
-            if(ReferenceType.isLocalReference(new URI(uri))){
-                return new LocalReference(new URI(this.uri.getScheme(), this.uri.getAuthority(), this.uri.getPath(), this.uri.getQuery(), uri.substring(1)),
-                                          source);
-            }
-
-            if(Paths.get(uri).isAbsolute()){
-                return ReferenceFactory.create(new URI(uri));
-            } else if(ReferenceType.isURLReference(new URI(uri))){
-                return ReferenceFactory.create(new URI(uri));
-            }
-            return ReferenceFactory.create(new URI(directory+"/"+uri));
-        } catch (URISyntaxException e) {
-            throw new ReferenceException("failed to create a new reference with message: " + e.getMessage());
-        }
+        return ReferenceFactory.createRelative(this, uri);
     }
 
     @Override
     public JsonNode setToSource(JsonNode setNode) throws ReferenceException {
         source = setNode;
         return source;
+    }
+
+    public URI getUri() {
+        return uri;
     }
 
 }

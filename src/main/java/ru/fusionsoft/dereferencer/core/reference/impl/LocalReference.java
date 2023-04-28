@@ -1,9 +1,6 @@
 package ru.fusionsoft.dereferencer.core.reference.impl;
 
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Objects;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -16,18 +13,14 @@ import ru.fusionsoft.dereferencer.exception.ReferenceException;
 
 
 public class LocalReference implements Reference{
-    private URI uri;
-    private Path directory;
-    private Path file;
-    private String fragment;
+
+    Reference parentReference;
+    String fragment;
     private JsonNode source = null;
 
-    public LocalReference(URI uri, JsonNode source) {
-        this.uri = uri;
-        this.directory = Paths.get(uri.getPath()).toAbsolutePath().getParent();
-        this.file = Paths.get(uri.getPath()).toAbsolutePath();
-        this.fragment = uri.getFragment();
-        this.source = source;
+    public LocalReference(Reference parentReference, String fragment) {
+        this.parentReference = parentReference;
+        this.fragment = fragment;
     }
 
     @Override
@@ -42,7 +35,7 @@ public class LocalReference implements Reference{
 
         LocalReference rightReference = (LocalReference) obj;
 
-        if(!file.toAbsolutePath().toString().equals(rightReference.file.toAbsolutePath().toString()))
+        if(!parentReference.equals(rightReference.parentReference))
             return false;
         if(!fragment.equals(rightReference.fragment))
             return false;
@@ -53,30 +46,25 @@ public class LocalReference implements Reference{
 
     @Override
     public int hashCode() {
-        return Objects.hash(file.toAbsolutePath(), fragment);
+        return Objects.hash(parentReference, fragment);
     }
 
     @Override
     public String toString() {
-        return file.toAbsolutePath().toString() + "#" + fragment;
+        return parentReference.toString() + "#" + fragment;
     }
 
     @Override
     public ReferenceType getReferenceType() {
-        return ReferenceType.REMOTE;
+        return ReferenceType.LOCAL;
     }
 
     @Override
     public JsonNode getSource() throws ReferenceException {
+        if(source==null){
+            source = parentReference.getSource();
+        }
         return source.at(fragment);
-    }
-
-    public Path getDirectory() {
-        return directory;
-    }
-
-    public Path getFile() {
-        return file;
     }
 
     public String getFragment() {
@@ -85,21 +73,7 @@ public class LocalReference implements Reference{
 
     @Override
     public Reference createNewReference(String uri) throws ReferenceException {
-        try {
-            if(ReferenceType.isLocalReference(new URI(uri))){
-                return new LocalReference(new URI(this.uri.getScheme(), this.uri.getAuthority(), this.uri.getPath(), this.uri.getQuery(), uri.substring(1)),
-                                          source);
-            }
-
-            if(Paths.get(uri).isAbsolute()){
-                return ReferenceFactory.create(new URI(uri));
-            } else if(ReferenceType.isURLReference(new URI(uri))){
-                return ReferenceFactory.create(new URI(uri));
-            }
-            return ReferenceFactory.create(new URI(directory+"/"+uri));
-        } catch (URISyntaxException e) {
-            throw new ReferenceException("failed to create a new reference with message: " + e.getMessage());
-        }
+        return ReferenceFactory.createRelative(parentReference, uri);
     }
 
     @Override
@@ -109,6 +83,11 @@ public class LocalReference implements Reference{
         ObjectNode node = (ObjectNode) source.at(parentRef);
         node.set(propName, setNode);
         return source.at(fragment);
+    }
+
+    @Override
+    public URI getUri(){
+        return URI.create(this.toString());
     }
 
 }
