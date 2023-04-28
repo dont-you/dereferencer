@@ -1,6 +1,5 @@
 package ru.fusionsoft.dereferencer.core.reference.impl;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -8,28 +7,27 @@ import java.nio.file.Paths;
 import java.util.Objects;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import ru.fusionsoft.dereferencer.Dereferencer;
 import ru.fusionsoft.dereferencer.core.reference.Reference;
 import ru.fusionsoft.dereferencer.core.reference.factories.ReferenceFactory;
 import ru.fusionsoft.dereferencer.enums.ReferenceType;
 import ru.fusionsoft.dereferencer.exception.ReferenceException;
 
 
-public class RemoteReference implements Reference{
-    URI uri;
+public class LocalReference implements Reference{
+    private URI uri;
     private Path directory;
     private Path file;
     private String fragment;
     private JsonNode source = null;
 
-    public RemoteReference(URI uri) {
+    public LocalReference(URI uri, JsonNode source) {
         this.uri = uri;
         this.directory = Paths.get(uri.getPath()).toAbsolutePath().getParent();
         this.file = Paths.get(uri.getPath()).toAbsolutePath();
         this.fragment = uri.getFragment();
+        this.source = source;
     }
 
     @Override
@@ -42,7 +40,7 @@ public class RemoteReference implements Reference{
         if(hashCode() != obj.hashCode())
             return false;
 
-        RemoteReference rightReference = (RemoteReference) obj;
+        LocalReference rightReference = (LocalReference) obj;
 
         if(!file.toAbsolutePath().toString().equals(rightReference.file.toAbsolutePath().toString()))
             return false;
@@ -70,27 +68,7 @@ public class RemoteReference implements Reference{
 
     @Override
     public JsonNode getSource() throws ReferenceException {
-        try {
-            if(source == null){
-
-                String fileName = file.getFileName().toString();
-                if(fileName.substring(fileName.lastIndexOf(".")).equals("yaml")){
-                    ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
-                    Object obj = yamlMapper.readValue(file.toFile(),Object.class);
-                    source =  Dereferencer.objectMapper.readTree(Dereferencer.objectMapper.writeValueAsString(obj));
-                    return source;
-                }
-                source = Dereferencer.objectMapper.readTree(file.toFile());
-            }
-            if (fragment!=""){
-                return source.at(fragment);
-            }
-            return source;
-
-        } catch (IOException e) {
-            throw new ReferenceException("error while reading document from -{" + file
-                    + "} with message - \n" + e.getMessage());
-        }
+        return source.at(fragment);
     }
 
     public Path getDirectory() {
@@ -126,8 +104,11 @@ public class RemoteReference implements Reference{
 
     @Override
     public JsonNode setToSource(JsonNode setNode) throws ReferenceException {
-        source = setNode;
-        return source;
+        String parentRef = fragment.substring(0,fragment.lastIndexOf("/"));
+        String propName = fragment.substring(fragment.lastIndexOf("/")+1);
+        ObjectNode node = (ObjectNode) source.at(parentRef);
+        node.set(propName, setNode);
+        return source.at(fragment);
     }
 
 }

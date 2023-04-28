@@ -3,9 +3,7 @@ package ru.fusionsoft.dereferencer;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import com.fasterxml.jackson.core.exc.StreamReadException;
@@ -30,11 +28,21 @@ public class DereferencerTest{
 
     @Test
     public void Test_simple_scheme_With_url_reference() throws StreamReadException, DatabindException, ReferenceException, IOException, URISyntaxException{
+//        URI uri = new URI("https://json-schema.org/draft/2020-12/schema");
+//        System.out.println(uri.getPath());
         JsonNode actual = Dereferencer.dereference("./src/test/resources/test-schemes/schemes/simple_scheme_with_url_ref.json");
         JsonNode expected = mapper.readTree(Paths.get("./src/test/resources/test-schemes/expected-result/dereferenced_simple_scheme_with_url_ref.json").toFile());
 
         assertEquals(expected, actual);
     }
+//
+//    @Test
+//    public void delme() throws StreamReadException, DatabindException, ReferenceException, IOException, URISyntaxException{
+////        URI uri = new URI("https://json-schema.org/draft/2020-12/schema");
+////        System.out.println(uri.getPath());
+//        JsonNode actual = Dereferencer.dereference("https://json-schema.org/draft/2020-12/schema");
+//        System.out.println(actual);
+//    }
 
     @Test
     public void Test_complex_scheme_With_nesting() throws StreamReadException, DatabindException, ReferenceException, IOException{

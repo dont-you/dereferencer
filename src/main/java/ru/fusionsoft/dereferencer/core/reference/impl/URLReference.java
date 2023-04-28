@@ -2,6 +2,7 @@ package ru.fusionsoft.dereferencer.core.reference.impl;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLConnection;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -10,6 +11,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import ru.fusionsoft.dereferencer.Dereferencer;
 import ru.fusionsoft.dereferencer.core.reference.Reference;
+import ru.fusionsoft.dereferencer.core.reference.factories.ReferenceFactory;
 import ru.fusionsoft.dereferencer.enums.ReferenceType;
 import ru.fusionsoft.dereferencer.exception.ReferenceException;
 
@@ -61,4 +63,26 @@ public class URLReference implements Reference{
                     + "} with message - \n" + e.getMessage());
         }
     }
+
+    @Override
+    public Reference createNewReference(String uri) throws ReferenceException{
+        try {
+            URI newUri = new URI(uri);
+            return ReferenceFactory.create(new URI(this.uri.getScheme(),
+                    this.uri.getAuthority(),
+                    this.uri.getPath().substring(this.uri.getPath().lastIndexOf("/")) + "/" +
+                    newUri.getPath(),
+                    newUri.getFragment()
+            ));
+        } catch (URISyntaxException e) {
+            throw new ReferenceException("failed to create a new reference with message: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public JsonNode setToSource(JsonNode setNode) throws ReferenceException {
+        // TODO Auto-generated method stub
+        return getSource();
+    }
+
 }
