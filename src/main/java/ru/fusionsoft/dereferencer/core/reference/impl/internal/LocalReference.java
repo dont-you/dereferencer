@@ -1,4 +1,4 @@
-package ru.fusionsoft.dereferencer.core.reference.impl;
+package ru.fusionsoft.dereferencer.core.reference.impl.internal;
 
 import java.net.URI;
 import java.util.Objects;

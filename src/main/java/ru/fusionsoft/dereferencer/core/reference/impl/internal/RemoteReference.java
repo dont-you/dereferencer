@@ -1,4 +1,4 @@
-package ru.fusionsoft.dereferencer.core.reference.impl;
+package ru.fusionsoft.dereferencer.core.reference.impl.internal;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,8 +70,9 @@ public class RemoteReference implements Reference{
                     Object obj = yamlMapper.readValue(file,Object.class);
                     source =  Dereferencer.objectMapper.readTree(Dereferencer.objectMapper.writeValueAsString(obj));
                     return source;
+                } else {
+                    source = Dereferencer.objectMapper.readTree(file);
                 }
-                source = Dereferencer.objectMapper.readTree(file);
             } catch (IOException e) {
                 throw new ReferenceException("error while reading document from -{" + fileName
                                          + "} with message - \n" + e.getMessage());

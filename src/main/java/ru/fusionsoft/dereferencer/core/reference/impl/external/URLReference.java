@@ -1,8 +1,7 @@
-package ru.fusionsoft.dereferencer.core.reference.impl;
+package ru.fusionsoft.dereferencer.core.reference.impl.external;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.util.Objects;
 
@@ -13,13 +12,14 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import ru.fusionsoft.dereferencer.Dereferencer;
 import ru.fusionsoft.dereferencer.core.reference.Reference;
 import ru.fusionsoft.dereferencer.core.reference.factories.ReferenceFactory;
+import ru.fusionsoft.dereferencer.core.reference.impl.internal.RemoteReference;
 import ru.fusionsoft.dereferencer.enums.ReferenceType;
 import ru.fusionsoft.dereferencer.exception.ReferenceException;
 
 
 public class URLReference implements Reference{
-    private URI uri;
-    private JsonNode source = null;
+    protected URI uri;
+    protected JsonNode source = null;
 
     public URLReference(URI uri) {
         this.uri = uri;
@@ -69,9 +69,10 @@ public class URLReference implements Reference{
                     Object obj = yamlMapper.readValue(uri.toURL(),Object.class);
 
                     source = Dereferencer.objectMapper.readTree(Dereferencer.objectMapper.writeValueAsString(obj));
+                } else {
+                    source = Dereferencer.objectMapper.readTree(uri.toURL());
                 }
 
-                source = Dereferencer.objectMapper.readTree(uri.toURL());
             } catch (IOException e) {
                 throw new ReferenceException("error while getting json document from uri -{" + uri
                                              + "} with message - \n" + e.getMessage());

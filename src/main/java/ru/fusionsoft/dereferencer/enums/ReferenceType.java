@@ -5,7 +5,15 @@ import java.net.URI;
 public enum ReferenceType{
     LOCAL,
     REMOTE,
-    URL;
+    URL,
+    URL_GITHUB;
+
+    public static boolean isGitHubReference(URI uri){
+        if(uri.getHost()!=null && uri.getHost().equals("github.com"))
+            return true;
+
+        return false;
+    }
 
     public static boolean isURLReference(URI uri){
         if(uri.getHost()!=null)

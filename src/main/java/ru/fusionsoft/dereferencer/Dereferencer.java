@@ -14,11 +14,20 @@ import ru.fusionsoft.dereferencer.exception.ReferenceException;
 
 public class Dereferencer{
     public static final ObjectMapper objectMapper = new ObjectMapper();
+    private static String gitHubToken = null;
 
     public static JsonNode dereference(String uri) throws ReferenceException, StreamReadException, DatabindException, IOException{
         Reference reference = ReferenceFactory.create(uri);
         Linker linker = new Linker();
         JsonNode jsonNode = linker.combine(reference);
         return jsonNode;
+    }
+
+    public static void setGitHubToken(String gitHubToken) {
+        Dereferencer.gitHubToken = gitHubToken;
+    }
+
+    public static String getGitHubToken() {
+        return gitHubToken;
     }
 }
