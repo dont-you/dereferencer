@@ -1,0 +1,41 @@
+{
+    "prop1":{
+        "nested_prop1":1,
+        "nested_prop2":"string value"
+    },
+    "prop2":{
+        "$ref":"#/prop3/nested_prop1"
+    },
+    "prop3":{
+        "$ref":"#/prop1"
+    },
+    "allOf":[
+        {
+            "nestedProp":{
+                "$ref":"fragments/fragment_2_for_merge_test.json"
+            },
+            "required":["full_name","pet_name"]
+        },
+        {
+            "one":25
+        },
+        {
+            "one":{}
+        },
+        {
+            "one":{
+                "$ref": "#/prop2"
+            },
+            "nestedProp":{
+                "allOf":[
+                 {
+                      "$ref":"#/prop1"
+                 },
+                 {
+                     "$ref":"fragments/fragment_1_for_merge_test.json"
+                 }
+              ]
+            }
+        }
+    ]
+}

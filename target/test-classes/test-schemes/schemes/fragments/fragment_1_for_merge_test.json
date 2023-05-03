@@ -1,0 +1,7 @@
+{
+    "prop1":{
+      "nested_prop1":"this is string value now",
+      "nested_prop2":"still string value"
+    },
+    "required": ["some_field_2"]
+}

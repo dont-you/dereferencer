@@ -1,0 +1,6 @@
+{
+    "prop1": {
+        "nested_prop3": 4
+    },
+    "required": ["another_some_field"]
+}

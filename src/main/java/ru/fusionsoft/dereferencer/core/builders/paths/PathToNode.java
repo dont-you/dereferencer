@@ -2,15 +2,17 @@ package ru.fusionsoft.dereferencer.core.builders.paths;
 
 import java.util.Objects;
 
-public class PathToRef{
+import com.fasterxml.jackson.databind.JsonNode;
+
+public class PathToNode {
     private final String pathToRef;
-    private final String refValue;
+    private final JsonNode node;
     private final int hash;
 
-    public PathToRef(String pathToRef, String refValue){
+    public PathToNode(String pathToRef, JsonNode node){
         this.pathToRef = pathToRef;
-        this.refValue = refValue;
-        this.hash = Objects.hash(pathToRef, refValue);
+        this.node = node;
+        this.hash = Objects.hash(pathToRef, node);
     }
 
     @Override
@@ -22,15 +24,15 @@ public class PathToRef{
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if(!(obj instanceof PathToRef))
+        if(!(obj instanceof PathToNode))
             return false;
 
         if(hash != obj.hashCode())
             return false;
 
-        if(!pathToRef.equals(((PathToRef) obj).pathToRef))
+        if(!pathToRef.equals(((PathToNode) obj).pathToRef))
             return false;
-        if(!refValue.equals(((PathToRef) obj).refValue))
+        if(!node.equals(((PathToNode) obj).node))
             return false;
 
         return true;
@@ -40,8 +42,7 @@ public class PathToRef{
         return pathToRef;
     }
 
-    public String getRefValue() {
-        return refValue;
+    public JsonNode getNode() {
+        return node;
     }
-
 }

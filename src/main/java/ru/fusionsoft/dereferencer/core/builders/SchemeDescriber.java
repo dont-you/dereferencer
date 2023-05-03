@@ -10,20 +10,21 @@ import java.util.Map.Entry;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import ru.fusionsoft.dereferencer.core.builders.paths.PathToRef;
+import ru.fusionsoft.dereferencer.core.builders.paths.PathToNode;
 import ru.fusionsoft.dereferencer.enums.ReferenceType;
 import ru.fusionsoft.dereferencer.exception.ReferenceException;
 
-public class RefsDescriber{
-    private Set<PathToRef> localRefs = new HashSet<>();
-    private Set<PathToRef> remoteRefs = new HashSet<>();
+public class SchemeDescriber {
+    private Set<PathToNode> localRefs = new HashSet<>();
+    private Set<PathToNode> remoteRefs = new HashSet<>();
+    private Set<PathToNode> allOfs = new HashSet<>();
 
-    public static RefsDescriber describe(JsonNode rootNode) throws ReferenceException{
+    public static SchemeDescriber describe(JsonNode rootNode) throws ReferenceException{
         return findReferences(rootNode);
     }
 
-    private static RefsDescriber findReferences(JsonNode rootNode) throws ReferenceException{
-        RefsDescriber refsDescriber = new RefsDescriber();
+    private static SchemeDescriber findReferences(JsonNode rootNode) throws ReferenceException{
+        SchemeDescriber schemeDescriber = new SchemeDescriber();
         JsonNode currentNode;
         Stack<JsonNode> memory = new Stack<>();
         Stack<String> pathStack = new Stack<>();
@@ -41,6 +42,13 @@ public class RefsDescriber{
                 if(field.getValue().isArray()){
                     Iterator<JsonNode> elements = field.getValue().elements();
 
+                    if(field.getKey().equals("allOf")){
+                        JsonNode refValue = field.getValue();
+                        schemeDescriber.allOfs.add(new PathToNode(currentPath, refValue));
+                        memory.push(refValue);
+                        pathStack.push(currentPath + "/" + field.getKey());
+                    }
+
                     int i=0;
                     while(elements.hasNext()){
                         memory.push(elements.next());
@@ -49,32 +57,36 @@ public class RefsDescriber{
 
                 } else {
                     if(field.getKey().equals("$ref")){
-                        String refValue = field.getValue().asText();
+                        JsonNode refValue = field.getValue();
                         try {
-                            if(ReferenceType.isLocalReference(new URI(refValue))){
-                                refsDescriber.localRefs.add(new PathToRef(currentPath, refValue));
+                            if(ReferenceType.isLocalReference(new URI(refValue.asText()))){
+                                schemeDescriber.localRefs.add(new PathToNode(currentPath, refValue));
                             } else {
-                                refsDescriber.remoteRefs.add(new PathToRef(currentPath, refValue));
+                                schemeDescriber.remoteRefs.add(new PathToNode(currentPath, refValue));
                             }
                         } catch (URISyntaxException e) {
                             throw new ReferenceException("ref - '" + refValue + "' is invalid");
                         }
-                    } else {
+                    }  else {
                         memory.push(field.getValue());
                         pathStack.push(currentPath + "/" + field.getKey());
                     }
                 }
             }
         }
-        return refsDescriber;
+        return schemeDescriber;
 
     }
 
-    public Set<PathToRef> getLocalRefs() {
+    public Set<PathToNode> getLocalRefs() {
         return localRefs;
     }
 
-    public Set<PathToRef> getRemoteRefs() {
+    public Set<PathToNode> getRemoteRefs() {
         return remoteRefs;
+    }
+
+    public Set<PathToNode> getAllOfs() {
+        return allOfs;
     }
 }
