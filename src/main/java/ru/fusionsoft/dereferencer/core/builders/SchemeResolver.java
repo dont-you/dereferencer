@@ -37,33 +37,30 @@ public class SchemeResolver{
 
             while(fields.hasNext()){
                 Entry<String, JsonNode> field = fields.next();
+                String fieldKey = field.getKey();
+                JsonNode fieldValue = field.getValue();
 
-                if(field.getValue().isArray()){
+                if(fieldKey.equals("$ref")){
+                    JsonNode resolvedNode = Linker.combine(reference.createNewReference(fieldValue.asText()));
+                    node = setNode(node, resolvedNode, currentPath);
+                    continue;
+                } else if (fieldKey.equals("allOf")){
+                    JsonNode resolvedNode = mergeResolve(field.getValue());
+                    node = setNode(node, resolvedNode, currentPath);
+                    continue;
+                }
+
+                if(fieldValue.isArray()){
                     Iterator<JsonNode> elements = field.getValue().elements();
 
-                    if(field.getKey().equals("allOf")){
-                        JsonNode resolvedNode = mergeResolve(field.getValue());
-                        // ObjectNode parent = (ObjectNode) node.at(currentPath.substring(0, currentPath.lastIndexOf("/")));
-                        // parent.set(currentPath.substring(currentPath.lastIndexOf("/") + 1), resolvedNode);
-                        node = setNode(node, resolvedNode, currentPath);
-                    } else {
-                        int i=0;
-                        while(elements.hasNext()){
-                            memory.push(elements.next());
-                            pathStack.push(currentPath + "/" + field.getKey() + "/" + i++);
-                        }
+                    int i=0;
+                    while(elements.hasNext()){
+                        memory.push(elements.next());
+                        pathStack.push(currentPath + "/" + field.getKey() + "/" + i++);
                     }
                 } else {
-                    if(field.getKey().equals("$ref")){
-                        JsonNode refValue = field.getValue();
-                        JsonNode resolvedNode = Linker.combine(reference.createNewReference(refValue.asText()));
-                        // ObjectNode parent = (ObjectNode) node.at(currentPath.substring(0, currentPath.lastIndexOf("/")));
-                        // parent.set(currentPath.substring(currentPath.lastIndexOf("/") + 1), resolvedNode);
-                        node = setNode(node, resolvedNode, currentPath);
-                    }  else {
-                        memory.push(field.getValue());
-                        pathStack.push(currentPath+ "/" + field.getKey()  );
-                    }
+                    memory.push(field.getValue());
+                    pathStack.push(currentPath+ "/" + field.getKey()  );
                 }
             }
         }
@@ -91,39 +88,29 @@ public class SchemeResolver{
                 JsonNode currentNode = memory.pop();
                 String currentPath = pathStack.pop();
                 Iterator<Entry<String, JsonNode>> fields = currentNode.fields();
+                JsonNode resNodeByPath = result.at(currentPath);
 
-                if (result.at(currentPath).isMissingNode()) {
-                    ObjectNode parent = (ObjectNode) result.at(currentPath.substring(0, currentPath.lastIndexOf("/")));
-                    parent.set(currentPath.substring(currentPath.lastIndexOf("/") + 1), currentNode);
-                    if (currentNode.isObject())
-                        continue;
-                } else if (currentNode.isObject()) {
-                    if (!result.at(currentPath).isObject()) {
-                        ObjectNode parent = (ObjectNode) result.at(currentPath.substring(0, currentPath.lastIndexOf("/")));
-                        parent.set(currentPath.substring(currentPath.lastIndexOf("/") + 1), currentNode);
-                        continue;
+                if(resNodeByPath.isObject() && currentNode.isObject()){
+                    while (fields.hasNext()) {
+                        Entry<String, JsonNode> field = fields.next();
+
+                        memory.push(field.getValue());
+                        pathStack.push(currentPath + "/" + field.getKey());
                     }
-                } else if (currentNode.isArray()) {
+
+                } else if(resNodeByPath.isMissingNode() || !currentNode.isArray()){
+                    result = setNode(result, currentNode, currentPath);
+                } else {
                     Iterator<JsonNode> elements = currentNode.elements();
-                    ArrayNode resArray = (ArrayNode) result.at(currentPath);
+                    ArrayNode resArray = (ArrayNode) resNodeByPath;
 
                     while (elements.hasNext()) {
                         JsonNode value = elements.next();
                         if (!findInArrayNode(resArray, value))
                             ((ArrayNode) resArray).add(value);
                     }
-                } else {
-                    ObjectNode parent = (ObjectNode) result.at(currentPath.substring(0, currentPath.lastIndexOf("/")));
-                    parent.set(currentPath.substring(currentPath.lastIndexOf("/") + 1), currentNode);
                 }
 
-
-                while (fields.hasNext()) {
-                    Entry<String, JsonNode> field = fields.next();
-
-                    memory.push(field.getValue());
-                    pathStack.push(currentPath + "/" + field.getKey());
-                }
             }
         }
         return result;
