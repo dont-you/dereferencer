@@ -67,6 +67,7 @@ public class LocalReference implements Reference{
         return source.at(fragment);
     }
 
+    @Override
     public String getFragment() {
         return fragment;
     }

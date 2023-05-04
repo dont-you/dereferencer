@@ -92,8 +92,14 @@ public class URLReference implements Reference{
         return source;
     }
 
+    @Override
     public URI getUri() {
         return uri;
+    }
+
+    @Override
+    public String getFragment() {
+        return "";
     }
 
 }

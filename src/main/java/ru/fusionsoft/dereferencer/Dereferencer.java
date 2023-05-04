@@ -18,8 +18,7 @@ public class Dereferencer{
 
     public static JsonNode dereference(String uri) throws ReferenceException, StreamReadException, DatabindException, IOException{
         Reference reference = ReferenceFactory.create(uri);
-        Linker linker = new Linker();
-        JsonNode jsonNode = linker.combine(reference);
+        JsonNode jsonNode = Linker.combine(reference);
         return jsonNode;
     }
 

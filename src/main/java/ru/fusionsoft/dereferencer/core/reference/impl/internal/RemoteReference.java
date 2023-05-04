@@ -17,7 +17,7 @@ import ru.fusionsoft.dereferencer.enums.ReferenceType;
 import ru.fusionsoft.dereferencer.exception.ReferenceException;
 
 
-public class RemoteReference implements Reference{
+public class RemoteReference implements Reference {
     private URI uri;
     private JsonNode source = null;
 
@@ -29,15 +29,15 @@ public class RemoteReference implements Reference{
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if(!(obj instanceof RemoteReference))
+        if (!(obj instanceof RemoteReference))
             return false;
 
-        if(hashCode() != obj.hashCode())
+        if (hashCode() != obj.hashCode())
             return false;
 
         RemoteReference rightReference = (RemoteReference) obj;
 
-        if(!uri.toString().equals(rightReference.uri.toString()))
+        if (!uri.toString().equals(rightReference.uri.toString()))
             return false;
 
         return true;
@@ -61,21 +61,21 @@ public class RemoteReference implements Reference{
 
     @Override
     public JsonNode getSource() throws ReferenceException {
-        if(source == null){
-            String fileName = uri.getPath().substring(uri.getPath().lastIndexOf("/")+1);
+        if (source == null) {
+            String fileName = uri.getPath().substring(uri.getPath().lastIndexOf("/") + 1);
             File file = Paths.get(uri.getPath()).toFile();
-            try{
-                if(fileName.substring(fileName.lastIndexOf(".")).equals("yaml")){
+            try {
+                if (fileName.substring(fileName.lastIndexOf(".")).equals("yaml")) {
                     ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
-                    Object obj = yamlMapper.readValue(file,Object.class);
-                    source =  Dereferencer.objectMapper.readTree(Dereferencer.objectMapper.writeValueAsString(obj));
+                    Object obj = yamlMapper.readValue(file, Object.class);
+                    source = Dereferencer.objectMapper.readTree(Dereferencer.objectMapper.writeValueAsString(obj));
                     return source;
                 } else {
                     source = Dereferencer.objectMapper.readTree(file);
                 }
             } catch (IOException e) {
                 throw new ReferenceException("error while reading document from -{" + fileName
-                                         + "} with message - \n" + e.getMessage());
+                        + "} with message - \n" + e.getMessage());
             }
         }
         return source;
@@ -93,8 +93,14 @@ public class RemoteReference implements Reference{
         return source;
     }
 
+    @Override
     public URI getUri() {
         return uri;
+    }
+
+    @Override
+    public String getFragment() {
+        return "";
     }
 
 }
