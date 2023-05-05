@@ -16,8 +16,7 @@ import ru.fusionsoft.dereferencer.core.reference.impl.internal.RemoteReference;
 import ru.fusionsoft.dereferencer.enums.ReferenceType;
 import ru.fusionsoft.dereferencer.exception.ReferenceException;
 
-
-public class URLReference implements Reference{
+public class URLReference implements Reference {
     protected URI uri;
     protected JsonNode source = null;
 
@@ -29,15 +28,15 @@ public class URLReference implements Reference{
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if(!(obj instanceof RemoteReference))
+        if (!(obj instanceof RemoteReference))
             return false;
 
-        if(hashCode() != obj.hashCode())
+        if (hashCode() != obj.hashCode())
             return false;
 
         URLReference rightReference = (URLReference) obj;
 
-        if(!uri.toString().equals(rightReference.uri.toString()))
+        if (!uri.toString().equals(rightReference.uri.toString()))
             return false;
 
         return true;
@@ -60,13 +59,13 @@ public class URLReference implements Reference{
     }
 
     @Override
-    public JsonNode getSource() throws ReferenceException{
-        if(source==null){
+    public JsonNode getSource() throws ReferenceException {
+        if (source == null) {
             try {
                 URLConnection conn = uri.toURL().openConnection();
-                if(conn.getContentType().contains("application/x-yaml")){
+                if (conn.getContentType().contains("application/x-yaml")) {
                     ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
-                    Object obj = yamlMapper.readValue(uri.toURL(),Object.class);
+                    Object obj = yamlMapper.readValue(uri.toURL(), Object.class);
 
                     source = Dereferencer.objectMapper.readTree(Dereferencer.objectMapper.writeValueAsString(obj));
                 } else {
@@ -75,14 +74,14 @@ public class URLReference implements Reference{
 
             } catch (IOException e) {
                 throw new ReferenceException("error while getting json document from uri -{" + uri
-                                             + "} with message - \n" + e.getMessage());
+                        + "} with message - \n" + e.getMessage());
             }
         }
         return source;
     }
 
     @Override
-    public Reference createNewReference(String uri) throws ReferenceException{
+    public Reference createNewReference(String uri) throws ReferenceException {
         return ReferenceFactory.createRelative(this, uri);
     }
 
@@ -101,5 +100,4 @@ public class URLReference implements Reference{
     public String getFragment() {
         return "";
     }
-
 }

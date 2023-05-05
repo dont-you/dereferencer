@@ -16,7 +16,6 @@ import ru.fusionsoft.dereferencer.core.reference.factories.ReferenceFactory;
 import ru.fusionsoft.dereferencer.enums.ReferenceType;
 import ru.fusionsoft.dereferencer.exception.ReferenceException;
 
-
 public class RemoteReference implements Reference {
     private URI uri;
     private JsonNode source = null;

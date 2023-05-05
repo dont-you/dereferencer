@@ -17,24 +17,23 @@ public class GitHubReference extends URLReference {
         super(uri);
     }
 
-
     @Override
     public ReferenceType getReferenceType() {
         return ReferenceType.URL_GITHUB;
     }
 
     @Override
-    public JsonNode getSource() throws ReferenceException{
-        if(source==null){
+    public JsonNode getSource() throws ReferenceException {
+        if (source == null) {
             try {
                 HttpURLConnection conn = (HttpURLConnection) uri.toURL().openConnection();
                 conn.setRequestProperty("Accept", "application/vnd.github.v3.raw");
-                if(Dereferencer.getGitHubToken()!=null)
-                    conn.setRequestProperty("Authorization", "token "+Dereferencer.getGitHubToken());
+                if (Dereferencer.getGitHubToken() != null)
+                    conn.setRequestProperty("Authorization", "token " + Dereferencer.getGitHubToken());
 
-                if(getFileType().equals("yaml")){
+                if (getFileType().equals("yaml")) {
                     ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
-                    Object obj = yamlMapper.readValue(conn.getInputStream(),Object.class);
+                    Object obj = yamlMapper.readValue(conn.getInputStream(), Object.class);
 
                     source = Dereferencer.objectMapper.readTree(Dereferencer.objectMapper.writeValueAsString(obj));
                 } else {
@@ -43,14 +42,14 @@ public class GitHubReference extends URLReference {
 
             } catch (IOException e) {
                 throw new ReferenceException("error while getting json document from uri -{" + uri
-                                             + "} with message - \n" + e.getMessage());
+                        + "} with message - \n" + e.getMessage());
             }
         }
         return source;
     }
 
-    public String getFileType(){
-        String filename = uri.getPath().substring(uri.getPath().lastIndexOf("/")+1);
+    public String getFileType() {
+        String filename = uri.getPath().substring(uri.getPath().lastIndexOf("/") + 1);
         return filename.substring(filename.lastIndexOf(".") + 1);
     }
 }

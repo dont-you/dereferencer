@@ -11,8 +11,7 @@ import ru.fusionsoft.dereferencer.core.reference.factories.ReferenceFactory;
 import ru.fusionsoft.dereferencer.enums.ReferenceType;
 import ru.fusionsoft.dereferencer.exception.ReferenceException;
 
-
-public class LocalReference implements Reference{
+public class LocalReference implements Reference {
 
     Reference parentReference;
     String fragment;
@@ -27,17 +26,17 @@ public class LocalReference implements Reference{
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if(!(obj instanceof RemoteReference))
+        if (!(obj instanceof RemoteReference))
             return false;
 
-        if(hashCode() != obj.hashCode())
+        if (hashCode() != obj.hashCode())
             return false;
 
         LocalReference rightReference = (LocalReference) obj;
 
-        if(!parentReference.equals(rightReference.parentReference))
+        if (!parentReference.equals(rightReference.parentReference))
             return false;
-        if(!fragment.equals(rightReference.fragment))
+        if (!fragment.equals(rightReference.fragment))
             return false;
 
         return true;
@@ -61,7 +60,7 @@ public class LocalReference implements Reference{
 
     @Override
     public JsonNode getSource() throws ReferenceException {
-        if(source==null){
+        if (source == null) {
             source = parentReference.getSource();
         }
         return source.at(fragment);
@@ -79,15 +78,15 @@ public class LocalReference implements Reference{
 
     @Override
     public JsonNode setToSource(JsonNode setNode) throws ReferenceException {
-        String parentRef = fragment.substring(0,fragment.lastIndexOf("/"));
-        String propName = fragment.substring(fragment.lastIndexOf("/")+1);
+        String parentRef = fragment.substring(0, fragment.lastIndexOf("/"));
+        String propName = fragment.substring(fragment.lastIndexOf("/") + 1);
         ObjectNode node = (ObjectNode) source.at(parentRef);
         node.set(propName, setNode);
         return source.at(fragment);
     }
 
     @Override
-    public URI getUri(){
+    public URI getUri() {
         return URI.create(this.toString());
     }
 
