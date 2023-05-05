@@ -92,7 +92,7 @@ For example we have some json document containing:
     "allOf":[
         {
         
-            "required":[first_name,last_name],
+            "required":["first_name","last_name"],
             "properties":{
                 "full_name":{
                    "type":"number"
@@ -107,7 +107,7 @@ For example we have some json document containing:
             "prop-1":1
         },
         {
-            "required":[age,first_name,last_name],
+            "required":["age","first_name","last_name"],
             "properties":{
                 "$ref":"./schemes/person.json"
             },
@@ -133,7 +133,7 @@ Document “`person.json`” contains:
 The result of the dereference will be:
 ```json
 {
-    "required":[first_name,last_name,age],
+    "required":["first_name","last_name","age"],
     "properties":{
         "full_name":{
             "type":"string"
