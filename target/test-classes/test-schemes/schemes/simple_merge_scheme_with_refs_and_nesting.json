@@ -9,7 +9,7 @@
     "prop3":{
         "$ref":"#/prop1"
     },
-    "allOf":[
+    "prop4":{"allOf":[
         {
             "nestedProp":{
                 "$ref":"fragments/fragment_2_for_merge_test.json"
@@ -38,4 +38,5 @@
             }
         }
     ]
+    }
 }
