@@ -12,6 +12,7 @@ public class Linker {
     public static JsonNode combine(Reference reference)
             throws ReferenceException {
         try {
+            Dereferencer.getLogger().info("start combine node from reference with uri - '" + reference.getUri() + "'");
             if (reference.getSource().isMissingNode()) {
                 if (reference.getFragment().equals(""))
                     throw new ReferenceException(
@@ -22,8 +23,10 @@ public class Linker {
             }
             JsonNode currentNode = Dereferencer.objectMapper.readTree("{}");
             SchemeResolver schemeResolver = new SchemeResolver(reference);
+            Dereferencer.getLogger().info("start node dereferencing with uri - '" + reference.getUri() + "'");
             ((ObjectNode) currentNode).set("resultOfDereference",
                     schemeResolver.dereferenceResolve(reference.getSource()));
+            Dereferencer.getLogger().info("end node dereferencing with uri - '" + reference.getUri() + "'");
             return reference.setToSource(currentNode.get("resultOfDereference"));
         } catch (JsonProcessingException e) {
             throw new ReferenceException("some internal error");

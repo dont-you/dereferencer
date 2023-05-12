@@ -25,6 +25,7 @@ public class GitHubReference extends URLReference {
     @Override
     public JsonNode getSource() throws ReferenceException {
         if (source == null) {
+            Dereferencer.getLogger().info("trying get source from reference with uri - '" + this.getUri() + "'");
             try {
                 HttpURLConnection conn = (HttpURLConnection) uri.toURL().openConnection();
                 conn.setRequestProperty("Accept", "application/vnd.github.v3.raw");

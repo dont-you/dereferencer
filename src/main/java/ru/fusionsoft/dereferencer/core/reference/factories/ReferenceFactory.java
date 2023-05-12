@@ -17,6 +17,7 @@ import ru.fusionsoft.dereferencer.enums.ReferenceType;
 public class ReferenceFactory {
     public static Reference create(URI uri) throws ReferenceException {
         URI normalizedUri = uri.normalize();
+        Dereferencer.getLogger().info("creating reference with uri - '" + uri+ "'");
 
         if (ReferenceType.isGitHubReference(normalizedUri))
             return makeGitHubReference(normalizedUri);
@@ -30,6 +31,7 @@ public class ReferenceFactory {
 
     public static Reference create(String uri) throws ReferenceException {
         try {
+            Dereferencer.getLogger().info("trying make uri from - '" + uri + "'");
             URI createdUri = new URI(uri);
             return create(createdUri);
         } catch (URISyntaxException e) {
@@ -39,6 +41,8 @@ public class ReferenceFactory {
 
     public static Reference createRelative(Reference relativeReference, String targetPath) throws ReferenceException {
         try {
+            Dereferencer.getLogger().info("creating relative reference: \n\turi of relative reference - '"+ relativeReference.getUri() +"'"
+                                          + "\n\ttarget path - '" + targetPath+"'");
             URI uri = new URI(targetPath);
             if (ReferenceType.isLocalReference(uri)) {
                 return new LocalReference(relativeReference, uri.getFragment());

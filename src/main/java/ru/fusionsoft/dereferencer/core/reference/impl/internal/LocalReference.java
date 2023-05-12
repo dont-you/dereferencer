@@ -6,6 +6,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import ru.fusionsoft.dereferencer.Dereferencer;
 import ru.fusionsoft.dereferencer.core.reference.Reference;
 import ru.fusionsoft.dereferencer.core.reference.factories.ReferenceFactory;
 import ru.fusionsoft.dereferencer.enums.ReferenceType;
@@ -61,6 +62,7 @@ public class LocalReference implements Reference {
     @Override
     public JsonNode getSource() throws ReferenceException {
         if (source == null) {
+            Dereferencer.getLogger().info("trying get source from reference with uri - '" + this.getUri() + "'");
             source = parentReference.getSource();
         }
         return source.at(fragment);
