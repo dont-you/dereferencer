@@ -72,9 +72,7 @@ public class ReferenceFactory {
     public static GitHubReference makeGitHubReference(URI uri) throws ReferenceException {
         String[] uriPath = uri.getPath().split("/");
         String resultPath = "/repos/" + uriPath[1] + "/" + uriPath[2] + "/contents/"
-                + String.join("/", Arrays.stream(uriPath).map(e -> {
-                    return e;
-                }).collect(Collectors.toList()).subList(5, uriPath.length));
+                + String.join("/", Arrays.stream(uriPath).collect(Collectors.toList()).subList(5, uriPath.length));
         URI resultUri;
         try {
             resultUri = new URI(

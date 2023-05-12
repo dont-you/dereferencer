@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import ru.fusionsoft.dereferencer.Dereferencer;
+import ru.fusionsoft.dereferencer.core.builders.Linker;
 import ru.fusionsoft.dereferencer.core.reference.Reference;
 import ru.fusionsoft.dereferencer.core.reference.factories.ReferenceFactory;
 import ru.fusionsoft.dereferencer.enums.ReferenceType;
@@ -65,7 +66,22 @@ public class LocalReference implements Reference {
             Dereferencer.getLogger().info("trying get source from reference with uri - '" + this.getUri() + "'");
             source = parentReference.getSource();
         }
+
+        if(source.at(fragment).isMissingNode()){
+            try{
+                tryResolveUpperLevels();
+            } catch (Exception e){
+                throw new ReferenceException("could not resolve missed ref with uri - '" + getUri() + "'");
+            }
+        }
         return source.at(fragment);
+    }
+
+    public void tryResolveUpperLevels() throws ReferenceException{
+            if (fragment.equals(""))
+                throw new ReferenceException("could not resolve upper levels");
+            String newFragment = fragment.substring(0, fragment.lastIndexOf("/"));
+            Linker.combine(createNewReference("#" + newFragment));
     }
 
     @Override

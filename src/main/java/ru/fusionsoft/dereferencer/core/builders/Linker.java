@@ -12,15 +12,6 @@ public class Linker {
     public static JsonNode combine(Reference reference)
             throws ReferenceException {
         try {
-            Dereferencer.getLogger().info("start combine node from reference with uri - '" + reference.getUri() + "'");
-            if (reference.getSource().isMissingNode()) {
-                if (reference.getFragment().equals(""))
-                    throw new ReferenceException(
-                            "could not resolve missed ref with uri - '" + reference.getUri() + "'");
-
-                String newFragment = reference.getFragment().substring(0, reference.getFragment().lastIndexOf("/"));
-                combine(reference.createNewReference("#" + newFragment));
-            }
             JsonNode currentNode = Dereferencer.objectMapper.readTree("{}");
             SchemeResolver schemeResolver = new SchemeResolver(reference);
             Dereferencer.getLogger().info("start node dereferencing with uri - '" + reference.getUri() + "'");
