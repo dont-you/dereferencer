@@ -27,7 +27,7 @@ public class LocalReference implements Reference {
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if (!(obj instanceof RemoteReference))
+        if (!(obj instanceof LocalReference))
             return false;
 
         if (hashCode() != obj.hashCode())
