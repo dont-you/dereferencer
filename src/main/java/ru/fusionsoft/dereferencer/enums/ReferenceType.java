@@ -2,6 +2,8 @@ package ru.fusionsoft.dereferencer.enums;
 
 import java.net.URI;
 
+import ru.fusionsoft.dereferencer.Dereferencer;
+
 public enum ReferenceType {
     LOCAL,
     REMOTE,
@@ -9,7 +11,7 @@ public enum ReferenceType {
     URL_GITHUB;
 
     public static boolean isGitHubReference(URI uri) {
-        if (uri.getHost() != null && uri.getHost().equals("github.com"))
+        if (uri.getHost() != null && uri.getHost().equals(Dereferencer.getProperties().getProperty("refs.hostname.github")))
             return true;
 
         return false;

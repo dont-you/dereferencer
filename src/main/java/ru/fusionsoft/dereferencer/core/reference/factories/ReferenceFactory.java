@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import ru.fusionsoft.dereferencer.Dereferencer;
 import ru.fusionsoft.dereferencer.core.reference.Reference;
 import ru.fusionsoft.dereferencer.exception.ReferenceException;
 import ru.fusionsoft.dereferencer.core.reference.impl.internal.LocalReference;
@@ -74,9 +75,9 @@ public class ReferenceFactory {
         try {
             resultUri = new URI(
                     uri.getScheme(), uri.getUserInfo(),
-                    "api.github.com", uri.getPort(),
-                    resultPath, "ref=" + uriPath[4],
-                    uri.getFragment());
+                    Dereferencer.getProperties().getProperty("refs.hostname.api-github"),
+                    uri.getPort(), resultPath,
+                    "ref=" + uriPath[4], uri.getFragment());
         } catch (URISyntaxException e1) {
             throw new ReferenceException("failed to create github reference with uri: " + uri.toString());
         }
