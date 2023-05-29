@@ -61,6 +61,7 @@ public class RemoteReference implements Reference {
     @Override
     public JsonNode getSource() throws ReferenceException {
         if (source == null) {
+            Dereferencer.getLogger().info("trying get source from reference with uri - '" + this.getUri() + "'");
             String fileName = uri.getPath().substring(uri.getPath().lastIndexOf("/") + 1);
             File file = Paths.get(uri.getPath()).toFile();
             try {
@@ -77,6 +78,7 @@ public class RemoteReference implements Reference {
                         + "} with message - \n" + e.getMessage());
             }
         }
+
         return source;
 
     }

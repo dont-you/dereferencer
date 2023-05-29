@@ -73,5 +73,4 @@ public class DereferencerTest {
 
         assertEquals(expected, actual);
     }
-
 }

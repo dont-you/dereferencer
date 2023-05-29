@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import ru.fusionsoft.dereferencer.Dereferencer;
 import ru.fusionsoft.dereferencer.core.reference.Reference;
 import ru.fusionsoft.dereferencer.exception.ReferenceException;
 import ru.fusionsoft.dereferencer.core.reference.impl.internal.LocalReference;
@@ -16,6 +17,7 @@ import ru.fusionsoft.dereferencer.enums.ReferenceType;
 public class ReferenceFactory {
     public static Reference create(URI uri) throws ReferenceException {
         URI normalizedUri = uri.normalize();
+        Dereferencer.getLogger().info("creating reference with uri - '" + uri+ "'");
 
         if (ReferenceType.isGitHubReference(normalizedUri))
             return makeGitHubReference(normalizedUri);
@@ -29,6 +31,7 @@ public class ReferenceFactory {
 
     public static Reference create(String uri) throws ReferenceException {
         try {
+            Dereferencer.getLogger().info("trying make uri from - '" + uri + "'");
             URI createdUri = new URI(uri);
             return create(createdUri);
         } catch (URISyntaxException e) {
@@ -38,6 +41,8 @@ public class ReferenceFactory {
 
     public static Reference createRelative(Reference relativeReference, String targetPath) throws ReferenceException {
         try {
+            Dereferencer.getLogger().info("creating relative reference: \n\turi of relative reference - '"+ relativeReference.getUri() +"'"
+                                          + "\n\ttarget path - '" + targetPath+"'");
             URI uri = new URI(targetPath);
             if (ReferenceType.isLocalReference(uri)) {
                 return new LocalReference(relativeReference, uri.getFragment());
@@ -67,16 +72,14 @@ public class ReferenceFactory {
     public static GitHubReference makeGitHubReference(URI uri) throws ReferenceException {
         String[] uriPath = uri.getPath().split("/");
         String resultPath = "/repos/" + uriPath[1] + "/" + uriPath[2] + "/contents/"
-                + String.join("/", Arrays.stream(uriPath).map(e -> {
-                    return e;
-                }).collect(Collectors.toList()).subList(5, uriPath.length));
+                + String.join("/", Arrays.stream(uriPath).collect(Collectors.toList()).subList(5, uriPath.length));
         URI resultUri;
         try {
             resultUri = new URI(
                     uri.getScheme(), uri.getUserInfo(),
-                    "api.github.com", uri.getPort(),
-                    resultPath, "ref=" + uriPath[4],
-                    uri.getFragment());
+                    Dereferencer.getProperties().getProperty("refs.hostname.api-github"),
+                    uri.getPort(), resultPath,
+                    "ref=" + uriPath[4], uri.getFragment());
         } catch (URISyntaxException e1) {
             throw new ReferenceException("failed to create github reference with uri: " + uri.toString());
         }

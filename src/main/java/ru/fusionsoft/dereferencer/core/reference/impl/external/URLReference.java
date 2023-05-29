@@ -12,7 +12,6 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import ru.fusionsoft.dereferencer.Dereferencer;
 import ru.fusionsoft.dereferencer.core.reference.Reference;
 import ru.fusionsoft.dereferencer.core.reference.factories.ReferenceFactory;
-import ru.fusionsoft.dereferencer.core.reference.impl.internal.RemoteReference;
 import ru.fusionsoft.dereferencer.enums.ReferenceType;
 import ru.fusionsoft.dereferencer.exception.ReferenceException;
 
@@ -28,7 +27,7 @@ public class URLReference implements Reference {
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if (!(obj instanceof RemoteReference))
+        if (!(obj instanceof URLReference))
             return false;
 
         if (hashCode() != obj.hashCode())
@@ -61,6 +60,7 @@ public class URLReference implements Reference {
     @Override
     public JsonNode getSource() throws ReferenceException {
         if (source == null) {
+            Dereferencer.getLogger().info("trying get source from reference with uri - '" + this.getUri() + "'");
             try {
                 URLConnection conn = uri.toURL().openConnection();
                 if (conn.getContentType().contains("application/x-yaml")) {
