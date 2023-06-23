@@ -1,7 +1,6 @@
 package ru.fusionsoft.dereferencer;
 
 import java.net.URI;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,8 +9,8 @@ import java.util.logging.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
-import ru.fusionsoft.dereferencer.core.ref.Reference;
-import ru.fusionsoft.dereferencer.core.schema.SchemaNode;
+import ru.fusionsoft.dereferencer.core.routing.Route;
+import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
 
 public class DereferenceConfiguration {
 
@@ -20,7 +19,7 @@ public class DereferenceConfiguration {
     private Logger logger;
     private DereferenceFlag dereferenceFlags[];
     private int cashSize;
-    private Map<Reference, SchemaNode> preloadedSchemas;
+    private Map<Route, ISchemaNode> preloadedSchemas;
     private URI defaultBaseUri;
     private String gitHubToken;
     private String gitLabToken;
@@ -35,7 +34,7 @@ public class DereferenceConfiguration {
             cfg = new DereferenceConfiguration();
             setJsonMapper(new ObjectMapper()).setYamlMapper(new ObjectMapper(new YAMLFactory()))
                     .setLogger(Logger.getGlobal())
-                    .setDereferenceFlags(new DereferenceFlag[] {}).setCashSize(512)
+                    .setDereferenceFlags(new DereferenceFlag[] {}).setCashSize(-1)
                     .setPreloadedSchemas(new HashMap<>()).setGitHubToken(null).setGitLabToken(null)
                     .setDefaultBaseUri(Paths.get("./").toAbsolutePath().toUri());
         };
@@ -50,7 +49,7 @@ public class DereferenceConfiguration {
             return this;
         }
 
-        public DereferenceConfigurationBuilder setPreloadedSchemas(Map<Reference, SchemaNode> preloadedSchemas) {
+        public DereferenceConfigurationBuilder setPreloadedSchemas(Map<Route, ISchemaNode> preloadedSchemas) {
             cfg.setPreloadedSchemas(preloadedSchemas);
             return this;
         }
@@ -112,11 +111,11 @@ public class DereferenceConfiguration {
         this.cashSize = cashSize;
     }
 
-    public Map<Reference, SchemaNode> getPreloadedSchemas() {
+    public Map<Route, ISchemaNode> getPreloadedSchemas() {
         return preloadedSchemas;
     }
 
-    public void setPreloadedSchemas(Map<Reference, SchemaNode> preloadedSchemas) {
+    public void setPreloadedSchemas(Map<Route, ISchemaNode> preloadedSchemas) {
         this.preloadedSchemas = preloadedSchemas;
     }
 

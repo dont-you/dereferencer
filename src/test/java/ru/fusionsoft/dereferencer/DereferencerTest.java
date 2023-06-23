@@ -1,17 +1,15 @@
 package ru.fusionsoft.dereferencer;
 
-import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.Paths;
 
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import org.junit.Test;
-
 
 public class DereferencerTest {
 //    ObjectMapper mapper = new ObjectMapper();
@@ -75,5 +73,17 @@ public class DereferencerTest {
      @Test
     public void delme()
             throws StreamReadException, DatabindException, IOException, URISyntaxException {
-    }
+            LoadingCache<Integer, String> cache = CacheBuilder.newBuilder().build(new CacheLoader<Integer, String>() {
+            @Override
+            public String load(Integer key) throws Exception {
+                return key.toString();
+            }
+        });
+         try {
+             cache.get(1);
+             System.out.println(cache.getIfPresent(1));
+         } catch (Exception e) {
+             System.out.println(e.getMessage());
+         }
+     }
 }
