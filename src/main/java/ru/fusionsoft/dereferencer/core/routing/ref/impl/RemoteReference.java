@@ -1,10 +1,11 @@
 package ru.fusionsoft.dereferencer.core.routing.ref.impl;
 
-import java.io.InputStream;
 import java.net.URI;
 
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
+import ru.fusionsoft.dereferencer.core.utils.load.SourceLoader;
+import ru.fusionsoft.dereferencer.core.utils.load.impl.FileLoader;
 
 public class RemoteReference extends Reference {
     public RemoteReference(URI uri) throws URIException {
@@ -12,16 +13,9 @@ public class RemoteReference extends Reference {
         // TODO
     }
 
-    public InputStream getSource() {
-        // TODO
-        return null;
+    public SourceLoader getSourceLoader(){
+        return FileLoader.getInstance();
     }
-
-    public String getSourceType() {
-        // TODO
-        return null;
-    }
-
     // TODO
 
 }

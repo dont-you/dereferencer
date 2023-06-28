@@ -28,7 +28,7 @@ import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
 //
 // - referencing & retrieving
 // ---- Reference implementations (GitHub, GitLab, URL, Remote,)
-// ---- think about Dialog RetrievalManager and Reference
+// ---- think about Dialog between RetrievalManager and Reference
 // ---- JsonPtr method equals
 // ---- RouteManager make anonRoute
 //

@@ -2,6 +2,8 @@ package ru.fusionsoft.dereferencer.core.utils;
 
 import java.io.IOException;
 
+import javax.xml.transform.Source;
+
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -10,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 import ru.fusionsoft.dereferencer.core.routing.Route;
 import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
+import ru.fusionsoft.dereferencer.core.utils.load.SourceLoader;
 
 public class RetrievalManager {
     private ObjectMapper jsonMapper;
@@ -24,11 +27,13 @@ public class RetrievalManager {
     public JsonNode retrieve(Route route) throws StreamReadException, DatabindException, IOException, URIException {
         // TODO
         Reference canonical = route.getCanonical();
-        if (canonical.getSourceType().equals("yaml")) {
-            Object obj = yamlMapper.readValue(canonical.getSource(), Object.class);
+        SourceLoader sourceLoader = canonical.getSourceLoader();
+
+        if (sourceLoader.getSourceType().isYaml()) {
+            Object obj = yamlMapper.readValue(sourceLoader.getSource(), Object.class);
             return jsonMapper.readTree(jsonMapper.writeValueAsString(obj));
-        } else if (canonical.getSourceType().equals("json")) {
-            return jsonMapper.readTree(canonical.getSource());
+        } else if (sourceLoader.getSourceType().isJson()) {
+            return jsonMapper.readTree(sourceLoader.getSource());
         } else {
             // TODO
             throw new URIException("");

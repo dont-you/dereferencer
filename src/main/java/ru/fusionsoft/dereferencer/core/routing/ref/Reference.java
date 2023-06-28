@@ -1,10 +1,10 @@
 package ru.fusionsoft.dereferencer.core.routing.ref;
 
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
+import ru.fusionsoft.dereferencer.core.utils.load.SourceLoader;
 
 public abstract class Reference {
     private final URI uri;
@@ -41,7 +41,5 @@ public abstract class Reference {
         return jsonPtr != null;
     }
 
-    public abstract InputStream getSource();
-
-    public abstract String getSourceType();
+    public abstract SourceLoader getSourceLoader();
 }
