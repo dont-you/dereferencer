@@ -21,20 +21,21 @@ import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
 // ---- ...
 //
 // - refactoring
-// ---- ...
+// ---- make SourceLoader implementations not singletone
+// ---- remove Reference implementations and make Reference class not abstract with field SourceLoader
+// ---- ShcemaNode - refactor executeResolving method
 //
 // - test
-// ---- ...
+// ---- write integration tests and fix bugs
 //
 // - referencing & retrieving
-// ---- Reference implementations (GitHub, GitLab, URL, Remote,)
-// ---- think about Dialog between RetrievalManager and Reference
 // ---- JsonPtr method equals
+// ---- logic of adding token to GitHubLoader
 // ---- RouteManager make anonRoute
 //
 // - Schema nodes
 // ---- SchemaLoader finish get methods
-// ---- refactor executeResolving algorithm (SchemaNode)
+// -------- checking for uri-duplicate by cannonical embedded in content uri
 // ---- feat: allOf merge is on and of
 // ---- write AllOfSchemaNode
 

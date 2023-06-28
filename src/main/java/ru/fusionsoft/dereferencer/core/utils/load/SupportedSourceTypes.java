@@ -16,4 +16,17 @@ public enum SupportedSourceTypes{
     public boolean isNotImplemented(){
         return this.equals(NOT_IMPLEMENTED);
     }
+
+    public static SupportedSourceTypes resolveSourceType(String extension){
+        switch(extension){
+            case "json":
+                return JSON;
+            case "yaml":
+                return YAML;
+            case "x-yaml":
+                return YAML;
+            default:
+                return NOT_IMPLEMENTED;
+        }
+    }
 }

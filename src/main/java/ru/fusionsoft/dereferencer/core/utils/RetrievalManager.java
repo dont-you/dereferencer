@@ -9,10 +9,12 @@ import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 import ru.fusionsoft.dereferencer.core.routing.Route;
 import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
 import ru.fusionsoft.dereferencer.core.utils.load.SourceLoader;
+import ru.fusionsoft.dereferencer.core.utils.load.SupportedSourceTypes;
 
 public class RetrievalManager {
     private ObjectMapper jsonMapper;
@@ -24,16 +26,17 @@ public class RetrievalManager {
         setJsonMapper(jsonMapper).setYamlMapper(yamlMapper).setGitHubToken(gitHubToken).setGitLabToken(gitLabToken);
     }
 
-    public JsonNode retrieve(Route route) throws StreamReadException, DatabindException, IOException, URIException {
+    public JsonNode retrieve(Route route) throws StreamReadException, DatabindException, IOException, DereferenceException {
         // TODO
         Reference canonical = route.getCanonical();
         SourceLoader sourceLoader = canonical.getSourceLoader();
+        SupportedSourceTypes sourceType = sourceLoader.getSourceType(canonical);
 
-        if (sourceLoader.getSourceType().isYaml()) {
-            Object obj = yamlMapper.readValue(sourceLoader.getSource(), Object.class);
+        if (sourceType.isYaml()) {
+            Object obj = yamlMapper.readValue(sourceLoader.getSource(canonical), Object.class);
             return jsonMapper.readTree(jsonMapper.writeValueAsString(obj));
-        } else if (sourceLoader.getSourceType().isJson()) {
-            return jsonMapper.readTree(sourceLoader.getSource());
+        } else if (sourceType.isJson()) {
+            return jsonMapper.readTree(sourceLoader.getSource(canonical));
         } else {
             // TODO
             throw new URIException("");

@@ -140,8 +140,7 @@ public class SchemaLoader {
 
         cache = builder.build(new CacheLoader<Route, ISchemaNode>() {
             @Override
-            public ISchemaNode load(Route key) throws UnresolvableSchemaException, ExecutionException, URIException,
-                    StreamReadException, DatabindException, IOException {
+            public ISchemaNode load(Route key) throws ExecutionException, StreamReadException, DatabindException, IOException, DereferenceException {
                 // TODO
                 JsonNode node = retrievalManager.retrieve(key);
                 if (node.has("$id")) {

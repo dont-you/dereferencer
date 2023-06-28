@@ -10,12 +10,9 @@ import ru.fusionsoft.dereferencer.core.utils.load.impl.FileLoader;
 public class RemoteReference extends Reference {
     public RemoteReference(URI uri) throws URIException {
         super(uri);
-        // TODO
     }
 
     public SourceLoader getSourceLoader(){
         return FileLoader.getInstance();
     }
-    // TODO
-
 }
