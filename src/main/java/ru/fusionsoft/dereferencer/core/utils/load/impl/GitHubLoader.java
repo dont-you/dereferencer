@@ -18,9 +18,6 @@ import ru.fusionsoft.dereferencer.core.utils.load.SupportedSourceTypes;
 public class GitHubLoader implements SourceLoader{
 
     private String token=null;
-    private static GitHubLoader instance = null;
-
-    private GitHubLoader(){}
 
     @Override
     public InputStream getSource(Reference ref) throws DereferenceException {
@@ -45,12 +42,6 @@ public class GitHubLoader implements SourceLoader{
     public SupportedSourceTypes getSourceType(Reference ref) throws DereferenceException {
         String path = ref.getAbsolute().getPath().toString();
         return SupportedSourceTypes.resolveSourceType(path.substring(path.lastIndexOf(".") +1));
-    }
-
-    public static GitHubLoader getInstance(){
-        if(instance==null)
-            instance=new GitHubLoader();
-        return instance;
     }
 
     private URI transformUriToApiUri(URI uri) throws URIException{

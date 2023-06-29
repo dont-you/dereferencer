@@ -64,7 +64,11 @@ public class JsonPtr {
 
     @Override
     public boolean equals(Object obj) {
-        // TODO
-        return false;
+        JsonPtr rightPtr = (JsonPtr) obj;
+        if(rightPtr.isResolved() && this.isResolved()){
+            return this.jsonPointer == rightPtr.jsonPointer;
+        } else {
+            return this.plainName == rightPtr.plainName;
+        }
     }
 }

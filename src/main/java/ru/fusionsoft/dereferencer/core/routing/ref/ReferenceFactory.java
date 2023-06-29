@@ -4,20 +4,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
-import ru.fusionsoft.dereferencer.core.routing.ref.impl.RemoteReference;
-import ru.fusionsoft.dereferencer.core.routing.ref.impl.URLReference;
-import ru.fusionsoft.dereferencer.core.routing.ref.impl.git.GitHubReference;
 
 public class ReferenceFactory {
     public static Reference create(URI uri) throws URIException {
-        if (ReferenceType.isGitHubReference(uri))
-            return new GitHubReference(uri);
-        else if (ReferenceType.isRemoteReference(uri))
-            return new RemoteReference(uri);
-        else if (ReferenceType.isURLReference(uri))
-            return new URLReference(uri);
-        else
-            throw new URIException("can't create reference by uri - " + uri);
+        return new Reference(uri, ReferenceType.getReferenceTypeByUri(uri));
     }
 
     public static Reference create(Reference contextReference, URI relative) throws URIException {

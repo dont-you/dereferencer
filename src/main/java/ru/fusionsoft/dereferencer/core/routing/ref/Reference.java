@@ -4,14 +4,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
-import ru.fusionsoft.dereferencer.core.utils.load.SourceLoader;
 
-public abstract class Reference {
+public class Reference {
+    private final ReferenceType referenceType;
     private final URI uri;
     private final URI absolute;
     private final JsonPtr jsonPtr;
 
-    protected Reference(URI uri) throws URIException {
+    Reference(URI uri, ReferenceType referenceType) throws URIException {
         try {
             this.uri = uri.normalize();
             this.absolute = new URI(uri.getScheme(), uri.getSchemeSpecificPart(), null);
@@ -20,6 +20,8 @@ public abstract class Reference {
                 jsonPtr = new JsonPtr(uri.getFragment());
             else
                 jsonPtr = null;
+
+            this.referenceType = referenceType;
         } catch (URISyntaxException e) {
             throw new URIException("can't parse uri - " + uri);
         }
@@ -41,5 +43,7 @@ public abstract class Reference {
         return jsonPtr != null;
     }
 
-    public abstract SourceLoader getSourceLoader();
+    public ReferenceType getReferenceType(){
+        return referenceType;
+    }
 }

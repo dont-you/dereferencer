@@ -21,15 +21,13 @@ import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
 // ---- ...
 //
 // - refactoring
-// ---- make SourceLoader implementations not singletone
-// ---- remove Reference implementations and make Reference class not abstract with field SourceLoader
+// ---- the dependency of the used loader on the ReferenceType is small very bad, can I make it more beutiful?
 // ---- ShcemaNode - refactor executeResolving method
 //
 // - test
 // ---- write integration tests and fix bugs
 //
 // - referencing & retrieving
-// ---- JsonPtr method equals
 // ---- logic of adding token to GitHubLoader
 // ---- RouteManager make anonRoute
 //

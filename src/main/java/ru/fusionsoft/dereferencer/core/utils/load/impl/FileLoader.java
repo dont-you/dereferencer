@@ -14,10 +14,6 @@ import ru.fusionsoft.dereferencer.core.utils.load.SupportedSourceTypes;
 
 public class FileLoader implements SourceLoader{
 
-    private static FileLoader instance = null;
-
-    private FileLoader(){}
-
     @Override
     public InputStream getSource(Reference ref) throws DereferenceException{
         File file = Paths.get(ref.getAbsolute()).toAbsolutePath().toFile();
@@ -33,11 +29,5 @@ public class FileLoader implements SourceLoader{
     public SupportedSourceTypes getSourceType(Reference ref) {
         String path = Paths.get(ref.getAbsolute()).toString();
         return SupportedSourceTypes.resolveSourceType(path.substring(path.lastIndexOf(".") +1));
-    }
-
-    public static FileLoader getInstance(){
-        if(instance==null)
-            instance=new FileLoader();
-        return instance;
     }
 }

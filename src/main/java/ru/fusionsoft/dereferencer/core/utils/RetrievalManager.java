@@ -2,8 +2,6 @@ package ru.fusionsoft.dereferencer.core.utils;
 
 import java.io.IOException;
 
-import javax.xml.transform.Source;
-
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -13,14 +11,19 @@ import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 import ru.fusionsoft.dereferencer.core.routing.Route;
 import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
+import ru.fusionsoft.dereferencer.core.routing.ref.ReferenceType;
 import ru.fusionsoft.dereferencer.core.utils.load.SourceLoader;
 import ru.fusionsoft.dereferencer.core.utils.load.SupportedSourceTypes;
+import ru.fusionsoft.dereferencer.core.utils.load.impl.FileLoader;
+import ru.fusionsoft.dereferencer.core.utils.load.impl.GitHubLoader;
+import ru.fusionsoft.dereferencer.core.utils.load.impl.URLLoader;
 
 public class RetrievalManager {
     private ObjectMapper jsonMapper;
     private ObjectMapper yamlMapper;
-    private String gitHubToken;
-    private String gitLabToken;
+    private FileLoader fileLoader = new FileLoader();
+    private GitHubLoader gitHubLoader = new GitHubLoader();
+    private URLLoader urlLoader = new URLLoader();
 
     public RetrievalManager(ObjectMapper jsonMapper, ObjectMapper yamlMapper, String gitHubToken, String gitLabToken) {
         setJsonMapper(jsonMapper).setYamlMapper(yamlMapper).setGitHubToken(gitHubToken).setGitLabToken(gitLabToken);
@@ -29,7 +32,7 @@ public class RetrievalManager {
     public JsonNode retrieve(Route route) throws StreamReadException, DatabindException, IOException, DereferenceException {
         // TODO
         Reference canonical = route.getCanonical();
-        SourceLoader sourceLoader = canonical.getSourceLoader();
+        SourceLoader sourceLoader = getSourceLoaderByRefType(canonical.getReferenceType());
         SupportedSourceTypes sourceType = sourceLoader.getSourceType(canonical);
 
         if (sourceType.isYaml()) {
@@ -43,6 +46,15 @@ public class RetrievalManager {
         }
     }
 
+    public SourceLoader getSourceLoaderByRefType(ReferenceType type){
+        if(type.isGitHubReference())
+            return gitHubLoader;
+        else if(type.isRemoteReference())
+            return fileLoader;
+        else
+            return urlLoader;
+    }
+
     public RetrievalManager setJsonMapper(ObjectMapper jsonMapper) {
         this.jsonMapper = jsonMapper;
         return this;
@@ -54,12 +66,12 @@ public class RetrievalManager {
     }
 
     public RetrievalManager setGitHubToken(String gitHubToken) {
-        this.gitHubToken = gitHubToken;
+        this.gitHubLoader.setToken(gitHubToken);
         return this;
     }
 
     public RetrievalManager setGitLabToken(String gitLabToken) {
-        this.gitLabToken = gitLabToken;
+        // this.gitLabToken = gitLabToken;
         return this;
     }
 }
