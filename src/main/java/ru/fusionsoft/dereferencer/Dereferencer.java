@@ -63,30 +63,30 @@ public class Dereferencer {
         schemaLoader = new SchemaLoader(cfg);
     }
 
-    public static JsonNode dereference(URI uri) throws DereferenceException {
-        return dereference(uri, DereferenceConfiguration.builder().build());
+    public static JsonNode deref(URI uri) throws DereferenceException {
+        return deref(uri, DereferenceConfiguration.builder().build());
     }
 
-    public static JsonNode dereference(URI uri, DereferenceConfiguration cfg) throws DereferenceException {
+    public static JsonNode deref(URI uri, DereferenceConfiguration cfg) throws DereferenceException {
         SchemaLoader schemaLoader = new SchemaLoader(cfg);
         return executeDereference(schemaLoader, uri);
     }
 
-    public static JsonNode anonymousDereference(JsonNode node) throws DereferenceException {
-        return anonymousDereference(node, DereferenceConfiguration.builder().build());
+    public static JsonNode anonymousDeref(JsonNode node) throws DereferenceException {
+        return anonymousDeref(node, DereferenceConfiguration.builder().build());
     }
 
-    public static JsonNode anonymousDereference(JsonNode node, DereferenceConfiguration cfg)
+    public static JsonNode anonymousDeref(JsonNode node, DereferenceConfiguration cfg)
             throws DereferenceException {
         SchemaLoader schemaLoader = new SchemaLoader(cfg);
         return executeAnonymousDereference(schemaLoader, node);
     }
 
-    public JsonNode deref(URI uri) throws DereferenceException {
+    public JsonNode dereference(URI uri) throws DereferenceException {
         return executeDereference(schemaLoader, uri);
     }
 
-    public JsonNode anonymousDeref(JsonNode node) throws DereferenceException {
+    public JsonNode anonymousDereference(JsonNode node) throws DereferenceException {
         return executeAnonymousDereference(schemaLoader, node);
     }
 
