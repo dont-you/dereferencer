@@ -17,17 +17,18 @@ import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
 
 // TODO LIST
 //
-// - error handling
+// - Error handling
 // ---- ...
 //
-// - refactoring
+// - Refactoring
 // ---- ShcemaNode - refactor executeResolving method
 //
-// - test
-// ---- write integration tests and fix bugs
+// - Tests
+// ---- write integrations tests && fix bugs
+// ---- write unit tests && fix bugs
+// -------- some....
 //
-// - referencing & retrieving
-// ---- logic of adding token to GitHubLoader
+// - Referencing & Retrieving
 // ---- RouteManager make anonRoute
 //
 // - Schema nodes
