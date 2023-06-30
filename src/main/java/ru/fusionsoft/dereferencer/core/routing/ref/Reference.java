@@ -6,12 +6,11 @@ import java.net.URISyntaxException;
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 
 public class Reference {
-    private final ReferenceType referenceType;
     private final URI uri;
     private final URI absolute;
     private final JsonPtr jsonPtr;
 
-    Reference(URI uri, ReferenceType referenceType) throws URIException {
+    Reference(URI uri) throws URIException {
         try {
             this.uri = uri.normalize();
             this.absolute = new URI(uri.getScheme(), uri.getSchemeSpecificPart(), null);
@@ -20,8 +19,6 @@ public class Reference {
                 jsonPtr = new JsonPtr(uri.getFragment());
             else
                 jsonPtr = null;
-
-            this.referenceType = referenceType;
         } catch (URISyntaxException e) {
             throw new URIException("can't parse uri - " + uri);
         }
@@ -41,9 +38,5 @@ public class Reference {
 
     public boolean isContainsFragment() {
         return jsonPtr != null;
-    }
-
-    public ReferenceType getReferenceType(){
-        return referenceType;
     }
 }

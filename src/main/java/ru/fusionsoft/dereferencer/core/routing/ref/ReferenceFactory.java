@@ -7,7 +7,7 @@ import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 
 public class ReferenceFactory {
     public static Reference create(URI uri) throws URIException {
-        return new Reference(uri, ReferenceType.getReferenceTypeByUri(uri));
+        return new Reference(uri);
     }
 
     public static Reference create(Reference contextReference, URI relative) throws URIException {

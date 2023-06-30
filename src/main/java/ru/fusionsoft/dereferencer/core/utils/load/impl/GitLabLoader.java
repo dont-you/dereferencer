@@ -1,16 +1,8 @@
 package ru.fusionsoft.dereferencer.core.utils.load.impl;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
-import ru.fusionsoft.dereferencer.Dereferencer;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
-import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
 import ru.fusionsoft.dereferencer.core.utils.load.SourceLoader;
 import ru.fusionsoft.dereferencer.core.utils.load.SupportedSourceTypes;

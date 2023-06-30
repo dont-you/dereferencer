@@ -17,11 +17,10 @@ import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
 
 // TODO LIST
 //
-// - errors handling
+// - error handling
 // ---- ...
 //
 // - refactoring
-// ---- the dependency of the used loader on the ReferenceType is small very bad, can I make it more beutiful?
 // ---- ShcemaNode - refactor executeResolving method
 //
 // - test
@@ -33,9 +32,12 @@ import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
 //
 // - Schema nodes
 // ---- SchemaLoader finish get methods
-// -------- checking for uri-duplicate by cannonical embedded in content uri
+// -------- checking for uri-duplicate by canonical embedded in content uri
 // ---- feat: allOf merge is on and of
 // ---- write AllOfSchemaNode
+//
+// - Dereferencer class
+// ---- feat: method of creating preloaded schemas
 
 public class Dereferencer {
     public static final Properties PROPERTIES;

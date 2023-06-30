@@ -11,28 +11,24 @@ import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 import ru.fusionsoft.dereferencer.core.routing.Route;
 import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
-import ru.fusionsoft.dereferencer.core.routing.ref.ReferenceType;
+import ru.fusionsoft.dereferencer.core.utils.load.LoaderFactory;
 import ru.fusionsoft.dereferencer.core.utils.load.SourceLoader;
 import ru.fusionsoft.dereferencer.core.utils.load.SupportedSourceTypes;
-import ru.fusionsoft.dereferencer.core.utils.load.impl.FileLoader;
-import ru.fusionsoft.dereferencer.core.utils.load.impl.GitHubLoader;
-import ru.fusionsoft.dereferencer.core.utils.load.impl.URLLoader;
 
 public class RetrievalManager {
     private ObjectMapper jsonMapper;
     private ObjectMapper yamlMapper;
-    private FileLoader fileLoader = new FileLoader();
-    private GitHubLoader gitHubLoader = new GitHubLoader();
-    private URLLoader urlLoader = new URLLoader();
+    private LoaderFactory loaderFactory;
 
     public RetrievalManager(ObjectMapper jsonMapper, ObjectMapper yamlMapper, String gitHubToken, String gitLabToken) {
+        this.loaderFactory = new LoaderFactory();
         setJsonMapper(jsonMapper).setYamlMapper(yamlMapper).setGitHubToken(gitHubToken).setGitLabToken(gitLabToken);
     }
 
     public JsonNode retrieve(Route route) throws StreamReadException, DatabindException, IOException, DereferenceException {
         // TODO
         Reference canonical = route.getCanonical();
-        SourceLoader sourceLoader = getSourceLoaderByRefType(canonical.getReferenceType());
+        SourceLoader sourceLoader = loaderFactory.getLoader(canonical.getAbsolute());
         SupportedSourceTypes sourceType = sourceLoader.getSourceType(canonical);
 
         if (sourceType.isYaml()) {
@@ -46,15 +42,6 @@ public class RetrievalManager {
         }
     }
 
-    public SourceLoader getSourceLoaderByRefType(ReferenceType type){
-        if(type.isGitHubReference())
-            return gitHubLoader;
-        else if(type.isRemoteReference())
-            return fileLoader;
-        else
-            return urlLoader;
-    }
-
     public RetrievalManager setJsonMapper(ObjectMapper jsonMapper) {
         this.jsonMapper = jsonMapper;
         return this;
@@ -65,13 +52,13 @@ public class RetrievalManager {
         return this;
     }
 
-    public RetrievalManager setGitHubToken(String gitHubToken) {
-        this.gitHubLoader.setToken(gitHubToken);
+    public RetrievalManager setGitHubToken(String token) {
+        this.loaderFactory.setGitHubToken(token);
         return this;
     }
 
-    public RetrievalManager setGitLabToken(String gitLabToken) {
-        // this.gitLabToken = gitLabToken;
+    public RetrievalManager setGitLabToken(String token) {
+        this.loaderFactory.setGitLabToken(token);
         return this;
     }
 }
