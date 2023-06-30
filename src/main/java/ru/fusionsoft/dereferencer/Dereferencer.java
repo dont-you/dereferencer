@@ -25,6 +25,7 @@ import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
 //
 // - Tests
 // ---- write integrations tests && fix bugs
+// -------- fix: bugs from test in commit b1343bc
 // ---- write unit tests && fix bugs
 // -------- some....
 //
@@ -32,13 +33,14 @@ import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
 // ---- RouteManager make anonRoute
 //
 // - Schema nodes
-// ---- SchemaLoader finish get methods
-// -------- checking for uri-duplicate by canonical embedded in content uri
 // ---- feat: allOf merge is on and of
 // ---- write AllOfSchemaNode
 //
 // - Dereferencer class
 // ---- feat: method of creating preloaded schemas
+//
+// - feat: plain name fragment resolving
+// - perf: prevention of resource duplicates
 
 public class Dereferencer {
     public static final Properties PROPERTIES;
@@ -55,11 +57,11 @@ public class Dereferencer {
 
     private SchemaLoader schemaLoader;
 
-    public Dereferencer() throws URIException {
+    public Dereferencer() throws DereferenceException {
         schemaLoader = new SchemaLoader(DereferenceConfiguration.builder().build());
     }
 
-    public Dereferencer(DereferenceConfiguration cfg) throws URIException {
+    public Dereferencer(DereferenceConfiguration cfg) throws DereferenceException{
         schemaLoader = new SchemaLoader(cfg);
     }
 

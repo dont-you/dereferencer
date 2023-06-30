@@ -2,6 +2,7 @@ package ru.fusionsoft.dereferencer.core.schema;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
@@ -9,6 +10,7 @@ import java.util.logging.Logger;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -16,12 +18,13 @@ import com.google.common.cache.LoadingCache;
 import ru.fusionsoft.dereferencer.DereferenceConfiguration;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
-import ru.fusionsoft.dereferencer.core.exceptions.UnresolvableSchemaException;
 import ru.fusionsoft.dereferencer.core.utils.RetrievalManager;
 import ru.fusionsoft.dereferencer.core.routing.Route;
 import ru.fusionsoft.dereferencer.core.routing.RouteManager;
 import ru.fusionsoft.dereferencer.core.routing.ref.JsonPtr;
 import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
+import ru.fusionsoft.dereferencer.core.schema.impl.MissingSchemaNode;
+import ru.fusionsoft.dereferencer.core.schema.impl.SchemaNode;
 
 public class SchemaLoader {
     private RouteManager routeManager;
@@ -30,13 +33,13 @@ public class SchemaLoader {
     private Map<Route, ISchemaNode> preloadedSchemas;
     private LoadingCache<Route, ISchemaNode> cache;
 
-    public SchemaLoader(DereferenceConfiguration derefCfg) throws URIException {
+    public SchemaLoader(DereferenceConfiguration derefCfg) throws DereferenceException{
+        preloadedSchemas = derefCfg.getPreloadedSchemas();
+        logger = derefCfg.getLogger();
         routeManager = new RouteManager(derefCfg.getDefaultBaseUri(), preloadedSchemas.keySet(), logger);
         retrievalManager = new RetrievalManager(derefCfg.getJsonMapper(), derefCfg.getYamlMapper(),
                 derefCfg.getGitHubToken(),
                 derefCfg.getGitLabToken());
-        logger = derefCfg.getLogger();
-        preloadedSchemas = derefCfg.getPreloadedSchemas();
         setCache(derefCfg.getCashSize());
     }
 
@@ -51,40 +54,17 @@ public class SchemaLoader {
     }
 
     public ISchemaNode get(Reference reference, JsonNode node)
-            throws UnresolvableSchemaException, URIException, ExecutionException {
-        // ISchemaNode targetNode = new SuperSchema(); // TODO delete
-
-        // if(node.isMissingNode()){
-        // targetNode = null; // new MissingSchema(.... TODO
-        // return targetNode;
-        // }
-
-        // make Route-> call get(route,node)
-
-        // cache.put(targetNode.getSchemaRoute(), targetNode);
-        // targetNode.resolve();
-        // return targetNode;
-        return null;
+            throws ExecutionException, DereferenceException{
+        ISchemaNode targetNode;
+        Route routeToSchema = routeManager.getRoute(reference);
+        targetNode = createSchema(routeToSchema, node);
+        cache.put(targetNode.getSchemaRoute(), targetNode);
+        targetNode.resolve();
+        return targetNode;
     }
 
-    public ISchemaNode get(JsonNode node) throws UnresolvableSchemaException {
-        // Route route = routeManager.createAnonRoute();
-        // ISchemaNode targetNode = new SuperSchema(); // TODO delete;
-        // cache.put(route, targetNode);
-        // targetNode.resolve();
-        // return targetNode;
-        return null;
-    }
-
-    public ISchemaNode get(Route route, JsonNode jsonNode) {
-        // TODO
-        // if(node.has("allOf")){
-        // targetNode = null; // = new AllOfSchema(.... TODO
-        // } else if(node.has("$id")){
-        // targetNode = null; // = new SuperSchema(.... TODO
-        // } else {
-        // targetNode = null; // = new SubSchema(.... TODO
-        // }
+    public ISchemaNode get(JsonNode node) throws DereferenceException{
+        // TODO make anon schemas
         return null;
     }
 
@@ -140,13 +120,9 @@ public class SchemaLoader {
 
         cache = builder.build(new CacheLoader<Route, ISchemaNode>() {
             @Override
-            public ISchemaNode load(Route key) throws ExecutionException, StreamReadException, DatabindException, IOException, DereferenceException {
+            public ISchemaNode load(Route key) throws ExecutionException, StreamReadException, DatabindException, IOException, DereferenceException, URISyntaxException {
                 // TODO
-                JsonNode node = retrievalManager.retrieve(key);
-                if (node.has("$id")) {
-                    // TODO ... add duplicate
-                }
-                ISchemaNode ISchemaNode = get(key, retrievalManager.retrieve(key));
+                ISchemaNode ISchemaNode = createSchema(key, retrievalManager.retrieve(key));
                 logger.info("successful loading schema into cache with - '{retrieval uri: \""
                         + key.getRetrievalUri() + "\", uri embedded in content :"
                         + key.getEmbeddedInContentUri() + "'");
@@ -154,5 +130,45 @@ public class SchemaLoader {
             }
 
         });
+    }
+
+    private ISchemaNode createSchema(Route route, JsonNode source) throws DereferenceException{
+        ISchemaNode targetNode;
+
+        if(source.isMissingNode()){
+            targetNode = new MissingSchemaNode(this, route);
+            return targetNode;
+        }
+
+
+        if(source.has("$id")){
+            try {
+                route.setEmbeddedInContentUri(new URI(source.at("/$id").asText()));
+            } catch (URISyntaxException e) {
+                // TODO
+                throw new URIException("");
+            }
+
+            if(preloadedSchemas.containsKey(route))
+                return preloadedSchemas.get(route);
+
+            ISchemaNode alredyExistingSchema = cache.getIfPresent(route);
+            if(alredyExistingSchema!=null)
+                return alredyExistingSchema;
+        }
+
+        if(source.has("$anchor")){
+            route.setPlainNameToFragmentOfCanonical(source.at("/$anchor").asText());
+        }
+
+        if(source.has("allOf")){
+            // TODO do after writing class AllOfSchemaNode
+            targetNode = null;
+            // targetNode = new AllOfSchemaNode(this, routeToSchema);
+        } else {
+            targetNode = new SchemaNode(this, route, source, false);
+        }
+
+        return targetNode;
     }
 }

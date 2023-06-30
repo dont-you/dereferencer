@@ -40,7 +40,7 @@ public class SchemaNode implements ISchemaNode {
     protected boolean mergeAllOfFlag;
     protected SchemaStatus status;
 
-    protected SchemaNode(SchemaLoader loader, Route schemaRoute, JsonNode sourceJson, Boolean mergeAllOfFlag)
+    public SchemaNode(SchemaLoader loader, Route schemaRoute, JsonNode sourceJson, Boolean mergeAllOfFlag)
             throws UnresolvableSchemaException {
         this.loader = loader;
         this.schemaRoute = schemaRoute;
