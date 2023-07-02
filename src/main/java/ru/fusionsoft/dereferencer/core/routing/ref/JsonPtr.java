@@ -13,6 +13,11 @@ public class JsonPtr {
             plainName = fragment;
     }
 
+    public JsonPtr(String jsonPointer, String plainName) {
+        this.jsonPointer = jsonPointer;
+        this.plainName = plainName;
+    }
+
     public boolean isResolved() {
         return jsonPointer != null;
     }
@@ -65,7 +70,7 @@ public class JsonPtr {
     @Override
     public boolean equals(Object obj) {
         JsonPtr rightPtr = (JsonPtr) obj;
-        if(rightPtr.isResolved() && this.isResolved()){
+        if (rightPtr.isResolved() && this.isResolved()) {
             return this.jsonPointer == rightPtr.jsonPointer;
         } else {
             return this.plainName == rightPtr.plainName;

@@ -25,7 +25,8 @@ public class RetrievalManager {
         setJsonMapper(jsonMapper).setYamlMapper(yamlMapper).setGitHubToken(gitHubToken).setGitLabToken(gitLabToken);
     }
 
-    public JsonNode retrieve(Route route) throws StreamReadException, DatabindException, IOException, DereferenceException {
+    public JsonNode retrieve(Route route)
+            throws StreamReadException, DatabindException, IOException, DereferenceException {
         // TODO
         Reference canonical = route.getCanonical();
         SourceLoader sourceLoader = loaderFactory.getLoader(canonical.getAbsolute());

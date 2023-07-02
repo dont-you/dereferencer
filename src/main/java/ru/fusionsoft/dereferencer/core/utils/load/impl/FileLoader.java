@@ -12,10 +12,10 @@ import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
 import ru.fusionsoft.dereferencer.core.utils.load.SourceLoader;
 import ru.fusionsoft.dereferencer.core.utils.load.SupportedSourceTypes;
 
-public class FileLoader implements SourceLoader{
+public class FileLoader implements SourceLoader {
 
     @Override
-    public InputStream getSource(Reference ref) throws DereferenceException{
+    public InputStream getSource(Reference ref) throws DereferenceException {
         File file = Paths.get(ref.getAbsolute()).toAbsolutePath().toFile();
         try {
             return new FileInputStream(file);
@@ -28,6 +28,6 @@ public class FileLoader implements SourceLoader{
     @Override
     public SupportedSourceTypes getSourceType(Reference ref) {
         String path = Paths.get(ref.getAbsolute()).toString();
-        return SupportedSourceTypes.resolveSourceType(path.substring(path.lastIndexOf(".") +1));
+        return SupportedSourceTypes.resolveSourceType(path.substring(path.lastIndexOf(".") + 1));
     }
 }

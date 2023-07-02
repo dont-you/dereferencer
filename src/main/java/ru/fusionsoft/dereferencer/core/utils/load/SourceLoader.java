@@ -7,5 +7,6 @@ import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
 
 public interface SourceLoader {
     public InputStream getSource(Reference ref) throws DereferenceException;
+
     public SupportedSourceTypes getSourceType(Reference ref) throws DereferenceException;
 }

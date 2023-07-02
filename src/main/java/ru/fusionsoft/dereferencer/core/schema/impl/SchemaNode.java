@@ -152,28 +152,30 @@ public class SchemaNode implements ISchemaNode {
                     if (fieldKey.equals("$ref")) {
                         schemaChilds.addChild(new JsonPtr(currentPath),
                                 loader.get(schemaRoute.resolveRelative(fieldValue.asText())));
-                    } else if (fieldKey.equals("allOf") || fieldKey.equals("$id") || fieldKey.equals("$anchor")) {
-                        if (!currentPath.equals("")) {
-                            schemaChilds.addChild(new JsonPtr(currentPath),
-                                    loader.get(schemaRoute.resolveRelative(currentPath), currentNode));
+                    } else if (fieldKey.equals("allOf")) {
+                        schemaChilds.addChild(new JsonPtr(currentPath),
+                                loader.get(schemaRoute.resolveRelative(currentPath), fieldValue));
+                    } else if (!currentPath.isEmpty() && fieldKey.equals("$id")) {
+                        schemaChilds.addChild(new JsonPtr(currentPath + "/" + fieldKey),
+                                loader.get(schemaRoute.resolveRelative(currentPath), currentNode));
+                    } else if (!currentPath.isEmpty() && fieldKey.equals("$anchor")) {
+                        schemaChilds.addChild(new JsonPtr(currentPath + "/" + fieldKey, fieldValue.asText()),
+                                loader.get(schemaRoute.resolveRelative(currentPath), currentNode));
+                    } else if (fieldValue.isArray()) {
+                        Iterator<JsonNode> elements = field.getValue().elements();
+
+                        int i = 0;
+                        while (elements.hasNext()) {
+                            memory.push(elements.next());
+                            pathStack.push(currentPath + "/" + field.getKey() + "/" + i++);
                         }
+                    } else {
+                        memory.push(field.getValue());
+                        pathStack.push(currentPath + "/" + field.getKey());
                     }
                 } catch (ExecutionException e) {
                     // TODO
                     throw new UnresolvableSchemaException("");
-                }
-
-                if (fieldValue.isArray()) {
-                    Iterator<JsonNode> elements = field.getValue().elements();
-
-                    int i = 0;
-                    while (elements.hasNext()) {
-                        memory.push(elements.next());
-                        pathStack.push(currentPath + "/" + field.getKey() + "/" + i++);
-                    }
-                } else {
-                    memory.push(field.getValue());
-                    pathStack.push(currentPath + "/" + field.getKey());
                 }
             }
         }
@@ -195,10 +197,21 @@ public class SchemaNode implements ISchemaNode {
         public void addChild(JsonPtr addedSchemaPtr, ISchemaNode addedSchema) throws DereferenceException {
             boolean isMissed = addedSchema.getSchemaType() == MISSING_SCHEMA;
 
-            if (isMissed && isRelativeSchemaTo(addedSchema))
+            if (isMissed && isRelativeSchemaTo(addedSchema)) {
                 resolveMeLater.put(addedSchemaPtr, addedSchema);
-            else
+            } else if (addedSchemaPtr.isResolved() && addedSchemaPtr.getPlainName() != null) {
+                ISchemaNode targetNode = resolveMeLater.get(addedSchemaPtr);
+                if (targetNode != null) {
+                    resolveMeLater.remove(addedSchemaPtr);
+                    ((MissingSchemaNode) targetNode).setPresentSchema(addedSchema);
+                    childs.put(addedSchemaPtr, targetNode);
+                } else {
+                    childs.put(addedSchemaPtr, targetNode);
+                }
+
+            } else {
                 childs.put(addedSchemaPtr, addedSchema);
+            }
 
             Iterator<Entry<JsonPtr, ISchemaNode>> iter = resolveMeLater.entrySet().iterator();
             while (iter.hasNext()) {

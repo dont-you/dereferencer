@@ -7,9 +7,9 @@ import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
 import ru.fusionsoft.dereferencer.core.utils.load.SourceLoader;
 import ru.fusionsoft.dereferencer.core.utils.load.SupportedSourceTypes;
 
-public class GitLabLoader implements SourceLoader{
+public class GitLabLoader implements SourceLoader {
 
-    private String token=null;
+    private String token = null;
 
     @Override
     public InputStream getSource(Reference ref) throws DereferenceException {
@@ -23,7 +23,7 @@ public class GitLabLoader implements SourceLoader{
         return null;
     }
 
-    public void setToken(String token){
+    public void setToken(String token) {
         this.token = token;
     }
 }

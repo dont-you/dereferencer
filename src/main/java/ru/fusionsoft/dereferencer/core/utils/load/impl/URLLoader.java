@@ -9,7 +9,7 @@ import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
 import ru.fusionsoft.dereferencer.core.utils.load.SourceLoader;
 import ru.fusionsoft.dereferencer.core.utils.load.SupportedSourceTypes;
 
-public class URLLoader implements SourceLoader{
+public class URLLoader implements SourceLoader {
 
     @Override
     public InputStream getSource(Reference ref) throws DereferenceException {

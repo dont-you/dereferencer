@@ -8,19 +8,19 @@ import ru.fusionsoft.dereferencer.core.utils.load.impl.FileLoader;
 import ru.fusionsoft.dereferencer.core.utils.load.impl.GitHubLoader;
 import ru.fusionsoft.dereferencer.core.utils.load.impl.URLLoader;
 
-public class LoaderFactory{
+public class LoaderFactory {
     private FileLoader fileLoader;
     private GitHubLoader gitHubLoader;
     private URLLoader urlLoader;
 
-    public LoaderFactory(){
+    public LoaderFactory() {
         fileLoader = new FileLoader();
         gitHubLoader = new GitHubLoader();
         urlLoader = new URLLoader();
     }
 
-    public SourceLoader getLoader(URI uri) throws URIException{
-        if(isGitHubReference(uri))
+    public SourceLoader getLoader(URI uri) throws URIException {
+        if (isGitHubReference(uri))
             return gitHubLoader;
         else if (isFileSystemReference(uri))
             return fileLoader;
@@ -31,11 +31,11 @@ public class LoaderFactory{
             throw new URIException("");
     }
 
-    public void setGitHubToken(String token){
+    public void setGitHubToken(String token) {
         gitHubLoader.setToken(token);
     }
 
-    public void setGitLabToken(String token){
+    public void setGitLabToken(String token) {
         // TODO ...add gitlab loader
     }
 
