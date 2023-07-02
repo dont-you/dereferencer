@@ -77,12 +77,6 @@ public class Route {
         return ReferenceFactory.create(canonical.getAbsolute(), URI.create(relative));
     }
 
-    public void setPlainNameToFragmentOfCanonical(String name){
-        Reference canonical=getCanonical();
-        canonical.getJsonPtr().setPlainName(name);
-        availableToFetch.add(canonical);
-    }
-
     static class AvailableToFetch implements Cloneable {
         private Set<Reference> duplicates;
         private Route relatedRoute;

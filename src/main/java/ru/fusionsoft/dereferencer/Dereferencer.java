@@ -21,7 +21,8 @@ import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
 // ---- ...
 //
 // - Refactoring
-// ---- ShcemaNode - refactor executeResolving method
+// ---- SchemaNode
+// ---- SchemaLoader
 //
 // - Tests
 // ---- write integrations tests && fix bugs
@@ -39,7 +40,6 @@ import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
 // - Dereferencer class
 // ---- feat: method of creating preloaded schemas
 //
-// - feat: plain name fragment resolving
 // - perf: prevention of resource duplicates
 
 public class Dereferencer {
@@ -61,7 +61,7 @@ public class Dereferencer {
         schemaLoader = new SchemaLoader(DereferenceConfiguration.builder().build());
     }
 
-    public Dereferencer(DereferenceConfiguration cfg) throws DereferenceException{
+    public Dereferencer(DereferenceConfiguration cfg) throws DereferenceException {
         schemaLoader = new SchemaLoader(cfg);
     }
 

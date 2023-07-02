@@ -15,9 +15,9 @@ import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
 import ru.fusionsoft.dereferencer.core.utils.load.SourceLoader;
 import ru.fusionsoft.dereferencer.core.utils.load.SupportedSourceTypes;
 
-public class GitHubLoader implements SourceLoader{
+public class GitHubLoader implements SourceLoader {
 
-    private String token=null;
+    private String token = null;
 
     @Override
     public InputStream getSource(Reference ref) throws DereferenceException {
@@ -41,13 +41,13 @@ public class GitHubLoader implements SourceLoader{
     @Override
     public SupportedSourceTypes getSourceType(Reference ref) throws DereferenceException {
         String path = ref.getAbsolute().getPath().toString();
-        return SupportedSourceTypes.resolveSourceType(path.substring(path.lastIndexOf(".") +1));
+        return SupportedSourceTypes.resolveSourceType(path.substring(path.lastIndexOf(".") + 1));
     }
 
-    private URI transformUriToApiUri(URI uri) throws URIException{
+    private URI transformUriToApiUri(URI uri) throws URIException {
         String apiGithubHostName = Dereferencer.PROPERTIES.getProperty("refs.hostname.api-github");
 
-        if(uri.getHost().equals(apiGithubHostName))
+        if (uri.getHost().equals(apiGithubHostName))
             return uri;
 
         String[] uriPath = uri.getPath().split("/");
@@ -57,10 +57,10 @@ public class GitHubLoader implements SourceLoader{
 
         try {
             resultUri = new URI(
-                                uri.getScheme(), uri.getUserInfo(),
-                                apiGithubHostName,
-                                uri.getPort(), resultPath,
-                                "ref=" + uriPath[4], uri.getFragment());
+                    uri.getScheme(), uri.getUserInfo(),
+                    apiGithubHostName,
+                    uri.getPort(), resultPath,
+                    "ref=" + uriPath[4], uri.getFragment());
         } catch (URISyntaxException e) {
             throw new URIException(resultPath);
         }
@@ -68,7 +68,7 @@ public class GitHubLoader implements SourceLoader{
         return resultUri;
     }
 
-    public void setToken(String token){
+    public void setToken(String token) {
         this.token = token;
     }
 }
