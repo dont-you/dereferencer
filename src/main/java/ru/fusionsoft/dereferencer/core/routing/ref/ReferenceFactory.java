@@ -14,6 +14,10 @@ public class ReferenceFactory {
         return create(contextReference.getAbsolute(), relative);
     }
 
+    public static Reference create(Reference contextReference, Reference relativeReference) throws URIException {
+        return create(contextReference.getAbsolute(), relativeReference.getUri());
+    }
+
     public static Reference create(URI contextUri, URI relative) throws URIException {
         try {
             if (!contextUri.getPath().startsWith("/"))
