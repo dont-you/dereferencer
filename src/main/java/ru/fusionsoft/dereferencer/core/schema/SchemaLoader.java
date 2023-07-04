@@ -22,6 +22,7 @@ import ru.fusionsoft.dereferencer.core.routing.Route;
 import ru.fusionsoft.dereferencer.core.routing.RouteManager;
 import ru.fusionsoft.dereferencer.core.routing.ref.JsonPtr;
 import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
+import ru.fusionsoft.dereferencer.core.routing.ref.ReferenceFactory;
 import ru.fusionsoft.dereferencer.core.schema.impl.MissingSchemaNode;
 import ru.fusionsoft.dereferencer.core.schema.impl.SchemaNode;
 
@@ -46,7 +47,7 @@ public class SchemaLoader {
         if (reference.isContainsFragment()) {
             URI absolute = reference.getAbsolute();
             JsonPtr jsonPtr = reference.getJsonPtr();
-            return getFromCache(routeManager.getRoute(absolute)).getSchemaNodeByJsonPointer(jsonPtr);
+            return getFromCache(routeManager.getRoute(ReferenceFactory.create(absolute))).getSchemaNodeByJsonPointer(jsonPtr);
         } else {
             return getFromCache(routeManager.getRoute(reference));
         }
@@ -123,9 +124,7 @@ public class SchemaLoader {
                     IOException, DereferenceException, URISyntaxException {
                 // TODO
                 ISchemaNode ISchemaNode = createSchema(key, retrievalManager.retrieve(key));
-                logger.info("successful loading schema into cache with - '{retrieval uri: \""
-                        + key.getRetrievalUri() + "\", uri embedded in content :"
-                        + key.getEmbeddedInContentUri() + "'");
+                logger.info("successful loading schema into cache with currenct canonical uri - " + key.getCanonical().getUri());
                 return ISchemaNode;
             }
 
@@ -142,7 +141,7 @@ public class SchemaLoader {
 
         if (source.has("$id")) {
             try {
-                route.setEmbeddedInContentUri(new URI(source.at("/$id").asText()));
+                route.setCanonical(ReferenceFactory.create(new URI(source.at("/$id").asText())));
                 if (preloadedSchemas.containsKey(route)) {
                     return preloadedSchemas.get(route);
                 }
