@@ -33,12 +33,14 @@ public class SchemaLoader {
     private Logger logger;
     private Map<Route, ISchemaNode> preloadedSchemas;
     private LoadingCache<Route, ISchemaNode> cache;
+    private int countCreatedSchemas;
 
     public SchemaLoader(LoadConfiguration cfg) throws LoadException {
+        countCreatedSchemas = 0;
         preloadedSchemas = cfg.getPreloadedSchemas();
         logger = cfg.getLogger();
         routeManager = new RouteManager(cfg.getDefaultBaseUri(), preloadedSchemas.keySet(), logger);
-        retrievalManager = new RetrievalManager(cfg.getTokens());
+        retrievalManager = new RetrievalManager(cfg.getTokens(), logger);
         setCache(cfg.getCashSize());
     }
 
@@ -58,6 +60,7 @@ public class SchemaLoader {
         Route routeToSchema = routeManager.getRoute(reference);
         targetNode = createSchema(routeToSchema, node);
         cache.put(targetNode.getSchemaRoute(), targetNode);
+        logger.info("successful loading schema into cache with currenct canonical uri - " + targetNode.getSchemaRoute().getCanonical().getUri());
         targetNode.resolve();
         return targetNode;
     }
@@ -81,10 +84,10 @@ public class SchemaLoader {
     }
 
     public void setDereferenceConfiguraion(LoadConfiguration cfg) throws URIException {
+        logger = cfg.getLogger();
         routeManager.setDefaultBaseUri(cfg.getDefaultBaseUri()).setPreloadedRoutes(cfg.getPreloadedSchemas().keySet())
                 .setLogger(logger);
-        retrievalManager.setTokens(cfg.getTokens());
-        logger = cfg.getLogger();
+        retrievalManager.setTokens(cfg.getTokens()).setLogger(logger);
         preloadedSchemas = cfg.getPreloadedSchemas();
         setCache(cfg.getCashSize());
     }
@@ -139,7 +142,12 @@ public class SchemaLoader {
 
         if (source.has("$id")) {
             try {
+                String lastCanonical = route.getCanonical().getUri().toString();
                 route.setCanonical(ReferenceFactory.create(new URI(source.at("/$id").asText())));
+                logger.info("canonical change by embedded in content uri: {"
+                        + "\tfrom - " + lastCanonical
+                        + "\tto - " + route.getCanonical().getUri()
+                        + "}");
                 if (preloadedSchemas.containsKey(route)) {
                     return preloadedSchemas.get(route);
                 }
@@ -161,6 +169,11 @@ public class SchemaLoader {
             targetNode = new SchemaNode(this, route, source, false);
         }
 
+        countCreatedSchemas++;
         return targetNode;
+    }
+
+    public int getCountCreatedSchemas(){
+        return countCreatedSchemas;
     }
 }
