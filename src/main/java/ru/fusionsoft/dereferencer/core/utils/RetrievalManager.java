@@ -6,8 +6,10 @@ import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
-import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
+import ru.fusionsoft.dereferencer.core.Tokens;
+import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 import ru.fusionsoft.dereferencer.core.routing.Route;
 import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
@@ -20,14 +22,14 @@ public class RetrievalManager {
     private ObjectMapper yamlMapper;
     private LoaderFactory loaderFactory;
 
-    public RetrievalManager(ObjectMapper jsonMapper, ObjectMapper yamlMapper, String gitHubToken, String gitLabToken) {
-        this.loaderFactory = new LoaderFactory();
-        setJsonMapper(jsonMapper).setYamlMapper(yamlMapper).setGitHubToken(gitHubToken).setGitLabToken(gitLabToken);
+    public RetrievalManager(Tokens tokens) {
+        this.loaderFactory = new LoaderFactory(tokens);
+        this.jsonMapper = new ObjectMapper();
+        this.yamlMapper = new ObjectMapper(new YAMLFactory());
     }
 
     public JsonNode retrieve(Route route)
-            throws StreamReadException, DatabindException, IOException, DereferenceException {
-        // TODO
+            throws StreamReadException, DatabindException, IOException, LoadException {
         Reference canonical = route.getCanonical();
         SourceLoader sourceLoader = loaderFactory.getLoader(canonical.getAbsolute());
         SupportedSourceTypes sourceType = sourceLoader.getSourceType(canonical);
@@ -43,23 +45,7 @@ public class RetrievalManager {
         }
     }
 
-    public RetrievalManager setJsonMapper(ObjectMapper jsonMapper) {
-        this.jsonMapper = jsonMapper;
-        return this;
-    }
-
-    public RetrievalManager setYamlMapper(ObjectMapper yamlMapper) {
-        this.yamlMapper = yamlMapper;
-        return this;
-    }
-
-    public RetrievalManager setGitHubToken(String token) {
-        this.loaderFactory.setGitHubToken(token);
-        return this;
-    }
-
-    public RetrievalManager setGitLabToken(String token) {
-        this.loaderFactory.setGitLabToken(token);
-        return this;
+    public void setTokens(Tokens tokens){
+        loaderFactory.setTokens(tokens);
     }
 }

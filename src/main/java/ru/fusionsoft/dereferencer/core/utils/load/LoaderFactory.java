@@ -1,8 +1,12 @@
 package ru.fusionsoft.dereferencer.core.utils.load;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.util.Properties;
 
 import ru.fusionsoft.dereferencer.Dereferencer;
+import ru.fusionsoft.dereferencer.core.Tokens;
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 import ru.fusionsoft.dereferencer.core.utils.load.impl.FileLoader;
 import ru.fusionsoft.dereferencer.core.utils.load.impl.GitHubLoader;
@@ -12,11 +16,27 @@ public class LoaderFactory {
     private FileLoader fileLoader;
     private GitHubLoader gitHubLoader;
     private URLLoader urlLoader;
+    public static final Properties HOSTNAMES;
 
-    public LoaderFactory() {
+    static {
+        HOSTNAMES = new Properties();
+        InputStream inputStream = Dereferencer.class.getClassLoader().getResourceAsStream("config.properties");
+        try {
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            HOSTNAMES.setProperty("refs.hostname.github",properties.getProperty("refs.hostname.github"));
+            HOSTNAMES.setProperty("refs.hostname.api-github", properties.getProperty("refs.hostname.api-github"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public LoaderFactory(Tokens tokens) {
         fileLoader = new FileLoader();
         gitHubLoader = new GitHubLoader();
         urlLoader = new URLLoader();
+
+        gitHubLoader.setToken(tokens.getGitHubToken());
     }
 
     public SourceLoader getLoader(URI uri) throws URIException {
@@ -31,12 +51,8 @@ public class LoaderFactory {
             throw new URIException("");
     }
 
-    public void setGitHubToken(String token) {
-        gitHubLoader.setToken(token);
-    }
-
-    public void setGitLabToken(String token) {
-        // TODO ...add gitlab loader
+    public void setTokens(Tokens tokens){
+        gitHubLoader.setToken(tokens.getGitHubToken());
     }
 
     private boolean isGitHubReference(URI uri) {

@@ -1,4 +1,4 @@
-package ru.fusionsoft.dereferencer.core.schema;
+package ru.fusionsoft.dereferencer.core;
 
 import java.io.IOException;
 import java.net.URI;
@@ -14,9 +14,10 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
-import ru.fusionsoft.dereferencer.DereferenceConfiguration;
-import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
+import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
+import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
+import ru.fusionsoft.dereferencer.core.schema.SchemaStatus;
 import ru.fusionsoft.dereferencer.core.utils.RetrievalManager;
 import ru.fusionsoft.dereferencer.core.routing.Route;
 import ru.fusionsoft.dereferencer.core.routing.RouteManager;
@@ -33,17 +34,15 @@ public class SchemaLoader {
     private Map<Route, ISchemaNode> preloadedSchemas;
     private LoadingCache<Route, ISchemaNode> cache;
 
-    public SchemaLoader(DereferenceConfiguration derefCfg) throws DereferenceException {
-        preloadedSchemas = derefCfg.getPreloadedSchemas();
-        logger = derefCfg.getLogger();
-        routeManager = new RouteManager(derefCfg.getDefaultBaseUri(), preloadedSchemas.keySet(), logger);
-        retrievalManager = new RetrievalManager(derefCfg.getJsonMapper(), derefCfg.getYamlMapper(),
-                derefCfg.getGitHubToken(),
-                derefCfg.getGitLabToken());
-        setCache(derefCfg.getCashSize());
+    public SchemaLoader(LoadConfiguration cfg) throws LoadException {
+        preloadedSchemas = cfg.getPreloadedSchemas();
+        logger = cfg.getLogger();
+        routeManager = new RouteManager(cfg.getDefaultBaseUri(), preloadedSchemas.keySet(), logger);
+        retrievalManager = new RetrievalManager(cfg.getTokens());
+        setCache(cfg.getCashSize());
     }
 
-    public ISchemaNode get(Reference reference) throws ExecutionException, DereferenceException {
+    public ISchemaNode get(Reference reference) throws ExecutionException, LoadException {
         if (reference.isContainsFragment()) {
             URI absolute = reference.getAbsolute();
             JsonPtr jsonPtr = reference.getJsonPtr();
@@ -54,7 +53,7 @@ public class SchemaLoader {
     }
 
     public ISchemaNode get(Reference reference, JsonNode node)
-            throws ExecutionException, DereferenceException {
+            throws ExecutionException, LoadException {
         ISchemaNode targetNode;
         Route routeToSchema = routeManager.getRoute(reference);
         targetNode = createSchema(routeToSchema, node);
@@ -63,12 +62,12 @@ public class SchemaLoader {
         return targetNode;
     }
 
-    public ISchemaNode get(JsonNode node) throws DereferenceException {
+    public ISchemaNode get(JsonNode node) throws LoadException {
         // TODO make anon schemas
         return null;
     }
 
-    private ISchemaNode getFromCache(Route schemaRoute) throws ExecutionException, DereferenceException {
+    private ISchemaNode getFromCache(Route schemaRoute) throws ExecutionException, LoadException {
         ISchemaNode targetNode;
         if (preloadedSchemas.containsKey(schemaRoute)) {
             targetNode = preloadedSchemas.get(schemaRoute);
@@ -81,11 +80,10 @@ public class SchemaLoader {
         return targetNode;
     }
 
-    public void setDereferenceConfiguraion(DereferenceConfiguration cfg) throws URIException {
+    public void setDereferenceConfiguraion(LoadConfiguration cfg) throws URIException {
         routeManager.setDefaultBaseUri(cfg.getDefaultBaseUri()).setPreloadedRoutes(cfg.getPreloadedSchemas().keySet())
                 .setLogger(logger);
-        retrievalManager.setJsonMapper(cfg.getJsonMapper()).setYamlMapper(cfg.getYamlMapper())
-                .setGitHubToken(cfg.getGitHubToken()).setGitLabToken(cfg.getGitLabToken());
+        retrievalManager.setTokens(cfg.getTokens());
         logger = cfg.getLogger();
         preloadedSchemas = cfg.getPreloadedSchemas();
         setCache(cfg.getCashSize());
@@ -121,7 +119,7 @@ public class SchemaLoader {
         cache = builder.build(new CacheLoader<Route, ISchemaNode>() {
             @Override
             public ISchemaNode load(Route key) throws ExecutionException, StreamReadException, DatabindException,
-                    IOException, DereferenceException, URISyntaxException {
+                    IOException, LoadException, URISyntaxException {
                 // TODO
                 ISchemaNode ISchemaNode = createSchema(key, retrievalManager.retrieve(key));
                 logger.info("successful loading schema into cache with currenct canonical uri - " + key.getCanonical().getUri());
@@ -131,7 +129,7 @@ public class SchemaLoader {
         });
     }
 
-    private ISchemaNode createSchema(Route route, JsonNode source) throws DereferenceException {
+    private ISchemaNode createSchema(Route route, JsonNode source) throws LoadException {
         ISchemaNode targetNode;
 
         if (source.isMissingNode()) {

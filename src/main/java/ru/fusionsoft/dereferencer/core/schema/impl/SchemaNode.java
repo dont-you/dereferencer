@@ -19,13 +19,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
+import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 import ru.fusionsoft.dereferencer.core.exceptions.UnresolvableSchemaException;
 import ru.fusionsoft.dereferencer.core.routing.Route;
 import ru.fusionsoft.dereferencer.core.routing.ref.JsonPtr;
 import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
 import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
-import ru.fusionsoft.dereferencer.core.schema.SchemaLoader;
+import ru.fusionsoft.dereferencer.core.SchemaLoader;
 import ru.fusionsoft.dereferencer.core.schema.SchemaStatus;
 import ru.fusionsoft.dereferencer.core.schema.SchemaType;
 
@@ -53,7 +53,7 @@ public class SchemaNode implements ISchemaNode {
     }
 
     @Override
-    public JsonNode asJson() throws DereferenceException {
+    public JsonNode asJson() throws LoadException {
         if (status == NOT_RESOLVED) {
             throw new UnresolvableSchemaException(
                     "unable to represent schema as json, call method 'resolve' and try again");
@@ -67,7 +67,7 @@ public class SchemaNode implements ISchemaNode {
                         JsonNode value = v.asJson();
                         ObjectNode parent = (ObjectNode) resolvedJson.at(k.getParent().getResolved());
                         parent.set(k.getPropertyName(), value);
-                    } catch (DereferenceException e) {
+                    } catch (LoadException e) {
                         throw new RuntimeException();
                     }
                 });
@@ -87,7 +87,7 @@ public class SchemaNode implements ISchemaNode {
 
     @Override
     public ISchemaNode getSchemaNodeByJsonPointer(JsonPtr jsonPointer)
-            throws DereferenceException {
+            throws LoadException {
         try {
             return schemaChilds.getChild(jsonPointer);
         } catch (ExecutionException e) {
@@ -97,7 +97,7 @@ public class SchemaNode implements ISchemaNode {
     }
 
     @Override
-    public void resolve() throws DereferenceException {
+    public void resolve() throws LoadException {
         loader.getLogger()
                 .info("schema with canonical " + getCanonicalReference().getUri() + " STARTED the PROCESSING");
         status = PROCESSING;
@@ -107,7 +107,7 @@ public class SchemaNode implements ISchemaNode {
     }
 
     @Override
-    public void delegate(JsonPtr childPtr, ISchemaNode childSchema) throws DereferenceException {
+    public void delegate(JsonPtr childPtr, ISchemaNode childSchema) throws LoadException {
         MissingSchemaNode missedDelegate = (MissingSchemaNode) childSchema;
         JsonNode jsonNode = sourceJson.at(childPtr.getResolved());
 
@@ -130,7 +130,7 @@ public class SchemaNode implements ISchemaNode {
         return DEFAULT_SCHEMA;
     }
 
-    protected void executeResolving() throws DereferenceException {
+    protected void executeResolving() throws LoadException {
         JsonNode currentNode;
         String currentPath;
         Stack<JsonNode> memory = new Stack<>();
@@ -181,7 +181,7 @@ public class SchemaNode implements ISchemaNode {
         }
     }
 
-    protected boolean isRelativeSchemaTo(ISchemaNode intendedRelativeSchema) throws DereferenceException {
+    protected boolean isRelativeSchemaTo(ISchemaNode intendedRelativeSchema) throws LoadException {
         return intendedRelativeSchema.getCanonicalReference().equals(this.getCanonicalReference());
     }
 
@@ -194,7 +194,7 @@ public class SchemaNode implements ISchemaNode {
             this.resolveMeLater = new HashMap<>();
         }
 
-        public void addChild(JsonPtr addedSchemaPtr, ISchemaNode addedSchema) throws DereferenceException {
+        public void addChild(JsonPtr addedSchemaPtr, ISchemaNode addedSchema) throws LoadException {
             boolean isMissed = addedSchema.getSchemaType() == MISSING_SCHEMA;
 
             if (isMissed && isRelativeSchemaTo(addedSchema)) {
@@ -227,7 +227,7 @@ public class SchemaNode implements ISchemaNode {
             }
         }
 
-        public ISchemaNode getChild(JsonPtr ptr) throws DereferenceException, ExecutionException {
+        public ISchemaNode getChild(JsonPtr ptr) throws LoadException, ExecutionException {
             if (childs.containsKey(ptr))
                 return childs.get(ptr);
 

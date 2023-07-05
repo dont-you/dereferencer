@@ -8,10 +8,10 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import ru.fusionsoft.dereferencer.Dereferencer;
-import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
+import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
+import ru.fusionsoft.dereferencer.core.utils.load.LoaderFactory;
 import ru.fusionsoft.dereferencer.core.utils.load.SourceLoader;
 import ru.fusionsoft.dereferencer.core.utils.load.SupportedSourceTypes;
 
@@ -20,7 +20,7 @@ public class GitHubLoader implements SourceLoader {
     private String token = null;
 
     @Override
-    public InputStream getSource(Reference ref) throws DereferenceException {
+    public InputStream getSource(Reference ref) throws LoadException {
         try {
             URI apiUri = transformUriToApiUri(ref.getAbsolute());
             HttpURLConnection conn;
@@ -39,13 +39,13 @@ public class GitHubLoader implements SourceLoader {
     }
 
     @Override
-    public SupportedSourceTypes getSourceType(Reference ref) throws DereferenceException {
+    public SupportedSourceTypes getSourceType(Reference ref) throws LoadException {
         String path = ref.getAbsolute().getPath().toString();
         return SupportedSourceTypes.resolveSourceType(path.substring(path.lastIndexOf(".") + 1));
     }
 
     private URI transformUriToApiUri(URI uri) throws URIException {
-        String apiGithubHostName = Dereferencer.PROPERTIES.getProperty("refs.hostname.api-github");
+        String apiGithubHostName = LoaderFactory.HOSTNAMES.getProperty("refs.hostname.api-github");
 
         if (uri.getHost().equals(apiGithubHostName))
             return uri;

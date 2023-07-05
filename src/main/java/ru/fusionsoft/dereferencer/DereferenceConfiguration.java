@@ -6,23 +6,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-
+import ru.fusionsoft.dereferencer.core.LoadConfiguration;
+import ru.fusionsoft.dereferencer.core.LoadingFlag;
+import ru.fusionsoft.dereferencer.core.Tokens;
 import ru.fusionsoft.dereferencer.core.routing.Route;
 import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
 
-public class DereferenceConfiguration {
+public class DereferenceConfiguration implements LoadConfiguration{
 
-    private ObjectMapper jsonMapper;
-    private ObjectMapper yamlMapper;
     private Logger logger;
-    private DereferenceFlag dereferenceFlags[];
+    private LoadingFlag loadingFlags[];
     private int cashSize;
     private Map<Route, ISchemaNode> preloadedSchemas;
     private URI defaultBaseUri;
-    private String gitHubToken;
-    private String gitLabToken;
+    private Tokens tokens;
 
     private DereferenceConfiguration() {
     }
@@ -32,15 +29,14 @@ public class DereferenceConfiguration {
 
         private DereferenceConfigurationBuilder() {
             cfg = new DereferenceConfiguration();
-            setJsonMapper(new ObjectMapper()).setYamlMapper(new ObjectMapper(new YAMLFactory()))
-                    .setLogger(Logger.getGlobal())
-                    .setDereferenceFlags(new DereferenceFlag[] {}).setCashSize(-1)
-                    .setPreloadedSchemas(new HashMap<>()).setGitHubToken(null).setGitLabToken(null)
+                    setLogger(Logger.getGlobal())
+                    .setLoadingFlags(new LoadingFlag[] {}).setCashSize(-1)
+                    .setPreloadedSchemas(new HashMap<>()).setTokens(new Tokens())
                     .setDefaultBaseUri(Paths.get("./").toAbsolutePath().toUri());
         };
 
-        public DereferenceConfigurationBuilder setDereferenceFlags(DereferenceFlag[] dereferenceFlags) {
-            cfg.setDereferenceFlags(dereferenceFlags);
+        public DereferenceConfigurationBuilder setLoadingFlags(LoadingFlag[] loadingFlags) {
+            cfg.setLoadingFlags(loadingFlags);
             return this;
         }
 
@@ -69,19 +65,13 @@ public class DereferenceConfiguration {
             return this;
         }
 
-        public DereferenceConfigurationBuilder setJsonMapper(ObjectMapper mapper) {
-            cfg.setJsonMapper(mapper);
-            return this;
-        }
-
-        public DereferenceConfigurationBuilder setYamlMapper(ObjectMapper mapper) {
-            cfg.setYamlMapper(mapper);
-            return this;
-        }
-
         public DereferenceConfigurationBuilder setDefaultBaseUri(URI defaultBaseUri) {
             cfg.setDefaultBaseUri(defaultBaseUri);
-            ;
+            return this;
+        }
+
+        public DereferenceConfigurationBuilder setTokens(Tokens tokens) {
+            cfg.setTokens(tokens);
             return this;
         }
 
@@ -95,75 +85,73 @@ public class DereferenceConfiguration {
         return new DereferenceConfigurationBuilder();
     }
 
-    public DereferenceFlag[] getDereferenceFlags() {
-        return dereferenceFlags;
+    @Override
+    public LoadingFlag[] getLoadingFlags() {
+        return loadingFlags;
     }
 
-    public void setDereferenceFlags(DereferenceFlag[] dereferenceFlags) {
-        this.dereferenceFlags = dereferenceFlags;
-    }
-
+    @Override
     public int getCashSize() {
         return cashSize;
+    }
+
+    @Override
+    public Map<Route, ISchemaNode> getPreloadedSchemas() {
+        return preloadedSchemas;
+    }
+
+    @Override
+    public Logger getLogger() {
+        return logger;
+    }
+
+    @Override
+    public URI getDefaultBaseUri() {
+        return defaultBaseUri;
+    }
+
+    @Override
+    public Tokens getTokens() {
+        return tokens;
+    }
+
+    public void setLoadingFlags(LoadingFlag[] loadingFlags) {
+        this.loadingFlags = loadingFlags;
     }
 
     public void setCashSize(int cashSize) {
         this.cashSize = cashSize;
     }
 
-    public Map<Route, ISchemaNode> getPreloadedSchemas() {
-        return preloadedSchemas;
-    }
-
     public void setPreloadedSchemas(Map<Route, ISchemaNode> preloadedSchemas) {
         this.preloadedSchemas = preloadedSchemas;
-    }
-
-    public String getGitHubToken() {
-        return gitHubToken;
-    }
-
-    public void setGitHubToken(String gitHubToken) {
-        this.gitHubToken = gitHubToken;
-    }
-
-    public String getGitLabToken() {
-        return gitLabToken;
-    }
-
-    public void setGitLabToken(String gitLabToken) {
-        this.gitLabToken = gitLabToken;
-    }
-
-    public ObjectMapper getJsonMapper() {
-        return jsonMapper;
-    }
-
-    public ObjectMapper getYamlMapper() {
-        return yamlMapper;
-    }
-
-    public Logger getLogger() {
-        return logger;
     }
 
     public void setLogger(Logger logger) {
         this.logger = logger;
     }
 
-    public void setJsonMapper(ObjectMapper jsonMapper) {
-        this.jsonMapper = jsonMapper;
-    }
-
-    public void setYamlMapper(ObjectMapper yamlMapper) {
-        this.yamlMapper = yamlMapper;
-    }
-
-    public URI getDefaultBaseUri() {
-        return defaultBaseUri;
-    }
-
     public void setDefaultBaseUri(URI defaultBaseUri) {
         this.defaultBaseUri = defaultBaseUri;
+    }
+
+    public void setTokens(Tokens tokens) {
+        this.tokens = tokens;
+    }
+
+    public String getGitLabToken() {
+        return tokens.getGitLabToken();
+    }
+
+    public String getGitHubToken() {
+        return tokens.getGitHubToken();
+    }
+
+    public void setGitHubToken(String gitHubToken) {
+        tokens.setGitHubToken(gitHubToken);
+    }
+
+    public void setGitLabToken(String gitLabToken) {
+        tokens.setGitLabToken(gitLabToken);
     }
 }

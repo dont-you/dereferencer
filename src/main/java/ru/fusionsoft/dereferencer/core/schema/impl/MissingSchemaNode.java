@@ -8,14 +8,14 @@ import java.util.concurrent.ExecutionException;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
+import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 import ru.fusionsoft.dereferencer.core.exceptions.UnresolvableSchemaException;
 import ru.fusionsoft.dereferencer.core.routing.Route;
 import ru.fusionsoft.dereferencer.core.routing.ref.JsonPtr;
 import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
 import ru.fusionsoft.dereferencer.core.routing.ref.ReferenceFactory;
 import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
-import ru.fusionsoft.dereferencer.core.schema.SchemaLoader;
+import ru.fusionsoft.dereferencer.core.SchemaLoader;
 import ru.fusionsoft.dereferencer.core.schema.SchemaStatus;
 import ru.fusionsoft.dereferencer.core.schema.SchemaType;
 import static ru.fusionsoft.dereferencer.core.schema.SchemaType.*;
@@ -34,7 +34,7 @@ public class MissingSchemaNode implements ISchemaNode {
         childs = new HashMap<>();
     }
 
-    public void setPresentSchema(ISchemaNode presentSchema) throws DereferenceException {
+    public void setPresentSchema(ISchemaNode presentSchema) throws LoadException {
         this.presentSchema = presentSchema;
         for (Entry<JsonPtr, ISchemaNode> child : childs.entrySet()) {
             presentSchema.delegate(child.getKey(), child.getValue());
@@ -43,7 +43,7 @@ public class MissingSchemaNode implements ISchemaNode {
     }
 
     @Override
-    public JsonNode asJson() throws DereferenceException {
+    public JsonNode asJson() throws LoadException {
         if (presentSchema == null)
             throw new UnresolvableSchemaException(""); // TODO describe exception
         else
@@ -51,7 +51,7 @@ public class MissingSchemaNode implements ISchemaNode {
     }
 
     @Override
-    public void delegate(JsonPtr childPtr, ISchemaNode childSchema) throws DereferenceException {
+    public void delegate(JsonPtr childPtr, ISchemaNode childSchema) throws LoadException {
         if (presentSchema == null)
             childs.put(childPtr, childSchema);
         else
@@ -59,7 +59,7 @@ public class MissingSchemaNode implements ISchemaNode {
     }
 
     @Override
-    public Reference getCanonicalReference() throws DereferenceException {
+    public Reference getCanonicalReference() throws LoadException {
         if (presentSchema == null)
             return schemaRoute.getCanonical();
         else
@@ -67,12 +67,12 @@ public class MissingSchemaNode implements ISchemaNode {
     }
 
     @Override
-    public ISchemaNode getSchemaNode() throws DereferenceException {
+    public ISchemaNode getSchemaNode() throws LoadException {
         return presentSchema;
     }
 
     @Override
-    public ISchemaNode getSchemaNodeByJsonPointer(JsonPtr jsonPointer) throws DereferenceException {
+    public ISchemaNode getSchemaNodeByJsonPointer(JsonPtr jsonPointer) throws LoadException {
         if (presentSchema == null) {
             if (childs.containsKey(jsonPointer))
                 return childs.get(jsonPointer);
@@ -99,12 +99,12 @@ public class MissingSchemaNode implements ISchemaNode {
     }
 
     @Override
-    public Route getSchemaRoute() throws DereferenceException {
+    public Route getSchemaRoute() throws LoadException {
         return schemaRoute;
     }
 
     @Override
-    public SchemaType getSchemaType() throws DereferenceException {
+    public SchemaType getSchemaType() throws LoadException {
         if (presentSchema == null)
             return MISSING_SCHEMA;
         else
@@ -112,7 +112,7 @@ public class MissingSchemaNode implements ISchemaNode {
     }
 
     @Override
-    public SchemaStatus getStatus() throws DereferenceException {
+    public SchemaStatus getStatus() throws LoadException {
         if (presentSchema == null)
             return NOT_RESOLVED;
         else
@@ -120,7 +120,7 @@ public class MissingSchemaNode implements ISchemaNode {
     }
 
     @Override
-    public void resolve() throws DereferenceException {
+    public void resolve() throws LoadException {
         if (presentSchema == null)
             throw new UnresolvableSchemaException(""); // TODO
         else
