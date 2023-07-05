@@ -1,10 +1,10 @@
 package ru.fusionsoft.dereferencer.core;
 
-public class Tokens{
+public class Tokens {
     private String gitHubToken;
     private String gitLabToken;
 
-    public Tokens(){
+    public Tokens() {
         gitHubToken = null;
         gitLabToken = null;
     }

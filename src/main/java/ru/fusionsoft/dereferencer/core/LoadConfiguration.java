@@ -7,7 +7,7 @@ import java.util.logging.Logger;
 import ru.fusionsoft.dereferencer.core.routing.Route;
 import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
 
-public interface LoadConfiguration{
+public interface LoadConfiguration {
     public LoadingFlag[] getLoadingFlags();
 
     public int getCashSize();

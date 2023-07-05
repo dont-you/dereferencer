@@ -29,6 +29,8 @@ import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
 //
 // - Referencing & Retrieving
 // ---- RouteManager make anonRoute
+// ---- feat: write GitLabLoader
+// ---- feat: logs while resolving relative
 //
 // - Schema nodes
 // ---- feat: allOf merge is on and of

@@ -12,7 +12,7 @@ import ru.fusionsoft.dereferencer.core.Tokens;
 import ru.fusionsoft.dereferencer.core.routing.Route;
 import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
 
-public class DereferenceConfiguration implements LoadConfiguration{
+public class DereferenceConfiguration implements LoadConfiguration {
 
     private Logger logger;
     private LoadingFlag loadingFlags[];
@@ -29,7 +29,7 @@ public class DereferenceConfiguration implements LoadConfiguration{
 
         private DereferenceConfigurationBuilder() {
             cfg = new DereferenceConfiguration();
-                    setLogger(Logger.getGlobal())
+            setLogger(Logger.getGlobal())
                     .setLoadingFlags(new LoadingFlag[] {}).setCashSize(-1)
                     .setPreloadedSchemas(new HashMap<>()).setTokens(new Tokens())
                     .setDefaultBaseUri(Paths.get("./").toAbsolutePath().toUri());

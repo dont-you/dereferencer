@@ -22,7 +22,7 @@ public class RouteManager {
     public Route getRoute(Reference retrievalReference) throws ExecutionException, URIException {
         Route target = new Route(ReferenceFactory.create(defaultBaseReference, retrievalReference));
 
-        if(!cache.contains(target))
+        if (!cache.contains(target))
             cache.add(target);
 
         return target;

@@ -51,7 +51,8 @@ public class SchemaNode implements ISchemaNode {
         this.mergeAllOfFlag = mergeAllOfFlag;
         status = NOT_RESOLVED;
         id = loader.getCountCreatedSchemas() + 1;
-        loader.getLogger().info("$"+id+" schema with canonical " + schemaRoute.getCanonical() + " CREATED but NOT RESOLVED");
+        loader.getLogger()
+                .info("$" + id + " schema with canonical " + schemaRoute.getCanonical() + " CREATED but NOT RESOLVED");
     }
 
     @Override
@@ -101,11 +102,12 @@ public class SchemaNode implements ISchemaNode {
     @Override
     public void resolve() throws LoadException {
         loader.getLogger()
-                .info("$"+id+"schema with canonical " + getCanonicalReference().getUri() + " STARTED the PROCESSING");
+                .info("$" + id + "schema with canonical " + getCanonicalReference().getUri()
+                        + " STARTED the PROCESSING");
         status = PROCESSING;
         executeResolving();
         status = RESOLVED;
-        loader.getLogger().info("$"+id+"schema with canonical " + getCanonicalReference() + " IS RESOLVED");
+        loader.getLogger().info("$" + id + "schema with canonical " + getCanonicalReference() + " IS RESOLVED");
     }
 
     @Override
@@ -169,7 +171,7 @@ public class SchemaNode implements ISchemaNode {
                         continue;
                     }
 
-                    loader.getLogger().info("$"+id+"found " +fieldKey+ " key with value: " + fieldValue.asText());
+                    loader.getLogger().info("$" + id + "found " + fieldKey + " key with value: " + fieldValue.asText());
 
                     if (fieldValue.isArray()) {
                         Iterator<JsonNode> elements = field.getValue().elements();

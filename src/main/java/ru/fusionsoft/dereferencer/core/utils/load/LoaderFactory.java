@@ -24,7 +24,7 @@ public class LoaderFactory {
         try {
             Properties properties = new Properties();
             properties.load(inputStream);
-            HOSTNAMES.setProperty("refs.hostname.github",properties.getProperty("refs.hostname.github"));
+            HOSTNAMES.setProperty("refs.hostname.github", properties.getProperty("refs.hostname.github"));
             HOSTNAMES.setProperty("refs.hostname.api-github", properties.getProperty("refs.hostname.api-github"));
         } catch (IOException e) {
             e.printStackTrace();
@@ -51,7 +51,7 @@ public class LoaderFactory {
             throw new URIException("");
     }
 
-    public void setTokens(Tokens tokens){
+    public void setTokens(Tokens tokens) {
         gitHubLoader.setToken(tokens.getGitHubToken());
     }
 

@@ -12,7 +12,7 @@ public class Route {
     private Reference canonical = null;
     private Set<Reference> duplicates;
 
-    public Route(){
+    public Route() {
         duplicates = new TreeSet<>();
     }
 
@@ -35,13 +35,12 @@ public class Route {
         duplicates.add(canonical);
     }
 
-
     public Reference resolveRelative(String relative) throws URIException {
         return ReferenceFactory.create(canonical, URI.create(relative));
     }
 
     @Override
     public boolean equals(Object obj) {
-        return duplicates.contains(((Route)obj).canonical);
+        return duplicates.contains(((Route) obj).canonical);
     }
 }

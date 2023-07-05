@@ -48,7 +48,8 @@ public class SchemaLoader {
         if (reference.isContainsFragment()) {
             URI absolute = reference.getAbsolute();
             JsonPtr jsonPtr = reference.getJsonPtr();
-            return getFromCache(routeManager.getRoute(ReferenceFactory.create(absolute))).getSchemaNodeByJsonPointer(jsonPtr);
+            return getFromCache(routeManager.getRoute(ReferenceFactory.create(absolute)))
+                    .getSchemaNodeByJsonPointer(jsonPtr);
         } else {
             return getFromCache(routeManager.getRoute(reference));
         }
@@ -60,7 +61,8 @@ public class SchemaLoader {
         Route routeToSchema = routeManager.getRoute(reference);
         targetNode = createSchema(routeToSchema, node);
         cache.put(targetNode.getSchemaRoute(), targetNode);
-        logger.info("successful loading schema into cache with currenct canonical uri - " + targetNode.getSchemaRoute().getCanonical().getUri());
+        logger.info("successful loading schema into cache with currenct canonical uri - "
+                + targetNode.getSchemaRoute().getCanonical().getUri());
         targetNode.resolve();
         return targetNode;
     }
@@ -125,7 +127,8 @@ public class SchemaLoader {
                     IOException, LoadException, URISyntaxException {
                 // TODO
                 ISchemaNode ISchemaNode = createSchema(key, retrievalManager.retrieve(key));
-                logger.info("successful loading schema into cache with currenct canonical uri - " + key.getCanonical().getUri());
+                logger.info("successful loading schema into cache with currenct canonical uri - "
+                        + key.getCanonical().getUri());
                 return ISchemaNode;
             }
 
@@ -173,7 +176,7 @@ public class SchemaLoader {
         return targetNode;
     }
 
-    public int getCountCreatedSchemas(){
+    public int getCountCreatedSchemas() {
         return countCreatedSchemas;
     }
 }

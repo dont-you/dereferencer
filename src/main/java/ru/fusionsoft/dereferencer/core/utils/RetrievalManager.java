@@ -53,12 +53,12 @@ public class RetrievalManager {
         return result;
     }
 
-    public RetrievalManager setTokens(Tokens tokens){
+    public RetrievalManager setTokens(Tokens tokens) {
         loaderFactory.setTokens(tokens);
         return this;
     }
 
-    public RetrievalManager setLogger(Logger logger){
+    public RetrievalManager setLogger(Logger logger) {
         this.logger = logger;
         return this;
     }
