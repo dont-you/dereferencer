@@ -1,6 +1,6 @@
-package ru.fusionsoft.dereferencer;
+package ru.fusionsoft.dereferencer.core;
 
-public enum DereferenceFlag {
+public enum LoadingFlag {
     // CANNONICAL_DEREFERENCING,
     // INLINE_DEREFERENCING,
     MERGE_ALL_OF;

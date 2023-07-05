@@ -6,7 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 
-import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
+import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
 import ru.fusionsoft.dereferencer.core.utils.load.SourceLoader;
@@ -15,7 +15,7 @@ import ru.fusionsoft.dereferencer.core.utils.load.SupportedSourceTypes;
 public class FileLoader implements SourceLoader {
 
     @Override
-    public InputStream getSource(Reference ref) throws DereferenceException {
+    public InputStream getSource(Reference ref) throws LoadException {
         File file = Paths.get(ref.getAbsolute()).toAbsolutePath().toFile();
         try {
             return new FileInputStream(file);
