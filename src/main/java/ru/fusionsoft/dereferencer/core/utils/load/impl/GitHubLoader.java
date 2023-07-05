@@ -5,11 +5,15 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
+import ru.fusionsoft.dereferencer.core.exceptions.UnknownException;
 import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
 import ru.fusionsoft.dereferencer.core.utils.load.LoaderFactory;
 import ru.fusionsoft.dereferencer.core.utils.load.SourceLoader;
@@ -40,8 +44,13 @@ public class GitHubLoader implements SourceLoader {
 
     @Override
     public SupportedSourceTypes getSourceType(Reference ref) throws LoadException {
-        String path = ref.getAbsolute().getPath().toString();
-        return SupportedSourceTypes.resolveSourceType(path.substring(path.lastIndexOf(".") + 1));
+        Path path = Paths.get(ref.getAbsolute());
+        try {
+            return SupportedSourceTypes.resolveSourceTypeByMimeType(Files.probeContentType(path));
+        } catch (IOException e) {
+            throw new UnknownException(
+                    "unknown exception caused while getting mime type with msg - " + e.getMessage());
+        }
     }
 
     private URI transformUriToApiUri(URI uri) throws URIException {

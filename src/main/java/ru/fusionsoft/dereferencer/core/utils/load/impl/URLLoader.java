@@ -2,9 +2,11 @@ package ru.fusionsoft.dereferencer.core.utils.load.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
+import ru.fusionsoft.dereferencer.core.exceptions.UnknownException;
 import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
 import ru.fusionsoft.dereferencer.core.utils.load.SourceLoader;
 import ru.fusionsoft.dereferencer.core.utils.load.SupportedSourceTypes;
@@ -24,11 +26,12 @@ public class URLLoader implements SourceLoader {
     @Override
     public SupportedSourceTypes getSourceType(Reference ref) throws LoadException {
         try {
-            String contentType = ref.getAbsolute().toURL().openConnection().getContentType();
-            return SupportedSourceTypes.resolveSourceType(contentType.substring(contentType.lastIndexOf("/") + 1));
+            HttpURLConnection connection = (HttpURLConnection) ref.getAbsolute().toURL().openConnection();
+            connection.setRequestMethod("HEAD");
+            return SupportedSourceTypes.resolveSourceTypeByMimeType(connection.getContentType());
         } catch (IOException e) {
-            // TODO
-            throw new URIException("");
+            throw new UnknownException(
+                    "unknown exception caused while getting mime type with msg - " + e.getMessage());
         }
     }
 

@@ -8,7 +8,7 @@ import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
 import ru.fusionsoft.dereferencer.core.routing.ref.ReferenceFactory;
 
-public class Route {
+public class Route implements Comparable<Route>{
     private Reference canonical = null;
     private Set<Reference> duplicates;
 
@@ -43,4 +43,15 @@ public class Route {
     public boolean equals(Object obj) {
         return duplicates.contains(((Route) obj).canonical);
     }
+
+    @Override
+    public int compareTo(Route route) {
+        if(this.equals(route))
+            return 0;
+        else if(duplicates.size()==route.duplicates.size())
+            return 1;
+        else
+            return duplicates.size() - route.duplicates.size();
+    }
+
 }

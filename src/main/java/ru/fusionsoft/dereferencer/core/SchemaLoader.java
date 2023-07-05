@@ -15,7 +15,12 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
+import ru.fusionsoft.dereferencer.core.exceptions.MissedFileException;
+import ru.fusionsoft.dereferencer.core.exceptions.NotResolvedException;
+import ru.fusionsoft.dereferencer.core.exceptions.NotSupportedSourceType;
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
+import ru.fusionsoft.dereferencer.core.exceptions.UnknownException;
+import ru.fusionsoft.dereferencer.core.exceptions.UnresolvableSchemaException;
 import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
 import ru.fusionsoft.dereferencer.core.schema.SchemaStatus;
 import ru.fusionsoft.dereferencer.core.utils.RetrievalManager;
@@ -44,7 +49,7 @@ public class SchemaLoader {
         setCache(cfg.getCashSize());
     }
 
-    public ISchemaNode get(Reference reference) throws ExecutionException, LoadException {
+    public ISchemaNode get(Reference reference) throws LoadException {
         if (reference.isContainsFragment()) {
             URI absolute = reference.getAbsolute();
             JsonPtr jsonPtr = reference.getJsonPtr();
@@ -56,7 +61,7 @@ public class SchemaLoader {
     }
 
     public ISchemaNode get(Reference reference, JsonNode node)
-            throws ExecutionException, LoadException {
+            throws LoadException {
         ISchemaNode targetNode;
         Route routeToSchema = routeManager.getRoute(reference);
         targetNode = createSchema(routeToSchema, node);
@@ -72,12 +77,16 @@ public class SchemaLoader {
         return null;
     }
 
-    private ISchemaNode getFromCache(Route schemaRoute) throws ExecutionException, LoadException {
+    private ISchemaNode getFromCache(Route schemaRoute) throws LoadException {
         ISchemaNode targetNode;
         if (preloadedSchemas.containsKey(schemaRoute)) {
             targetNode = preloadedSchemas.get(schemaRoute);
         } else {
-            targetNode = cache.get(schemaRoute);
+            try {
+                targetNode = cache.get(schemaRoute);
+            } catch (ExecutionException e) {
+                throw handleException(e);
+            }
             if (targetNode.getStatus() == SchemaStatus.NOT_RESOLVED)
                 targetNode.resolve();
         }
@@ -123,11 +132,11 @@ public class SchemaLoader {
 
         cache = builder.build(new CacheLoader<Route, ISchemaNode>() {
             @Override
-            public ISchemaNode load(Route key) throws ExecutionException, StreamReadException, DatabindException,
+            public ISchemaNode load(Route key) throws StreamReadException, DatabindException,
                     IOException, LoadException, URISyntaxException {
                 // TODO
                 ISchemaNode ISchemaNode = createSchema(key, retrievalManager.retrieve(key));
-                logger.info("successful loading schema into cache with currenct canonical uri - "
+                logger.info("successful loading schema into cache with current canonical uri - "
                         + key.getCanonical().getUri());
                 return ISchemaNode;
             }
@@ -178,5 +187,22 @@ public class SchemaLoader {
 
     public int getCountCreatedSchemas() {
         return countCreatedSchemas;
+    }
+
+    private static LoadException handleException(Exception e) {
+        Throwable t = e.getCause();
+        if (t instanceof UnresolvableSchemaException) {
+            return (UnresolvableSchemaException) t;
+        } else if(t instanceof URIException){
+            return (URIException)t;
+        } else if(t instanceof NotResolvedException){
+            return (NotResolvedException)t;
+        } else if(t instanceof MissedFileException){
+            return (MissedFileException) t;
+        } else if(t instanceof NotSupportedSourceType){
+            return (NotSupportedSourceType) t;
+        } else {
+            return new UnknownException(e);
+        }
     }
 }

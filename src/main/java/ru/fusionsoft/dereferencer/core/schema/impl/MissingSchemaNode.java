@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Map.Entry;
-import java.util.concurrent.ExecutionException;
-
 import com.fasterxml.jackson.databind.JsonNode;
 
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
@@ -83,16 +81,11 @@ public class MissingSchemaNode implements ISchemaNode {
             if (!superSet.isEmpty())
                 return childs.get(superSet.get()).getSchemaNodeByJsonPointer(jsonPointer);
 
-            try {
-                ISchemaNode createdSubSchema = loader.get(
-                        ReferenceFactory.create(schemaRoute.getCanonical(), jsonPointer),
-                        null);
-                childs.put(jsonPointer, createdSubSchema);
-                return createdSubSchema;
-            } catch (ExecutionException e) {
-                // TODO
-                throw new UnresolvableSchemaException("");
-            }
+            ISchemaNode createdSubSchema = loader.get(
+                                                      ReferenceFactory.create(schemaRoute.getCanonical(), jsonPointer),
+                                                      null);
+            childs.put(jsonPointer, createdSubSchema);
+            return createdSubSchema;
         } else {
             return presentSchema.getSchemaNodeByJsonPointer(jsonPointer);
         }

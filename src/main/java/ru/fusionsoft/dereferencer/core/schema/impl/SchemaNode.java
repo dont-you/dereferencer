@@ -5,13 +5,15 @@ import static ru.fusionsoft.dereferencer.core.schema.SchemaStatus.PROCESSING;
 import static ru.fusionsoft.dereferencer.core.schema.SchemaStatus.RESOLVED;
 import static ru.fusionsoft.dereferencer.core.schema.SchemaType.MISSING_SCHEMA;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.Stack;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -20,6 +22,7 @@ import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
+import ru.fusionsoft.dereferencer.core.exceptions.UnknownException;
 import ru.fusionsoft.dereferencer.core.exceptions.UnresolvableSchemaException;
 import ru.fusionsoft.dereferencer.core.routing.Route;
 import ru.fusionsoft.dereferencer.core.routing.ref.JsonPtr;
@@ -52,7 +55,7 @@ public class SchemaNode implements ISchemaNode {
         status = NOT_RESOLVED;
         id = loader.getCountCreatedSchemas() + 1;
         loader.getLogger()
-                .info("$" + id + " schema with canonical " + schemaRoute.getCanonical() + " CREATED but NOT RESOLVED");
+                .info("schema $" +id+" with canonical uri " + schemaRoute.getCanonical().getUri() + " CREATED but NOT RESOLVED");
     }
 
     @Override
@@ -68,16 +71,23 @@ public class SchemaNode implements ISchemaNode {
                 schemaChilds.getAllChilds().forEach((k, v) -> {
                     try {
                         JsonNode value = v.asJson();
-                        ObjectNode parent = (ObjectNode) resolvedJson.at(k.getParent().getResolved());
-                        parent.set(k.getPropertyName(), value);
+
+                        if(k.getResolved().equals("")){
+                            ObjectNode parent = (ObjectNode) resolvedJson;
+                            parent.removeAll();
+                            parent.setAll((ObjectNode) value);
+                        } else {
+                            ObjectNode parent = (ObjectNode) resolvedJson.at(k.getParent().getResolved());
+                            parent.set(k.getPropertyName(), value);
+                        }
                     } catch (LoadException e) {
                         throw new RuntimeException();
                     }
                 });
             }
         } catch (RuntimeException e) {
-            // TODO
-            throw new UnresolvableSchemaException("");
+            throw new UnknownException(
+                    "unknown exception caused while generating json with msg - " + e.getMessage());
         }
 
         return resolvedJson;
@@ -91,23 +101,18 @@ public class SchemaNode implements ISchemaNode {
     @Override
     public ISchemaNode getSchemaNodeByJsonPointer(JsonPtr jsonPointer)
             throws LoadException {
-        try {
-            return schemaChilds.getChild(jsonPointer);
-        } catch (ExecutionException e) {
-            // TODO
-            throw new UnresolvableSchemaException("");
-        }
+        return schemaChilds.getChild(jsonPointer);
+        // TODO
     }
 
     @Override
     public void resolve() throws LoadException {
         loader.getLogger()
-                .info("$" + id + "schema with canonical " + getCanonicalReference().getUri()
-                        + " STARTED the PROCESSING");
+                .info("schema $" +id+ " STARTED the PROCESSING");
         status = PROCESSING;
         executeResolving();
         status = RESOLVED;
-        loader.getLogger().info("$" + id + "schema with canonical " + getCanonicalReference() + " IS RESOLVED");
+        loader.getLogger().info("schema $" +id+ " IS RESOLVED");
     }
 
     @Override
@@ -116,14 +121,8 @@ public class SchemaNode implements ISchemaNode {
         JsonNode jsonNode = sourceJson.at(childPtr.getResolved());
 
         if (!jsonNode.isMissingNode()) {
-            try {
-                missedDelegate.setPresentSchema(
-                        loader.get(schemaRoute.resolveRelative("#" + childPtr), jsonNode));
-            } catch (ExecutionException e) {
-                // TODO
-                throw new UnresolvableSchemaException("");
-            }
-
+            missedDelegate.setPresentSchema(
+                                            loader.get(schemaRoute.resolveRelative("#" + childPtr), jsonNode));
         }
 
         schemaChilds.addChild(childPtr, missedDelegate);
@@ -135,6 +134,7 @@ public class SchemaNode implements ISchemaNode {
     }
 
     protected void executeResolving() throws LoadException {
+        Set<String> processedKeywords = new HashSet<>(Arrays.asList("$ref","allOf","$id","$acnhor"));
         JsonNode currentNode;
         String currentPath;
         Stack<JsonNode> memory = new Stack<>();
@@ -152,42 +152,36 @@ public class SchemaNode implements ISchemaNode {
                 String fieldKey = field.getKey();
                 JsonNode fieldValue = field.getValue();
 
-                try {
-                    if (fieldKey.equals("$ref")) {
+                if(processedKeywords.contains(fieldKey)){
+                    loader.getLogger().info("in schema $" +id+ " found " + fieldKey + " key with value: " + fieldValue.asText());
+
+                    if (fieldKey.equals("$ref"))
                         schemaChilds.addChild(new JsonPtr(currentPath),
-                                loader.get(schemaRoute.resolveRelative(fieldValue.asText())));
-                        continue;
-                    } else if (fieldKey.equals("allOf")) {
+                                              loader.get(schemaRoute.resolveRelative(fieldValue.asText())));
+                    else if (fieldKey.equals("allOf"))
                         schemaChilds.addChild(new JsonPtr(currentPath),
-                                loader.get(schemaRoute.resolveRelative(currentPath), fieldValue));
-                        continue;
-                    } else if (!currentPath.isEmpty() && fieldKey.equals("$id")) {
+                                              loader.get(schemaRoute.resolveRelative(currentPath), fieldValue));
+                    else if (!currentPath.isEmpty() && fieldKey.equals("$id"))
                         schemaChilds.addChild(new JsonPtr(currentPath + "/" + fieldKey),
-                                loader.get(schemaRoute.resolveRelative(currentPath), currentNode));
-                        continue;
-                    } else if (!currentPath.isEmpty() && fieldKey.equals("$anchor")) {
+                                              loader.get(schemaRoute.resolveRelative(currentPath), currentNode));
+                    else if (!currentPath.isEmpty() && fieldKey.equals("$anchor"))
                         schemaChilds.addChild(new JsonPtr(currentPath + "/" + fieldKey, fieldValue.asText()),
-                                loader.get(schemaRoute.resolveRelative(currentPath), currentNode));
-                        continue;
+                                              loader.get(schemaRoute.resolveRelative(currentPath), currentNode));
+
+                    continue;
+                }
+
+                if (fieldValue.isArray()) {
+                    Iterator<JsonNode> elements = field.getValue().elements();
+
+                    int i = 0;
+                    while (elements.hasNext()) {
+                        memory.push(elements.next());
+                        pathStack.push(currentPath + "/" + field.getKey() + "/" + i++);
                     }
-
-                    loader.getLogger().info("$" + id + "found " + fieldKey + " key with value: " + fieldValue.asText());
-
-                    if (fieldValue.isArray()) {
-                        Iterator<JsonNode> elements = field.getValue().elements();
-
-                        int i = 0;
-                        while (elements.hasNext()) {
-                            memory.push(elements.next());
-                            pathStack.push(currentPath + "/" + field.getKey() + "/" + i++);
-                        }
-                    } else {
-                        memory.push(field.getValue());
-                        pathStack.push(currentPath + "/" + field.getKey());
-                    }
-                } catch (ExecutionException e) {
-                    // TODO
-                    throw new UnresolvableSchemaException("");
+                } else {
+                    memory.push(field.getValue());
+                    pathStack.push(currentPath + "/" + field.getKey());
                 }
             }
         }
@@ -239,7 +233,7 @@ public class SchemaNode implements ISchemaNode {
             }
         }
 
-        public ISchemaNode getChild(JsonPtr ptr) throws LoadException, ExecutionException {
+        public ISchemaNode getChild(JsonPtr ptr) throws LoadException{
             if (childs.containsKey(ptr))
                 return childs.get(ptr);
 

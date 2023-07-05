@@ -57,7 +57,7 @@ public class LoaderFactory {
 
     private boolean isGitHubReference(URI uri) {
         return uri.getHost() != null
-                && uri.getHost().equals(Dereferencer.PROPERTIES.getProperty("refs.hostname.github"));
+                && uri.getHost().equals(HOSTNAMES.getProperty("refs.hostname.github"));
     }
 
     private boolean isURLReference(URI uri) {

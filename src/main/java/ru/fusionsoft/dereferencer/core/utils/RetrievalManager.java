@@ -11,6 +11,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import ru.fusionsoft.dereferencer.core.Tokens;
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
+import ru.fusionsoft.dereferencer.core.exceptions.NotSupportedSourceType;
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 import ru.fusionsoft.dereferencer.core.routing.Route;
 import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
@@ -45,8 +46,7 @@ public class RetrievalManager {
         } else if (sourceType.isJson()) {
             result = jsonMapper.readTree(sourceLoader.getSource(canonical));
         } else {
-            // TODO
-            throw new URIException("");
+            throw new NotSupportedSourceType("source type of resource by uri - " + canonical.getUri() + " is not supported");
         }
 
         logger.info("successful fetch schema from uri - " + canonical.getUri());
