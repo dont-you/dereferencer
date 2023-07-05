@@ -17,16 +17,12 @@ public enum SupportedSourceTypes {
         return this.equals(NOT_IMPLEMENTED);
     }
 
-    public static SupportedSourceTypes resolveSourceType(String extension) {
-        switch (extension) {
-            case "json":
-                return JSON;
-            case "yaml":
-                return YAML;
-            case "x-yaml":
-                return YAML;
-            default:
-                return NOT_IMPLEMENTED;
-        }
+    public static SupportedSourceTypes resolveSourceTypeByMimeType(String extension) {
+        if(extension.contains("application/json"))
+            return JSON;
+        else if(extension.contains("application/x-yaml") || extension.contains("application/yaml") )
+            return YAML;
+        else
+            return NOT_IMPLEMENTED;
     }
 }
