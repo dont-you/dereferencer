@@ -1,6 +1,7 @@
 package ru.fusionsoft.dereferencer.core.utils;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
@@ -21,9 +22,11 @@ public class RetrievalManager {
     private ObjectMapper jsonMapper;
     private ObjectMapper yamlMapper;
     private LoaderFactory loaderFactory;
+    private Logger logger;
 
-    public RetrievalManager(Tokens tokens) {
+    public RetrievalManager(Tokens tokens, Logger logger) {
         this.loaderFactory = new LoaderFactory(tokens);
+        this.logger = logger;
         this.jsonMapper = new ObjectMapper();
         this.yamlMapper = new ObjectMapper(new YAMLFactory());
     }
@@ -34,18 +37,29 @@ public class RetrievalManager {
         SourceLoader sourceLoader = loaderFactory.getLoader(canonical.getAbsolute());
         SupportedSourceTypes sourceType = sourceLoader.getSourceType(canonical);
 
+        JsonNode result = null;
         if (sourceType.isYaml()) {
             Object obj = yamlMapper.readValue(sourceLoader.getSource(canonical), Object.class);
-            return jsonMapper.readTree(jsonMapper.writeValueAsString(obj));
+
+            result = jsonMapper.readTree(jsonMapper.writeValueAsString(obj));
         } else if (sourceType.isJson()) {
-            return jsonMapper.readTree(sourceLoader.getSource(canonical));
+            result = jsonMapper.readTree(sourceLoader.getSource(canonical));
         } else {
             // TODO
             throw new URIException("");
         }
+
+        logger.info("successful fetch schema from uri - " + canonical.getUri());
+        return result;
     }
 
-    public void setTokens(Tokens tokens){
+    public RetrievalManager setTokens(Tokens tokens){
         loaderFactory.setTokens(tokens);
+        return this;
+    }
+
+    public RetrievalManager setLogger(Logger logger){
+        this.logger = logger;
+        return this;
     }
 }

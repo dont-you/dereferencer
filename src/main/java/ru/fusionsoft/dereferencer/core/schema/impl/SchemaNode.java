@@ -32,6 +32,7 @@ import ru.fusionsoft.dereferencer.core.schema.SchemaType;
 import static ru.fusionsoft.dereferencer.core.schema.SchemaType.*;
 
 public class SchemaNode implements ISchemaNode {
+    protected int id;
     protected SchemaLoader loader;
     protected Route schemaRoute;
     protected JsonNode sourceJson;
@@ -49,7 +50,8 @@ public class SchemaNode implements ISchemaNode {
         this.schemaChilds = new SchemaChilds();
         this.mergeAllOfFlag = mergeAllOfFlag;
         status = NOT_RESOLVED;
-        loader.getLogger().info("schema with canonical " + schemaRoute.getCanonical() + " CREATED but NOT RESOLVED");
+        id = loader.getCountCreatedSchemas() + 1;
+        loader.getLogger().info("$"+id+" schema with canonical " + schemaRoute.getCanonical() + " CREATED but NOT RESOLVED");
     }
 
     @Override
@@ -99,11 +101,11 @@ public class SchemaNode implements ISchemaNode {
     @Override
     public void resolve() throws LoadException {
         loader.getLogger()
-                .info("schema with canonical " + getCanonicalReference().getUri() + " STARTED the PROCESSING");
+                .info("$"+id+"schema with canonical " + getCanonicalReference().getUri() + " STARTED the PROCESSING");
         status = PROCESSING;
         executeResolving();
         status = RESOLVED;
-        loader.getLogger().info("schema with canonical " + getCanonicalReference() + " IS RESOLVED");
+        loader.getLogger().info("$"+id+"schema with canonical " + getCanonicalReference() + " IS RESOLVED");
     }
 
     @Override
@@ -152,16 +154,24 @@ public class SchemaNode implements ISchemaNode {
                     if (fieldKey.equals("$ref")) {
                         schemaChilds.addChild(new JsonPtr(currentPath),
                                 loader.get(schemaRoute.resolveRelative(fieldValue.asText())));
+                        continue;
                     } else if (fieldKey.equals("allOf")) {
                         schemaChilds.addChild(new JsonPtr(currentPath),
                                 loader.get(schemaRoute.resolveRelative(currentPath), fieldValue));
+                        continue;
                     } else if (!currentPath.isEmpty() && fieldKey.equals("$id")) {
                         schemaChilds.addChild(new JsonPtr(currentPath + "/" + fieldKey),
                                 loader.get(schemaRoute.resolveRelative(currentPath), currentNode));
+                        continue;
                     } else if (!currentPath.isEmpty() && fieldKey.equals("$anchor")) {
                         schemaChilds.addChild(new JsonPtr(currentPath + "/" + fieldKey, fieldValue.asText()),
                                 loader.get(schemaRoute.resolveRelative(currentPath), currentNode));
-                    } else if (fieldValue.isArray()) {
+                        continue;
+                    }
+
+                    loader.getLogger().info("$"+id+"found " +fieldKey+ " key with value: " + fieldValue.asText());
+
+                    if (fieldValue.isArray()) {
                         Iterator<JsonNode> elements = field.getValue().elements();
 
                         int i = 0;
