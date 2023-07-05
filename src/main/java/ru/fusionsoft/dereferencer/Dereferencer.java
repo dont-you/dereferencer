@@ -5,6 +5,8 @@ import java.net.URI;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
+import ru.fusionsoft.dereferencer.core.exceptions.MissedFileException;
+import ru.fusionsoft.dereferencer.core.exceptions.NotResolvedException;
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 import ru.fusionsoft.dereferencer.core.exceptions.UnknownException;
 import ru.fusionsoft.dereferencer.core.exceptions.UnresolvableSchemaException;
@@ -15,7 +17,8 @@ import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
 // TODO LIST
 //
 // - Error handling
-// ---- ...
+// ---- figure out where and when to throw exceptions
+// ---- do the right ExecutionException handling
 //
 // - Refactoring
 // ---- SchemaNode
@@ -85,31 +88,15 @@ public class Dereferencer {
     }
 
     private static JsonNode executeDereference(SchemaLoader loader, URI uri) throws LoadException {
-        try {
-            ISchemaNode resultNode = loader.get(ReferenceFactory.create(uri));
-            return resultNode.asJson();
-        } catch (Exception e) {
-            throw handleException(e);
-        }
+        ISchemaNode resultNode = loader.get(ReferenceFactory.create(uri));
+        return resultNode.asJson();
     }
 
     private static JsonNode executeAnonymousDereference(SchemaLoader loader, JsonNode node)
             throws LoadException {
-        try {
-            ISchemaNode resultNode = loader.get(node);
-            return resultNode.asJson();
-        } catch (Exception e) {
-            throw handleException(e);
-        }
+        ISchemaNode resultNode = loader.get(node);
+        return resultNode.asJson();
     }
 
-    private static LoadException handleException(Exception e) {
-        // TODO do something like this later....
-        if (e.getCause() instanceof UnresolvableSchemaException) {
-            return (LoadException) e;
-        } else {
-            return new UnknownException(e.getMessage());
-        }
-    }
 
 }
