@@ -3,7 +3,6 @@ package ru.fusionsoft.dereferencer.core.routing;
 import java.net.URI;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
@@ -18,10 +17,10 @@ public class RouteManager {
     public RouteManager(URI defaultBaseUri, Set<Route> preloadedRoutes, Logger logger) throws URIException {
         cache = new TreeSet<>();
         setDefaultBaseUri(defaultBaseUri).setPreloadedRoutes(preloadedRoutes).setLogger(logger);
-        logger.info("Successful init RouteManager with " + cache.size() + " preloaded references");
+        logger.info("Successful init RouteManager with " + cache.size() + " preloaded routes");
     }
 
-    public Route getRoute(Reference retrievalReference) throws ExecutionException, URIException {
+    public Route getRoute(Reference retrievalReference) throws URIException {
         Route target = new Route(ReferenceFactory.create(defaultBaseReference, retrievalReference));
 
         if (!cache.contains(target))
