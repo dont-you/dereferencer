@@ -13,10 +13,6 @@ public enum SupportedSourceTypes {
         return this.equals(JSON);
     }
 
-    public boolean isNotImplemented() {
-        return this.equals(NOT_IMPLEMENTED);
-    }
-
     public static SupportedSourceTypes resolveSourceTypeByMimeType(String extension) {
         if (extension.contains("application/json"))
             return JSON;

@@ -8,15 +8,15 @@ import ru.fusionsoft.dereferencer.core.routing.Route;
 import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
 
 public interface LoadConfiguration {
-    public LoadingFlag[] getLoadingFlags();
+    LoadingFlag[] getLoadingFlags();
 
-    public int getCashSize();
+    int getCashSize();
 
-    public Map<Route, ISchemaNode> getPreloadedSchemas();
+    Map<Route, ISchemaNode> getPreloadedSchemas();
 
-    public Tokens getTokens();
+    Tokens getTokens();
 
-    public Logger getLogger();
+    Logger getLogger();
 
-    public URI getDefaultBaseUri();
+    URI getDefaultBaseUri();
 }

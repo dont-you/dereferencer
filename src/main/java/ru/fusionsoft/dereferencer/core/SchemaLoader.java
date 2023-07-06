@@ -27,8 +27,8 @@ import ru.fusionsoft.dereferencer.core.schema.impl.MissingSchemaNode;
 import ru.fusionsoft.dereferencer.core.schema.impl.SchemaNode;
 
 public class SchemaLoader {
-    private RouteManager routeManager;
-    private RetrievalManager retrievalManager;
+    private final RouteManager routeManager;
+    private final RetrievalManager retrievalManager;
     private Logger logger;
     private Map<Route, ISchemaNode> preloadedSchemas;
     private LoadingCache<Route, ISchemaNode> cache;
@@ -60,7 +60,7 @@ public class SchemaLoader {
         Route routeToSchema = routeManager.getRoute(reference);
         targetNode = createSchema(routeToSchema, node);
         cache.put(targetNode.getSchemaRoute(), targetNode);
-        logger.info("successful loading schema into cache with currenct canonical uri - "
+        logger.info("successful loading schema into cache with current canonical uri - "
                 + targetNode.getSchemaRoute().getCanonical().getUri());
         targetNode.resolve();
         return targetNode;
@@ -88,7 +88,7 @@ public class SchemaLoader {
         return targetNode;
     }
 
-    public void setDereferenceConfiguraion(LoadConfiguration cfg) throws LoadException {
+    public void setDereferenceConfiguration(LoadConfiguration cfg) throws LoadException {
         logger = cfg.getLogger();
         routeManager.setDefaultBaseUri(cfg.getDefaultBaseUri()).setPreloadedRoutes(cfg.getPreloadedSchemas().keySet())
                 .setLogger(logger);
@@ -105,16 +105,8 @@ public class SchemaLoader {
         this.logger = logger;
     }
 
-    public Map<Route, ISchemaNode> getPreloadedSchemas() {
-        return preloadedSchemas;
-    }
-
     public void setPreloadedSchemas(Map<Route, ISchemaNode> preloadedSchemas) {
         this.preloadedSchemas = preloadedSchemas;
-    }
-
-    public LoadingCache<Route, ISchemaNode> getCache() {
-        return cache;
     }
 
     public void setCache(int cacheSize) {
@@ -124,7 +116,7 @@ public class SchemaLoader {
             builder.maximumSize(cacheSize);
         }
 
-        cache = builder.build(new CacheLoader<Route, ISchemaNode>() {
+        cache = builder.build(new CacheLoader<>() {
             @Override
             public ISchemaNode load(Route key) throws LoadException {
                 ISchemaNode ISchemaNode = createSchema(key, retrievalManager.retrieve(key));
@@ -156,9 +148,9 @@ public class SchemaLoader {
                     return preloadedSchemas.get(route);
                 }
 
-                ISchemaNode alredyExistingSchema = cache.getIfPresent(route);
-                if (alredyExistingSchema != null)
-                    return alredyExistingSchema;
+                ISchemaNode alreadyExistingSchema = cache.getIfPresent(route);
+                if (alreadyExistingSchema != null)
+                    return alreadyExistingSchema;
             } catch (URISyntaxException e) {
                 throw new URIException(
                         "embedded in content uri of schema with retrieval uri " + lastCanonical + " contains errors");

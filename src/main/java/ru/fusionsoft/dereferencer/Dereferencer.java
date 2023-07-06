@@ -76,7 +76,7 @@ public class Dereferencer {
     }
 
     public void setDereferenceConfiguration(DereferenceConfiguration cfg) throws LoadException {
-        schemaLoader.setDereferenceConfiguraion(cfg);
+        schemaLoader.setDereferenceConfiguration(cfg);
     }
 
     private static JsonNode executeDereference(SchemaLoader loader, URI uri) throws LoadException {

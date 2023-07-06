@@ -18,9 +18,9 @@ import ru.fusionsoft.dereferencer.core.utils.load.SourceLoader;
 import ru.fusionsoft.dereferencer.core.utils.load.SupportedSourceTypes;
 
 public class RetrievalManager {
-    private ObjectMapper jsonMapper;
-    private ObjectMapper yamlMapper;
-    private LoaderFactory loaderFactory;
+    private final ObjectMapper jsonMapper;
+    private final ObjectMapper yamlMapper;
+    private final LoaderFactory loaderFactory;
     private Logger logger;
 
     public RetrievalManager(Tokens tokens, Logger logger) {
@@ -35,7 +35,7 @@ public class RetrievalManager {
         Reference canonical = route.getCanonical();
         SourceLoader sourceLoader = loaderFactory.getLoader(canonical.getAbsolute());
         SupportedSourceTypes sourceType = sourceLoader.getSourceType(canonical);
-        JsonNode result = null;
+        JsonNode result;
         try {
             if (sourceType.isYaml()) {
                 Object obj = yamlMapper.readValue(sourceLoader.getSource(canonical), Object.class);
