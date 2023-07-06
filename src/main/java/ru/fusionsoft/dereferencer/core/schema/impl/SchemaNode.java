@@ -120,7 +120,7 @@ public class SchemaNode implements ISchemaNode {
 
         if (!jsonNode.isMissingNode()) {
             missedDelegate.setPresentSchema(
-                    loader.get(schemaRoute.resolveRelative("#" + childPtr), jsonNode));
+                    loader.get(schemaRoute.resolveRelative("#" + childPtr.getResolved()), jsonNode));
         }
 
         schemaChilds.addChild(childPtr, missedDelegate);
@@ -244,7 +244,7 @@ public class SchemaNode implements ISchemaNode {
             else
                 sourceNodeForChild = MissingNode.getInstance();
 
-            ISchemaNode createdSubSchema = loader.get(schemaRoute.resolveRelative("#" + ptr),
+            ISchemaNode createdSubSchema = loader.get(schemaRoute.resolveRelative("#" + ptr.getResolved()),
                     sourceNodeForChild);
             addChild(ptr, createdSubSchema);
 
