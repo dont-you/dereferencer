@@ -11,7 +11,7 @@ import ru.fusionsoft.dereferencer.core.routing.ref.ReferenceFactory;
 
 public class RouteManager {
     private Reference defaultBaseReference;
-    private Set<Route> cache;
+    private final Set<Route> cache;
     private Logger logger;
 
     public RouteManager(URI defaultBaseUri, Set<Route> preloadedRoutes, Logger logger) throws URIException {
@@ -22,10 +22,7 @@ public class RouteManager {
 
     public Route getRoute(Reference retrievalReference) throws URIException {
         Route target = new Route(ReferenceFactory.create(defaultBaseReference, retrievalReference));
-
-        if (!cache.contains(target))
-            cache.add(target);
-
+        cache.add(target);
         return target;
     }
 

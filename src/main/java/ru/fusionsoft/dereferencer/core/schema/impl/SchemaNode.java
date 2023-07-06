@@ -191,8 +191,8 @@ public class SchemaNode implements ISchemaNode {
     }
 
     protected class SchemaChilds {
-        private Map<JsonPtr, ISchemaNode> childs;
-        private Map<JsonPtr, ISchemaNode> resolveMeLater;
+        private final Map<JsonPtr, ISchemaNode> childs;
+        private final Map<JsonPtr, ISchemaNode> resolveMeLater;
 
         SchemaChilds() {
             this.childs = new HashMap<>();
@@ -236,10 +236,8 @@ public class SchemaNode implements ISchemaNode {
             if (childs.containsKey(ptr))
                 return childs.get(ptr);
 
-            Optional<JsonPtr> superSet = childs.keySet().stream().filter((e) -> {
-                return e.isSuperSetTo(ptr);
-            }).findAny();
-            if (!superSet.isEmpty())
+            Optional<JsonPtr> superSet = childs.keySet().stream().filter((e) ->e.isSuperSetTo(ptr)).findAny();
+            if (superSet.isPresent())
                 return childs.get(superSet.get()).getSchemaNodeByJsonPointer(ptr);
 
             JsonNode sourceNodeForChild;

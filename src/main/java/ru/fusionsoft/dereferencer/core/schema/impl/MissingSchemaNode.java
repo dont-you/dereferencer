@@ -19,10 +19,10 @@ import static ru.fusionsoft.dereferencer.core.schema.SchemaType.*;
 import static ru.fusionsoft.dereferencer.core.schema.SchemaStatus.*;
 
 public class MissingSchemaNode implements ISchemaNode {
-    private SchemaLoader loader;
-    private Route schemaRoute;
+    private final SchemaLoader loader;
+    private final Route schemaRoute;
+    private final Map<JsonPtr, ISchemaNode> childs;
     private ISchemaNode presentSchema;
-    private Map<JsonPtr, ISchemaNode> childs;
 
     public MissingSchemaNode(SchemaLoader loader, Route schemaRoute) {
         this.loader = loader;
@@ -65,7 +65,7 @@ public class MissingSchemaNode implements ISchemaNode {
     }
 
     @Override
-    public ISchemaNode getSchemaNode() throws LoadException {
+    public ISchemaNode getSchemaNode(){
         return presentSchema;
     }
 
@@ -75,10 +75,8 @@ public class MissingSchemaNode implements ISchemaNode {
             if (childs.containsKey(jsonPointer))
                 return childs.get(jsonPointer);
 
-            Optional<JsonPtr> superSet = childs.keySet().stream().filter((e) -> {
-                return e.isSuperSetTo(jsonPointer);
-            }).findAny();
-            if (!superSet.isEmpty())
+            Optional<JsonPtr> superSet = childs.keySet().stream().filter((e) -> e.isSuperSetTo(jsonPointer)).findAny();
+            if (superSet.isPresent())
                 return childs.get(superSet.get()).getSchemaNodeByJsonPointer(jsonPointer);
 
             ISchemaNode createdSubSchema = loader.get(
@@ -92,7 +90,7 @@ public class MissingSchemaNode implements ISchemaNode {
     }
 
     @Override
-    public Route getSchemaRoute() throws LoadException {
+    public Route getSchemaRoute(){
         return schemaRoute;
     }
 
