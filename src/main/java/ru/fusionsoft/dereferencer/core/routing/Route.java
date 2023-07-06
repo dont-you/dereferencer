@@ -23,7 +23,7 @@ public class Route implements Comparable<Route> {
     }
 
     public void setCanonical(Reference canonical) throws URIException {
-        if (canonical == null)
+        if (this.canonical == null)
             this.canonical = canonical;
         else
             this.canonical = ReferenceFactory.create(this.canonical, canonical);
