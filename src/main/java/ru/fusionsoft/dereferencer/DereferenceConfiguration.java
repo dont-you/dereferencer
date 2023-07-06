@@ -15,7 +15,7 @@ import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
 public class DereferenceConfiguration implements LoadConfiguration {
 
     private Logger logger;
-    private LoadingFlag loadingFlags[];
+    private LoadingFlag[] loadingFlags;
     private int cashSize;
     private Map<Route, ISchemaNode> preloadedSchemas;
     private URI defaultBaseUri;
@@ -25,7 +25,7 @@ public class DereferenceConfiguration implements LoadConfiguration {
     }
 
     public static class DereferenceConfigurationBuilder {
-        private DereferenceConfiguration cfg;
+        private final DereferenceConfiguration cfg;
 
         private DereferenceConfigurationBuilder() {
             cfg = new DereferenceConfiguration();
@@ -33,7 +33,7 @@ public class DereferenceConfiguration implements LoadConfiguration {
                     .setLoadingFlags(new LoadingFlag[] {}).setCashSize(-1)
                     .setPreloadedSchemas(new HashMap<>()).setTokens(new Tokens())
                     .setDefaultBaseUri(Paths.get("./").toAbsolutePath().toUri());
-        };
+        }
 
         public DereferenceConfigurationBuilder setLoadingFlags(LoadingFlag[] loadingFlags) {
             cfg.setLoadingFlags(loadingFlags);
