@@ -1,6 +1,7 @@
 package ru.fusionsoft.dereferencer.core.routing;
 
 import java.net.URI;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -52,4 +53,8 @@ public class Route implements Comparable<Route> {
             return duplicates.size() - route.duplicates.size();
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(canonical);
+    }
 }
