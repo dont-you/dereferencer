@@ -56,9 +56,13 @@ public class SchemaLoader {
 
     public ISchemaNode get(Reference reference, JsonNode node)
             throws LoadException {
-        ISchemaNode targetNode;
         Route routeToSchema = routeManager.getRoute(reference);
-        targetNode = createSchema(routeToSchema, node);
+
+        if (node.isMissingNode()) {
+            return new MissingSchemaNode(this, routeToSchema);
+        }
+
+        ISchemaNode targetNode = createSchema(routeToSchema, node);
         cache.put(targetNode.getSchemaRoute(), targetNode);
         logger.info("successful loading schema into cache with current canonical uri - "
                 + targetNode.getSchemaRoute().getCanonical().getUri());
@@ -130,13 +134,8 @@ public class SchemaLoader {
 
     private ISchemaNode createSchema(Route route, JsonNode source) throws LoadException {
         ISchemaNode targetNode;
-
-        if (source.isMissingNode()) {
-            targetNode = new MissingSchemaNode(this, route);
-            return targetNode;
-        }
-
         String lastCanonical = route.getCanonical().getUri().toString();
+
         if (source.has("$id")) {
             try {
                 route.setCanonical(ReferenceFactory.create(new URI(source.at("/$id").asText())));
