@@ -1,26 +1,20 @@
 package ru.fusionsoft.dereferencer.core;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
-import ru.fusionsoft.dereferencer.core.exceptions.MissedFileException;
-import ru.fusionsoft.dereferencer.core.exceptions.NotResolvedException;
-import ru.fusionsoft.dereferencer.core.exceptions.NotSupportedSourceType;
+import ru.fusionsoft.dereferencer.core.exceptions.RetrievingException;
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 import ru.fusionsoft.dereferencer.core.exceptions.UnknownException;
-import ru.fusionsoft.dereferencer.core.exceptions.UnresolvableSchemaException;
 import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
 import ru.fusionsoft.dereferencer.core.schema.SchemaStatus;
 import ru.fusionsoft.dereferencer.core.utils.RetrievalManager;
@@ -94,7 +88,7 @@ public class SchemaLoader {
         return targetNode;
     }
 
-    public void setDereferenceConfiguraion(LoadConfiguration cfg) throws URIException {
+    public void setDereferenceConfiguraion(LoadConfiguration cfg) throws LoadException {
         logger = cfg.getLogger();
         routeManager.setDefaultBaseUri(cfg.getDefaultBaseUri()).setPreloadedRoutes(cfg.getPreloadedSchemas().keySet())
                 .setLogger(logger);
@@ -132,9 +126,7 @@ public class SchemaLoader {
 
         cache = builder.build(new CacheLoader<Route, ISchemaNode>() {
             @Override
-            public ISchemaNode load(Route key) throws StreamReadException, DatabindException,
-                    IOException, LoadException, URISyntaxException {
-                // TODO
+            public ISchemaNode load(Route key) throws LoadException {
                 ISchemaNode ISchemaNode = createSchema(key, retrievalManager.retrieve(key));
                 logger.info("successful loading schema into cache with current canonical uri - "
                         + key.getCanonical().getUri());
@@ -152,9 +144,9 @@ public class SchemaLoader {
             return targetNode;
         }
 
+        String lastCanonical = route.getCanonical().getUri().toString();
         if (source.has("$id")) {
             try {
-                String lastCanonical = route.getCanonical().getUri().toString();
                 route.setCanonical(ReferenceFactory.create(new URI(source.at("/$id").asText())));
                 logger.info("canonical change by embedded in content uri: {"
                         + "\tfrom - " + lastCanonical
@@ -168,8 +160,8 @@ public class SchemaLoader {
                 if (alredyExistingSchema != null)
                     return alredyExistingSchema;
             } catch (URISyntaxException e) {
-                // TODO
-                throw new URIException("");
+                throw new URIException(
+                        "embedded in content uri of schema with retrieval uri " + lastCanonical + " contains errors");
             }
         }
 
@@ -191,18 +183,14 @@ public class SchemaLoader {
 
     private static LoadException handleException(Exception e) {
         Throwable t = e.getCause();
-        if (t instanceof UnresolvableSchemaException) {
-            return (UnresolvableSchemaException) t;
-        } else if(t instanceof URIException){
-            return (URIException)t;
-        } else if(t instanceof NotResolvedException){
-            return (NotResolvedException)t;
-        } else if(t instanceof MissedFileException){
-            return (MissedFileException) t;
-        } else if(t instanceof NotSupportedSourceType){
-            return (NotSupportedSourceType) t;
+        if (t instanceof RetrievingException) {
+            return (RetrievingException) t;
+        } else if (t instanceof URIException) {
+            return (URIException) t;
+        } else if (t instanceof UnknownException) {
+            return (UnknownException) t;
         } else {
-            return new UnknownException(e);
+            return (LoadException) t;
         }
     }
 }

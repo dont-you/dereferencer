@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
-import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 import ru.fusionsoft.dereferencer.core.exceptions.UnknownException;
 import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
 import ru.fusionsoft.dereferencer.core.utils.load.SourceLoader;
@@ -18,8 +17,8 @@ public class URLLoader implements SourceLoader {
         try {
             return ref.getAbsolute().toURL().openStream();
         } catch (IOException e) {
-            // TODO
-            throw new URIException("");
+            throw new UnknownException(
+                    "unknown exception caused while getting source with msg - " + e.getMessage());
         }
     }
 

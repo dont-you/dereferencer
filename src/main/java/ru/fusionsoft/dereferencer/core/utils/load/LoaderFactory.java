@@ -7,7 +7,8 @@ import java.util.Properties;
 
 import ru.fusionsoft.dereferencer.Dereferencer;
 import ru.fusionsoft.dereferencer.core.Tokens;
-import ru.fusionsoft.dereferencer.core.exceptions.URIException;
+import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
+import ru.fusionsoft.dereferencer.core.exceptions.RetrievingException;
 import ru.fusionsoft.dereferencer.core.utils.load.impl.FileLoader;
 import ru.fusionsoft.dereferencer.core.utils.load.impl.GitHubLoader;
 import ru.fusionsoft.dereferencer.core.utils.load.impl.URLLoader;
@@ -39,7 +40,7 @@ public class LoaderFactory {
         gitHubLoader.setToken(tokens.getGitHubToken());
     }
 
-    public SourceLoader getLoader(URI uri) throws URIException {
+    public SourceLoader getLoader(URI uri) throws LoadException {
         if (isGitHubReference(uri))
             return gitHubLoader;
         else if (isFileSystemReference(uri))
@@ -47,8 +48,7 @@ public class LoaderFactory {
         else if (isURLReference(uri))
             return urlLoader;
         else
-            // TODO
-            throw new URIException("");
+            throw new RetrievingException("source loader for resource with uri " + uri + " is not implemented");
     }
 
     public void setTokens(Tokens tokens) {
