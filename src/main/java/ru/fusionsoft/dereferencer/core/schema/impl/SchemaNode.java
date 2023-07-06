@@ -132,7 +132,7 @@ public class SchemaNode implements ISchemaNode {
     }
 
     protected void executeResolving() throws LoadException {
-        Set<String> processedKeywords = new HashSet<>(Arrays.asList("$ref", "allOf", "$id", "$acnhor"));
+        Set<String> processedKeywords = new HashSet<>(Arrays.asList("$ref", "allOf", "$id", "$anchor"));
         JsonNode currentNode;
         String currentPath;
         Stack<JsonNode> memory = new Stack<>();
@@ -210,8 +210,6 @@ public class SchemaNode implements ISchemaNode {
                     resolveMeLater.remove(addedSchemaPtr);
                     ((MissingSchemaNode) targetNode).setPresentSchema(addedSchema);
                     childs.put(addedSchemaPtr, targetNode);
-                } else {
-                    childs.put(addedSchemaPtr, targetNode);
                 }
 
             } else {
@@ -267,7 +265,4 @@ public class SchemaNode implements ISchemaNode {
         return status;
     }
 
-    public ISchemaNode getSchemaNode() {
-        return this;
-    }
 }

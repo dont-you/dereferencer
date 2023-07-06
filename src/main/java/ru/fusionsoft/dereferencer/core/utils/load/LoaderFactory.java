@@ -14,9 +14,9 @@ import ru.fusionsoft.dereferencer.core.utils.load.impl.GitHubLoader;
 import ru.fusionsoft.dereferencer.core.utils.load.impl.URLLoader;
 
 public class LoaderFactory {
-    private FileLoader fileLoader;
-    private GitHubLoader gitHubLoader;
-    private URLLoader urlLoader;
+    private final FileLoader fileLoader;
+    private final GitHubLoader gitHubLoader;
+    private final URLLoader urlLoader;
     public static final Properties HOSTNAMES;
 
     static {

@@ -8,21 +8,19 @@ import ru.fusionsoft.dereferencer.core.routing.ref.JsonPtr;
 import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
 
 public interface ISchemaNode {
-    public JsonNode asJson() throws LoadException;
+    JsonNode asJson() throws LoadException;
 
-    public Reference getCanonicalReference() throws LoadException;
+    Reference getCanonicalReference() throws LoadException;
 
-    public ISchemaNode getSchemaNodeByJsonPointer(JsonPtr jsonPointer) throws LoadException;
+    ISchemaNode getSchemaNodeByJsonPointer(JsonPtr jsonPointer) throws LoadException;
 
-    public void resolve() throws LoadException;
+    void resolve() throws LoadException;
 
-    public void delegate(JsonPtr childPtr, ISchemaNode childSchema) throws LoadException;
+    void delegate(JsonPtr childPtr, ISchemaNode childSchema) throws LoadException;
 
-    public SchemaType getSchemaType() throws LoadException;
+    SchemaType getSchemaType() throws LoadException;
 
-    public Route getSchemaRoute() throws LoadException;
+    Route getSchemaRoute() throws LoadException;
 
-    public SchemaStatus getStatus() throws LoadException;
-
-    public ISchemaNode getSchemaNode() throws LoadException;
+    SchemaStatus getStatus() throws LoadException;
 }

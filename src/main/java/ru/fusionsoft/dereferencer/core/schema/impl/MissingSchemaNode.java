@@ -43,7 +43,7 @@ public class MissingSchemaNode implements ISchemaNode {
     public JsonNode asJson() throws LoadException {
         if (presentSchema == null)
             throw new LoadException(
-                    "schema with caninical - " + schemaRoute.getCanonical().getUri() + " could not be found");
+                    "schema with canonical - " + schemaRoute.getCanonical().getUri() + " could not be found");
         else
             return presentSchema.asJson();
     }
@@ -62,11 +62,6 @@ public class MissingSchemaNode implements ISchemaNode {
             return schemaRoute.getCanonical();
         else
             return presentSchema.getCanonicalReference();
-    }
-
-    @Override
-    public ISchemaNode getSchemaNode(){
-        return presentSchema;
     }
 
     @Override
@@ -114,7 +109,7 @@ public class MissingSchemaNode implements ISchemaNode {
     public void resolve() throws LoadException {
         if (presentSchema == null)
             throw new LoadException(
-                    "schema with caninical - " + schemaRoute.getCanonical().getUri() + " could not be found");
+                    "schema with canonical - " + schemaRoute.getCanonical().getUri() + " could not be found");
         else
             presentSchema.resolve();
     }
