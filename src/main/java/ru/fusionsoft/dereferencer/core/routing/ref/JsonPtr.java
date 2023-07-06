@@ -1,5 +1,7 @@
 package ru.fusionsoft.dereferencer.core.routing.ref;
 
+import java.util.Objects;
+
 public class JsonPtr {
     private String jsonPointer = null;
     private String plainName = null;
@@ -26,32 +28,17 @@ public class JsonPtr {
         return jsonPointer;
     }
 
-    public String getPointer() {
-        return jsonPointer;
-    }
-
-    public void setPointer(String pointer) {
-        this.jsonPointer = pointer;
-    }
-
     public String getPlainName() {
         return plainName;
     }
 
-    public void setPlainName(String plainName) {
-        this.plainName = plainName;
-    }
-
     public JsonPtr getParent() {
-        if (parentJsonPointer == null)
-            return parentJsonPointer = new JsonPtr(jsonPointer.substring(0, jsonPointer.lastIndexOf("/")));
-        else
-            return parentJsonPointer;
+        return Objects.requireNonNullElseGet(parentJsonPointer, () -> parentJsonPointer = new JsonPtr(jsonPointer.substring(0, jsonPointer.lastIndexOf("/"))));
     }
 
     public String getPropertyName() {
         if (parentJsonPointer == null)
-            return propertyName = propertyName.substring(propertyName.lastIndexOf("/") + 1, propertyName.length());
+            return propertyName = propertyName.substring(propertyName.lastIndexOf("/") + 1);
         else
             return propertyName;
     }
@@ -69,6 +56,9 @@ public class JsonPtr {
 
     @Override
     public boolean equals(Object obj) {
+        if(getClass() != obj.getClass())
+            return false;
+
         JsonPtr rightPtr = (JsonPtr) obj;
         if (rightPtr.isResolved() && this.isResolved()) {
             return this.jsonPointer == rightPtr.jsonPointer;
