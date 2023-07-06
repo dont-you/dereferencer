@@ -34,7 +34,16 @@ public class DereferencerIT {
 
         assertEquals(expected, actual);
    }
+   @Test
+   public void Test_simple_scheme_With_local_And_remote_references()
+           throws IOException, LoadException {
+        Dereferencer dereferencer = new Dereferencer(DereferenceConfiguration.builder().build());
+        JsonNode actual = dereferencer.dereference(URI.create("./src/integration-test/resources/test-schemes/schemes/simple_scheme.json"));
+        JsonNode expected = jsonMapper.readTree(Paths
+                .get("./src/integration-test/resources/test-schemes/expected-result/dereferenced_simple_scheme.json").toFile());
 
+        assertEquals(expected, actual);
+    }
     @Test
     public void delme(){
 
