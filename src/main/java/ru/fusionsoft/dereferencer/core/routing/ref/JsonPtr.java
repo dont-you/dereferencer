@@ -61,9 +61,9 @@ public class JsonPtr {
 
         JsonPtr rightPtr = (JsonPtr) obj;
         if (rightPtr.isResolved() && this.isResolved()) {
-            return this.jsonPointer == rightPtr.jsonPointer;
+            return this.jsonPointer.equals(rightPtr.jsonPointer);
         } else {
-            return this.plainName == rightPtr.plainName;
+            return this.plainName.equals(rightPtr.plainName);
         }
     }
 }
