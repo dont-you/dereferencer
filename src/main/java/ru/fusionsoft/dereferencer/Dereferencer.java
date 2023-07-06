@@ -17,22 +17,24 @@ import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
 //
 // - Tests
 // ---- write integrations tests && fix bugs
-// -------- some....
+// -------- test simple_scheme.json
+// -------- test layer_1_scheme_1.json
 // ---- write unit tests && fix bugs
 // -------- some....
 //
 // - Referencing & Retrieving
 // ---- Reference factory method create(Reference reference, JsonPtr ptr)
-// ---- RouteManager make anonRoute
 // ---- feat: write GitLabLoader
 // ---- feat: logs while resolving relative
 //
 // - Schema nodes
-// ---- feat: allOf merge is on and of
 // ---- write AllOfSchemaNode
+// ---- feat: allOf merge is on and of
 //
 // - Dereferencer class
 // ---- feat: method of creating preloaded schemas
+//
+// - feat: anon dereferencing(SchemaLoader.get(JsonNode), RouteManager.makeAnon())
 
 public class Dereferencer {
 

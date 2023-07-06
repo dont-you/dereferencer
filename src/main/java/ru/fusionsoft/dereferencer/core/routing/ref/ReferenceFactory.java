@@ -30,8 +30,12 @@ public class ReferenceFactory {
     }
 
     public static Reference create(Reference reference, JsonPtr ptr) throws URIException {
-        // TODO
-        return null;
+        String result = reference.getAbsolute().toString() + "#" + ptr.getResolved();
+        try {
+            return create(new URI(result));
+        } catch (URISyntaxException e) {
+            throw new URIException("fragment " + ptr.getResolved() + " contains errors");
+        }
     }
 
     private static URI addSlashToUriPath(URI uri) throws URISyntaxException {
