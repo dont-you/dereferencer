@@ -18,9 +18,9 @@ public enum SupportedSourceTypes {
     }
 
     public static SupportedSourceTypes resolveSourceTypeByMimeType(String extension) {
-        if(extension.contains("application/json"))
+        if (extension.contains("application/json"))
             return JSON;
-        else if(extension.contains("application/x-yaml") || extension.contains("application/yaml") )
+        else if (extension.contains("application/x-yaml") || extension.contains("application/yaml"))
             return YAML;
         else
             return NOT_IMPLEMENTED;

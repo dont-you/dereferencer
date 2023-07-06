@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 import ru.fusionsoft.dereferencer.core.exceptions.UnknownException;
-import ru.fusionsoft.dereferencer.core.exceptions.UnresolvableSchemaException;
 import ru.fusionsoft.dereferencer.core.routing.Route;
 import ru.fusionsoft.dereferencer.core.routing.ref.JsonPtr;
 import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
@@ -44,8 +43,7 @@ public class SchemaNode implements ISchemaNode {
     protected boolean mergeAllOfFlag;
     protected SchemaStatus status;
 
-    public SchemaNode(SchemaLoader loader, Route schemaRoute, JsonNode sourceJson, Boolean mergeAllOfFlag)
-            throws UnresolvableSchemaException {
+    public SchemaNode(SchemaLoader loader, Route schemaRoute, JsonNode sourceJson, Boolean mergeAllOfFlag) {
         this.loader = loader;
         this.schemaRoute = schemaRoute;
         this.sourceJson = sourceJson;
@@ -55,13 +53,14 @@ public class SchemaNode implements ISchemaNode {
         status = NOT_RESOLVED;
         id = loader.getCountCreatedSchemas() + 1;
         loader.getLogger()
-                .info("schema $" +id+" with canonical uri " + schemaRoute.getCanonical().getUri() + " CREATED but NOT RESOLVED");
+                .info("schema $" + id + " with canonical uri " + schemaRoute.getCanonical().getUri()
+                        + " CREATED but NOT RESOLVED");
     }
 
     @Override
     public JsonNode asJson() throws LoadException {
         if (status == NOT_RESOLVED) {
-            throw new UnresolvableSchemaException(
+            throw new LoadException(
                     "unable to represent schema as json, call method 'resolve' and try again");
         }
 
@@ -72,7 +71,7 @@ public class SchemaNode implements ISchemaNode {
                     try {
                         JsonNode value = v.asJson();
 
-                        if(k.getResolved().equals("")){
+                        if (k.getResolved().equals("")) {
                             ObjectNode parent = (ObjectNode) resolvedJson;
                             parent.removeAll();
                             parent.setAll((ObjectNode) value);
@@ -102,17 +101,16 @@ public class SchemaNode implements ISchemaNode {
     public ISchemaNode getSchemaNodeByJsonPointer(JsonPtr jsonPointer)
             throws LoadException {
         return schemaChilds.getChild(jsonPointer);
-        // TODO
     }
 
     @Override
     public void resolve() throws LoadException {
         loader.getLogger()
-                .info("schema $" +id+ " STARTED the PROCESSING");
+                .info("schema $" + id + " STARTED the PROCESSING");
         status = PROCESSING;
         executeResolving();
         status = RESOLVED;
-        loader.getLogger().info("schema $" +id+ " IS RESOLVED");
+        loader.getLogger().info("schema $" + id + " IS RESOLVED");
     }
 
     @Override
@@ -122,7 +120,7 @@ public class SchemaNode implements ISchemaNode {
 
         if (!jsonNode.isMissingNode()) {
             missedDelegate.setPresentSchema(
-                                            loader.get(schemaRoute.resolveRelative("#" + childPtr), jsonNode));
+                    loader.get(schemaRoute.resolveRelative("#" + childPtr), jsonNode));
         }
 
         schemaChilds.addChild(childPtr, missedDelegate);
@@ -134,7 +132,7 @@ public class SchemaNode implements ISchemaNode {
     }
 
     protected void executeResolving() throws LoadException {
-        Set<String> processedKeywords = new HashSet<>(Arrays.asList("$ref","allOf","$id","$acnhor"));
+        Set<String> processedKeywords = new HashSet<>(Arrays.asList("$ref", "allOf", "$id", "$acnhor"));
         JsonNode currentNode;
         String currentPath;
         Stack<JsonNode> memory = new Stack<>();
@@ -152,21 +150,22 @@ public class SchemaNode implements ISchemaNode {
                 String fieldKey = field.getKey();
                 JsonNode fieldValue = field.getValue();
 
-                if(processedKeywords.contains(fieldKey)){
-                    loader.getLogger().info("in schema $" +id+ " found " + fieldKey + " key with value: " + fieldValue.asText());
+                if (processedKeywords.contains(fieldKey)) {
+                    loader.getLogger().info(
+                            "in schema $" + id + " found " + fieldKey + " key with value: " + fieldValue.asText());
 
                     if (fieldKey.equals("$ref"))
                         schemaChilds.addChild(new JsonPtr(currentPath),
-                                              loader.get(schemaRoute.resolveRelative(fieldValue.asText())));
+                                loader.get(schemaRoute.resolveRelative(fieldValue.asText())));
                     else if (fieldKey.equals("allOf"))
                         schemaChilds.addChild(new JsonPtr(currentPath),
-                                              loader.get(schemaRoute.resolveRelative(currentPath), fieldValue));
+                                loader.get(schemaRoute.resolveRelative(currentPath), fieldValue));
                     else if (!currentPath.isEmpty() && fieldKey.equals("$id"))
                         schemaChilds.addChild(new JsonPtr(currentPath + "/" + fieldKey),
-                                              loader.get(schemaRoute.resolveRelative(currentPath), currentNode));
+                                loader.get(schemaRoute.resolveRelative(currentPath), currentNode));
                     else if (!currentPath.isEmpty() && fieldKey.equals("$anchor"))
                         schemaChilds.addChild(new JsonPtr(currentPath + "/" + fieldKey, fieldValue.asText()),
-                                              loader.get(schemaRoute.resolveRelative(currentPath), currentNode));
+                                loader.get(schemaRoute.resolveRelative(currentPath), currentNode));
 
                     continue;
                 }
@@ -233,7 +232,7 @@ public class SchemaNode implements ISchemaNode {
             }
         }
 
-        public ISchemaNode getChild(JsonPtr ptr) throws LoadException{
+        public ISchemaNode getChild(JsonPtr ptr) throws LoadException {
             if (childs.containsKey(ptr))
                 return childs.get(ptr);
 

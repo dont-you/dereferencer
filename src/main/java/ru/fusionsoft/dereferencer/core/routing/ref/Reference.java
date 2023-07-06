@@ -5,7 +5,7 @@ import java.net.URISyntaxException;
 
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 
-public class Reference implements Comparable<Reference>{
+public class Reference implements Comparable<Reference> {
     private final URI uri;
     private final URI absolute;
     private final JsonPtr jsonPtr;

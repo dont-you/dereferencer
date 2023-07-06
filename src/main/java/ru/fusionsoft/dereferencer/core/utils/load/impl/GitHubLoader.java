@@ -37,8 +37,8 @@ public class GitHubLoader implements SourceLoader {
 
             return conn.getInputStream();
         } catch (IOException e) {
-            // TODO
-            throw new URIException("");
+            throw new UnknownException(
+                    "unknown exception caused while getting source with msg - " + e.getMessage());
         }
     }
 

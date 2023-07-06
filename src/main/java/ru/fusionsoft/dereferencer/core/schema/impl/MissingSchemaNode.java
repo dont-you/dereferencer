@@ -7,7 +7,6 @@ import java.util.Map.Entry;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
-import ru.fusionsoft.dereferencer.core.exceptions.UnresolvableSchemaException;
 import ru.fusionsoft.dereferencer.core.routing.Route;
 import ru.fusionsoft.dereferencer.core.routing.ref.JsonPtr;
 import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
@@ -43,7 +42,8 @@ public class MissingSchemaNode implements ISchemaNode {
     @Override
     public JsonNode asJson() throws LoadException {
         if (presentSchema == null)
-            throw new UnresolvableSchemaException(""); // TODO describe exception
+            throw new LoadException(
+                    "schema with caninical - " + schemaRoute.getCanonical().getUri() + " could not be found");
         else
             return presentSchema.asJson();
     }
@@ -82,8 +82,8 @@ public class MissingSchemaNode implements ISchemaNode {
                 return childs.get(superSet.get()).getSchemaNodeByJsonPointer(jsonPointer);
 
             ISchemaNode createdSubSchema = loader.get(
-                                                      ReferenceFactory.create(schemaRoute.getCanonical(), jsonPointer),
-                                                      null);
+                    ReferenceFactory.create(schemaRoute.getCanonical(), jsonPointer),
+                    null);
             childs.put(jsonPointer, createdSubSchema);
             return createdSubSchema;
         } else {
@@ -115,7 +115,8 @@ public class MissingSchemaNode implements ISchemaNode {
     @Override
     public void resolve() throws LoadException {
         if (presentSchema == null)
-            throw new UnresolvableSchemaException(""); // TODO
+            throw new LoadException(
+                    "schema with caninical - " + schemaRoute.getCanonical().getUri() + " could not be found");
         else
             presentSchema.resolve();
     }

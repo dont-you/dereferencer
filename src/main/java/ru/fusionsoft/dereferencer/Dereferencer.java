@@ -5,20 +5,11 @@ import java.net.URI;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
-import ru.fusionsoft.dereferencer.core.exceptions.MissedFileException;
-import ru.fusionsoft.dereferencer.core.exceptions.NotResolvedException;
-import ru.fusionsoft.dereferencer.core.exceptions.URIException;
-import ru.fusionsoft.dereferencer.core.exceptions.UnknownException;
-import ru.fusionsoft.dereferencer.core.exceptions.UnresolvableSchemaException;
 import ru.fusionsoft.dereferencer.core.routing.ref.ReferenceFactory;
 import ru.fusionsoft.dereferencer.core.SchemaLoader;
 import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
 
 // TODO LIST
-//
-// - Error handling
-// ---- figure out where and when to throw exceptions
-// ---- do the right ExecutionException handling
 //
 // - Refactoring
 // ---- SchemaNode
@@ -26,11 +17,12 @@ import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
 //
 // - Tests
 // ---- write integrations tests && fix bugs
-// -------- fix: bugs from test in commit b1343bc
+// -------- some....
 // ---- write unit tests && fix bugs
 // -------- some....
 //
 // - Referencing & Retrieving
+// ---- Reference factory method create(Reference reference, JsonPtr ptr)
 // ---- RouteManager make anonRoute
 // ---- feat: write GitLabLoader
 // ---- feat: logs while resolving relative
@@ -41,8 +33,6 @@ import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
 //
 // - Dereferencer class
 // ---- feat: method of creating preloaded schemas
-//
-// - perf: prevention of resource duplicates
 
 public class Dereferencer {
 
@@ -83,7 +73,7 @@ public class Dereferencer {
         return executeAnonymousDereference(schemaLoader, node);
     }
 
-    public void setDereferenceConfiguration(DereferenceConfiguration cfg) throws URIException {
+    public void setDereferenceConfiguration(DereferenceConfiguration cfg) throws LoadException {
         schemaLoader.setDereferenceConfiguraion(cfg);
     }
 
@@ -97,6 +87,5 @@ public class Dereferencer {
         ISchemaNode resultNode = loader.get(node);
         return resultNode.asJson();
     }
-
 
 }

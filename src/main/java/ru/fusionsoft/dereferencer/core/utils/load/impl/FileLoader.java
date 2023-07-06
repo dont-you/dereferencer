@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
-import ru.fusionsoft.dereferencer.core.exceptions.MissedFileException;
+import ru.fusionsoft.dereferencer.core.exceptions.RetrievingException;
 import ru.fusionsoft.dereferencer.core.exceptions.UnknownException;
 import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
 import ru.fusionsoft.dereferencer.core.utils.load.SourceLoader;
@@ -24,12 +24,12 @@ public class FileLoader implements SourceLoader {
         try {
             return new FileInputStream(file);
         } catch (FileNotFoundException e) {
-            throw new MissedFileException("file not found, path - " + file.getAbsolutePath());
+            throw new RetrievingException("file not found, path - " + file.getAbsolutePath());
         }
     }
 
     @Override
-    public SupportedSourceTypes getSourceType(Reference ref) throws LoadException{
+    public SupportedSourceTypes getSourceType(Reference ref) throws LoadException {
         Path path = Paths.get(ref.getAbsolute());
         try {
             return SupportedSourceTypes.resolveSourceTypeByMimeType(Files.probeContentType(path));
