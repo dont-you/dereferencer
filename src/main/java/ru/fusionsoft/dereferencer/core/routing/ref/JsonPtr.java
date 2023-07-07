@@ -37,10 +37,11 @@ public class JsonPtr {
     }
 
     public String getPropertyName() {
-        if (parentJsonPointer == null)
-            return propertyName = propertyName.substring(propertyName.lastIndexOf("/") + 1);
-        else
-            return propertyName;
+        return Objects.requireNonNullElseGet(propertyName, () -> propertyName = jsonPointer.substring(jsonPointer.lastIndexOf("/") + 1));
+        // if (propertyName == null)
+        //     return propertyName = jsonPointer.substring(jsonPointer.lastIndexOf("/") + 1);
+        // else
+        //     return propertyName;
     }
 
     public JsonPtr subtractPtr(JsonPtr ptr) {
@@ -49,7 +50,7 @@ public class JsonPtr {
 
     public boolean isSuperSetTo(JsonPtr ptr) {
         if (ptr.isResolved() && this.isResolved() && ptr.getResolved().length() != this.getResolved().length())
-            return ptr.getResolved().startsWith(this.getResolved());
+            return ptr.getResolved().startsWith(this.getResolved() + "/");
         else
             return false;
     }
