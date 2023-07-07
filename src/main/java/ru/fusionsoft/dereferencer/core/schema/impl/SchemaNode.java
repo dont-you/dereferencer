@@ -72,9 +72,14 @@ public class SchemaNode implements ISchemaNode {
                         JsonNode value = v.asJson();
 
                         if (k.getResolved().equals("")) {
-                            ObjectNode parent = (ObjectNode) resolvedJson;
-                            parent.removeAll();
-                            parent.setAll((ObjectNode) value);
+                            if(value.isObject()){
+                                ObjectNode parent = (ObjectNode) resolvedJson;
+                                parent.removeAll();
+                                parent.setAll((ObjectNode) value);
+                            }
+                            else{
+                                resolvedJson = value;
+                            }
                         } else {
                             ObjectNode parent = (ObjectNode) resolvedJson.at(k.getParent().getResolved());
                             parent.set(k.getPropertyName(), value);
@@ -121,9 +126,9 @@ public class SchemaNode implements ISchemaNode {
         if (!jsonNode.isMissingNode()) {
             missedDelegate.setPresentSchema(
                     loader.get(schemaRoute.resolveRelative("#" + childPtr.getResolved()), jsonNode));
+        } else {
+            schemaChilds.resolveMeLater.put(childPtr, childSchema);
         }
-
-        schemaChilds.addChild(childPtr, missedDelegate);
     }
 
     @Override
@@ -200,53 +205,42 @@ public class SchemaNode implements ISchemaNode {
         }
 
         public void addChild(JsonPtr addedSchemaPtr, ISchemaNode addedSchema) throws LoadException {
-            boolean isMissed = addedSchema.getSchemaType() == MISSING_SCHEMA;
-
-            if (isMissed && isRelativeSchemaTo(addedSchema)) {
-                resolveMeLater.put(addedSchemaPtr, addedSchema);
-            } else if (addedSchemaPtr.isResolved() && addedSchemaPtr.getPlainName() != null) {
-                ISchemaNode targetNode = resolveMeLater.get(addedSchemaPtr);
-                if (targetNode != null) {
-                    resolveMeLater.remove(addedSchemaPtr);
-                    ((MissingSchemaNode) targetNode).setPresentSchema(addedSchema);
-                    childs.put(addedSchemaPtr, targetNode);
-                }
-
-            } else {
-                childs.put(addedSchemaPtr, addedSchema);
-            }
+            childs.put(addedSchemaPtr, addedSchema);
 
             Iterator<Entry<JsonPtr, ISchemaNode>> iter = resolveMeLater.entrySet().iterator();
-            while (iter.hasNext()) {
+            while(iter.hasNext()){
                 Entry<JsonPtr, ISchemaNode> notResolvedChild = iter.next();
-                if (addedSchemaPtr.isSuperSetTo(notResolvedChild.getKey())) {
-                    addedSchema.delegate(addedSchemaPtr.subtractPtr(notResolvedChild.getKey()),
-                            notResolvedChild.getValue());
+                JsonPtr lostPtr = notResolvedChild.getKey();
+                ISchemaNode lostSchema = notResolvedChild.getValue();
+
+                if(addedSchemaPtr.equals(lostPtr)){
+                    ((MissingSchemaNode)lostSchema).setPresentSchema(addedSchema);
                     iter.remove();
-                } else if (!isMissed && addedSchemaPtr.equals(notResolvedChild.getKey())) {
-                    ((MissingSchemaNode) notResolvedChild).setPresentSchema(addedSchema);
+                } else if(addedSchemaPtr.isSuperSetTo(lostPtr)){
+                    addedSchema.delegate(addedSchemaPtr.subtractPtr(lostPtr), lostSchema);
                     iter.remove();
                 }
             }
         }
 
-        public ISchemaNode getChild(JsonPtr ptr) throws LoadException {
-            if (childs.containsKey(ptr))
-                return childs.get(ptr);
+        public ISchemaNode getChild(JsonPtr targetPtr) throws LoadException {
+            Iterator<Entry<JsonPtr, ISchemaNode>> iter = childs.entrySet().iterator();
+            while(iter.hasNext()){
+                Entry<JsonPtr, ISchemaNode> child = iter.next();
+                JsonPtr ptr = child.getKey();
+                ISchemaNode schema = child.getValue();
 
-            Optional<JsonPtr> superSet = childs.keySet().stream().filter((e) ->e.isSuperSetTo(ptr)).findAny();
-            if (superSet.isPresent())
-                return childs.get(superSet.get()).getSchemaNodeByJsonPointer(ptr);
+                if(ptr.equals(targetPtr))
+                    return schema;
+                else if(ptr.isSuperSetTo(targetPtr))
+                    return schema.getSchemaNodeByJsonPointer(ptr.subtractPtr(targetPtr));
+            }
 
-            JsonNode sourceNodeForChild;
-            if (ptr.isResolved())
-                sourceNodeForChild = sourceJson.at(ptr.getResolved());
-            else
-                sourceNodeForChild = MissingNode.getInstance();
+            ISchemaNode createdSubSchema = loader.get(schemaRoute.resolveRelative("#" + targetPtr.getResolved()),
+                                                      targetPtr.isResolved() ? sourceJson.at(targetPtr.getResolved()) : MissingNode.getInstance());
 
-            ISchemaNode createdSubSchema = loader.get(schemaRoute.resolveRelative("#" + ptr.getResolved()),
-                    sourceNodeForChild);
-            addChild(ptr, createdSubSchema);
+            if(createdSubSchema.getSchemaType()==MISSING_SCHEMA)
+                resolveMeLater.put(targetPtr, createdSubSchema);
 
             return createdSubSchema;
         }
