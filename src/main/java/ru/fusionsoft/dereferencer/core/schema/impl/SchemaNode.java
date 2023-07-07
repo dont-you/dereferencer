@@ -165,10 +165,10 @@ public class SchemaNode implements ISchemaNode {
                         schemaChilds.addChild(new JsonPtr(currentPath),
                                 loader.get(schemaRoute.resolveRelative(currentPath), fieldValue));
                     else if (!currentPath.isEmpty() && fieldKey.equals("$id"))
-                        schemaChilds.addChild(new JsonPtr(currentPath + "/" + fieldKey),
+                        schemaChilds.addChild(new JsonPtr(currentPath),
                                 loader.get(schemaRoute.resolveRelative(currentPath), currentNode));
                     else if (!currentPath.isEmpty() && fieldKey.equals("$anchor"))
-                        schemaChilds.addChild(new JsonPtr(currentPath + "/" + fieldKey, fieldValue.asText()),
+                        schemaChilds.addChild(new JsonPtr(currentPath, fieldValue.asText()),
                                 loader.get(schemaRoute.resolveRelative(currentPath), currentNode));
 
                     continue;
