@@ -38,10 +38,6 @@ public class JsonPtr {
 
     public String getPropertyName() {
         return Objects.requireNonNullElseGet(propertyName, () -> propertyName = jsonPointer.substring(jsonPointer.lastIndexOf("/") + 1));
-        // if (propertyName == null)
-        //     return propertyName = jsonPointer.substring(jsonPointer.lastIndexOf("/") + 1);
-        // else
-        //     return propertyName;
     }
 
     public JsonPtr subtractPtr(JsonPtr ptr) {
