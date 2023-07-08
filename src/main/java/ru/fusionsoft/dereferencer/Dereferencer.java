@@ -1,57 +1,93 @@
 package ru.fusionsoft.dereferencer;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
-import java.util.logging.Logger;
+import java.net.URI;
 
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import ru.fusionsoft.dereferencer.core.builders.Linker;
-import ru.fusionsoft.dereferencer.core.reference.Reference;
-import ru.fusionsoft.dereferencer.core.reference.factories.ReferenceFactory;
-import ru.fusionsoft.dereferencer.exception.ReferenceException;
+import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
+import ru.fusionsoft.dereferencer.core.routing.ref.ReferenceFactory;
+import ru.fusionsoft.dereferencer.core.SchemaLoader;
+import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
+
+// TODO LIST
+//
+// - Refactoring
+// ---- SchemaNode
+// ---- SchemaLoader
+//
+// - Tests
+// ---- write integrations tests && fix bugs
+// -------- test simple_scheme.json
+// -------- test layer_1_scheme_1.json
+// ---- write unit tests && fix bugs
+// -------- some....
+//
+// - Referencing & Retrieving
+// ---- Reference factory method create(Reference reference, JsonPtr ptr)
+// ---- feat: write GitLabLoader
+// ---- feat: logs while resolving relative
+//
+// - Schema nodes
+// ---- write AllOfSchemaNode
+// ---- feat: allOf merge is on and of
+//
+// - Dereferencer class
+// ---- feat: method of creating preloaded schemas
+//
+// - feat: anon dereferencing(SchemaLoader.get(JsonNode), RouteManager.makeAnon())
 
 public class Dereferencer {
-    public static final ObjectMapper objectMapper = new ObjectMapper();
-    private static String gitHubToken = null;
-    private static Properties properties = null;
-    private static Logger logger = Logger.getGlobal();
 
-    public static JsonNode dereference(String uri)
-            throws ReferenceException, StreamReadException, DatabindException, IOException {
-        logger.info("start document dereferencing at uri - '" + uri + "'");
-        if(properties==null){
-            properties = new Properties();
-            InputStream inputStream = Dereferencer.class.getClassLoader().getResourceAsStream("config.properties");
-            properties.load(inputStream);
-        }
-        Reference reference = ReferenceFactory.create(uri);
-        JsonNode jsonNode = Linker.combine(reference);
-        logger.info("end document dereferencing at uri - '" + uri + "'");
-        return jsonNode;
+    private SchemaLoader schemaLoader;
+
+    public Dereferencer() throws LoadException {
+        schemaLoader = new SchemaLoader(DereferenceConfiguration.builder().build());
     }
 
-    public static void setGitHubToken(String gitHubToken) {
-        Dereferencer.gitHubToken = gitHubToken;
+    public Dereferencer(DereferenceConfiguration cfg) throws LoadException {
+        schemaLoader = new SchemaLoader(cfg);
     }
 
-    public static String getGitHubToken() {
-        return gitHubToken;
+    public static JsonNode deref(URI uri) throws LoadException {
+        return deref(uri, DereferenceConfiguration.builder().build());
     }
 
-    public static Properties getProperties() {
-        return properties;
+    public static JsonNode deref(URI uri, DereferenceConfiguration cfg) throws LoadException {
+        SchemaLoader schemaLoader = new SchemaLoader(cfg);
+        return executeDereference(schemaLoader, uri);
     }
 
-    public static Logger getLogger() {
-        return logger;
+    public static JsonNode anonymousDeref(JsonNode node) throws LoadException {
+        return anonymousDeref(node, DereferenceConfiguration.builder().build());
     }
 
-    public static void setLogger(Logger logger) {
-        Dereferencer.logger = logger;
+    public static JsonNode anonymousDeref(JsonNode node, DereferenceConfiguration cfg)
+            throws LoadException {
+        SchemaLoader schemaLoader = new SchemaLoader(cfg);
+        return executeAnonymousDereference(schemaLoader, node);
     }
+
+    public JsonNode dereference(URI uri) throws LoadException {
+        return executeDereference(schemaLoader, uri);
+    }
+
+    public JsonNode anonymousDereference(JsonNode node) throws LoadException {
+        return executeAnonymousDereference(schemaLoader, node);
+    }
+
+    public void setDereferenceConfiguration(DereferenceConfiguration cfg) throws LoadException {
+        schemaLoader.setDereferenceConfiguration(cfg);
+    }
+
+    private static JsonNode executeDereference(SchemaLoader loader, URI uri) throws LoadException {
+        ISchemaNode resultNode = loader.get(ReferenceFactory.create(uri));
+        return resultNode.asJson();
+    }
+
+    private static JsonNode executeAnonymousDereference(SchemaLoader loader, JsonNode node)
+            throws LoadException {
+        ISchemaNode resultNode = loader.get(node);
+        return resultNode.asJson();
+    }
+
 }

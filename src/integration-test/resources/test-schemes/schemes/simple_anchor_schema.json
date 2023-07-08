@@ -1,0 +1,17 @@
+{
+  "properties": {
+    "prop1": {
+      "$ref": "#test"
+    },
+    "prop2": {
+      "$anchor": "test2",
+      "value": 2
+    }
+  },
+  "$defs": {
+    "prop1": {
+      "$anchor": "test",
+      "value": 1
+    }
+  }
+}
