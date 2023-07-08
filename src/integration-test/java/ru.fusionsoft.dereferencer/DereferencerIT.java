@@ -3,10 +3,12 @@ package ru.fusionsoft.dereferencer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.base.Throwables;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import org.apache.tika.Tika;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
@@ -14,9 +16,14 @@ import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 import ru.fusionsoft.dereferencer.core.exceptions.UnknownException;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public class DereferencerIT {
@@ -55,8 +62,16 @@ public class DereferencerIT {
 
         assertEquals(expected, actual);
     }
+
     @Test
     public void delme() throws LoadException, IOException {
+        Dereferencer dereferencer = new Dereferencer(DereferenceConfiguration.builder().build());
+        String HOME = System.getenv().get("HOME");
 
+        JsonNode json1 = dereferencer.dereference(URI.create(HOME+"/Temp/schemes/fipc.yaml").normalize());
+        System.out.println(json1);
+
+//        JsonNode json2 = dereferencer.dereference(URI.create(HOME+"/Temp/service/fipc-db-service.yaml").normalize());
+//        System.out.println(json2);
     }
 }

@@ -136,7 +136,7 @@ public class SchemaNode implements ISchemaNode {
     }
 
     protected void executeResolving() throws LoadException {
-        Set<String> processedKeywords = new HashSet<>(Arrays.asList("$ref", "allOf", "$id", "$anchor"));
+        Set<String> processedKeywords = new HashSet<>(Arrays.asList("$ref", "$id", "$anchor"));
         JsonNode currentNode;
         String currentPath;
         Stack<JsonNode> memory = new Stack<>();
@@ -161,9 +161,9 @@ public class SchemaNode implements ISchemaNode {
                     if (fieldKey.equals("$ref"))
                         schemaChilds.addChild(new JsonPtr(currentPath),
                                 loader.get(schemaRoute.resolveRelative(fieldValue.asText())));
-                    else if (fieldKey.equals("allOf"))
-                        schemaChilds.addChild(new JsonPtr(currentPath),
-                                loader.get(schemaRoute.resolveRelative(currentPath), fieldValue));
+                    // else if (fieldKey.equals("allOf"))
+                    //     schemaChilds.addChild(new JsonPtr(currentPath),
+                    //             loader.get(schemaRoute.resolveRelative(currentPath), fieldValue));
                     else if (!currentPath.isEmpty() && fieldKey.equals("$id"))
                         schemaChilds.addChild(new JsonPtr(currentPath),
                                 loader.get(schemaRoute.resolveRelative(currentPath), currentNode));
@@ -240,6 +240,8 @@ public class SchemaNode implements ISchemaNode {
 
             if(createdSubSchema.getSchemaType()==MISSING_SCHEMA)
                 resolveMeLater.put(targetPtr, createdSubSchema);
+            else
+                childs.put(targetPtr, createdSubSchema);
 
             return createdSubSchema;
         }
