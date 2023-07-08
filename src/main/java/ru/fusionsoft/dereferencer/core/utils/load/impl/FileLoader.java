@@ -5,10 +5,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.apache.tika.Tika;
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 import ru.fusionsoft.dereferencer.core.exceptions.RetrievingException;
 import ru.fusionsoft.dereferencer.core.exceptions.UnknownException;
@@ -32,7 +32,8 @@ public class FileLoader implements SourceLoader {
     public SupportedSourceTypes getSourceType(Reference ref) throws LoadException {
         Path path = Paths.get(ref.getAbsolute());
         try {
-            return SupportedSourceTypes.resolveSourceTypeByMimeType(Files.probeContentType(path));
+            Tika tika = new Tika();
+            return SupportedSourceTypes.resolveSourceTypeByMimeType(tika.detect(path));
         } catch (IOException e) {
             throw new UnknownException(
                     "unknown exception caused while getting mime type with msg - " + e.getMessage());

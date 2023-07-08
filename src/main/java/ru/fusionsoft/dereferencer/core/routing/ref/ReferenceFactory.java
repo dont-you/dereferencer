@@ -31,6 +31,7 @@ public class ReferenceFactory {
 
     public static Reference create(Reference reference, JsonPtr ptr) throws URIException {
         String result = reference.getAbsolute().toString() + "#" + ptr.getResolved();
+        System.out.println(result);
         try {
             return create(new URI(result));
         } catch (URISyntaxException e) {

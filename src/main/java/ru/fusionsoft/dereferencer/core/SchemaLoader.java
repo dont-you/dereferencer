@@ -156,13 +156,17 @@ public class SchemaLoader {
             }
         }
 
-        if (source.has("allOf")) {
-            // TODO do after writing class AllOfSchemaNode
-            targetNode = null;
-            // targetNode = new AllOfSchemaNode(this, routeToSchema);
-        } else {
-            targetNode = new SchemaNode(this, route, source, false);
-        }
+        // TODO set
+        // if (source.has("allOf")) {
+        //     // TODO do after writing class AllOfSchemaNode
+        //     targetNode = null;
+        //     // targetNode = new AllOfSchemaNode(this, routeToSchema);
+        // } else {
+        //     targetNode = new SchemaNode(this, route, source, false);
+        // }
+
+        // TODO remove
+        targetNode = new SchemaNode(this, route, source, false);
 
         countCreatedSchemas++;
         return targetNode;

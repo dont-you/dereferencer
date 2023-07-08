@@ -2,6 +2,7 @@ package ru.fusionsoft.dereferencer.core.routing.ref;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Objects;
 
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 
@@ -43,5 +44,10 @@ public class Reference implements Comparable<Reference> {
     @Override
     public int compareTo(Reference ref) {
         return uri.compareTo(ref.uri);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uri);
     }
 }

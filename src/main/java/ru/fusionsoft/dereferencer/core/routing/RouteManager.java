@@ -1,6 +1,7 @@
 package ru.fusionsoft.dereferencer.core.routing;
 
 import java.net.URI;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Logger;
@@ -22,6 +23,14 @@ public class RouteManager {
 
     public Route getRoute(Reference retrievalReference) throws URIException {
         Route target = new Route(ReferenceFactory.create(defaultBaseReference, retrievalReference));
+        Iterator<Route> iter = cache.iterator();
+
+        while(iter.hasNext()){
+            Route intendedExistingRoute = iter.next();
+            if(intendedExistingRoute.equals(target))
+                return intendedExistingRoute;
+        }
+
         cache.add(target);
         return target;
     }
