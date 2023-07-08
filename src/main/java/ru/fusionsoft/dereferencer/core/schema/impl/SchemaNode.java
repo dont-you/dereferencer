@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -80,8 +81,11 @@ public class SchemaNode implements ISchemaNode {
                                 resolvedJson = value;
                             }
                         } else {
-                            ObjectNode parent = (ObjectNode) resolvedJson.at(k.getParent().getResolved());
-                            parent.set(k.getPropertyName(), value);
+                            JsonNode parent = resolvedJson.at(k.getParent().getResolved());
+                            if(parent.isObject())
+                                ((ObjectNode)parent).set(k.getPropertyName(), value);
+                            else
+                                ((ArrayNode)parent).set(Integer.parseInt(k.getPropertyName()), value);
                         }
                     } catch (LoadException e) {
                         throw new RuntimeException();
@@ -174,17 +178,21 @@ public class SchemaNode implements ISchemaNode {
                     continue;
                 }
 
+                if(fieldKey.contains("/")){
+                    fieldKey = fieldKey.replaceAll("/", "~1");
+                }
+
                 if (fieldValue.isArray()) {
                     Iterator<JsonNode> elements = field.getValue().elements();
 
                     int i = 0;
                     while (elements.hasNext()) {
                         memory.push(elements.next());
-                        pathStack.push(currentPath + "/" + field.getKey() + "/" + i++);
+                        pathStack.push(currentPath + "/" + fieldKey + "/" + i++);
                     }
                 } else {
-                    memory.push(field.getValue());
-                    pathStack.push(currentPath + "/" + field.getKey());
+                    memory.push(fieldValue);
+                    pathStack.push(currentPath + "/" + fieldKey);
                 }
             }
         }
