@@ -1,4 +1,0 @@
-{
-  "description": "some text",
-  "descriptionCopy": {"$ref": "#/description"}
-}

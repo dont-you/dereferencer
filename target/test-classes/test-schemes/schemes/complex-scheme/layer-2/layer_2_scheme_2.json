@@ -1,7 +1,0 @@
-{
-  "classes": {
-    "car": {"$ref": "./layer-3/layer_3_scheme_1.json"},
-    "cat": {"$ref": "../layer_3_scheme_2.json#/age"},
-    "dog": {"$ref": "layer-3/layer_3_scheme_3.json"}
-  }
-}

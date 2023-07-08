@@ -1,8 +1,0 @@
--------------------------------------------------------------------------------
-Test set: ru.fusionsoft.dereferencer.DereferencerTest
--------------------------------------------------------------------------------
-Tests run: 2, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.261 s <<< FAILURE! - in ru.fusionsoft.dereferencer.DereferencerTest
-Test_simple_scheme_With_url_reference(ru.fusionsoft.dereferencer.DereferencerTest)  Time elapsed: 0.025 s  <<< ERROR!
-java.lang.StringIndexOutOfBoundsException: begin -1, end 18, length 18
-	at ru.fusionsoft.dereferencer.DereferencerTest.Test_simple_scheme_With_url_reference(DereferencerTest.java:33)
-
