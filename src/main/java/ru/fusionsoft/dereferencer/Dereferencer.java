@@ -1,6 +1,7 @@
 package ru.fusionsoft.dereferencer;
 
 import java.net.URI;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -58,6 +59,7 @@ public class Dereferencer {
         schemaLoader.setDereferenceConfiguration(cfg);
     }
 
+
     private static JsonNode executeDereference(SchemaLoader loader, URI uri) throws LoadException {
         ISchemaNode resultNode = loader.get(ReferenceFactory.create(uri));
         return resultNode.asJson();
@@ -68,5 +70,4 @@ public class Dereferencer {
         ISchemaNode resultNode = loader.get(node);
         return resultNode.asJson();
     }
-
 }

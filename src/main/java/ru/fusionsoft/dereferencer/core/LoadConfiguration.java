@@ -12,17 +12,17 @@ import ru.fusionsoft.dereferencer.core.routing.Route;
 import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
 
 public class LoadConfiguration {
-    private LoadingFlag[] loadingFlags;
+    protected LoadingFlag[] loadingFlags;
 
-    private int cashSize;
+    protected int cashSize;
 
-    private ILoaderFactory loaderFactory;
+    protected ILoaderFactory loaderFactory;
 
-    private Map<Route, ISchemaNode> preloadedSchemas;
+    protected Map<Route, ISchemaNode> preloadedSchemas;
 
-    private Logger logger;
+    protected Logger logger;
 
-    private URI defaultBaseUri;
+    protected URI defaultBaseUri;
 
     public LoadConfiguration(){
         loadingFlags = new LoadingFlag[]{};
@@ -51,10 +51,6 @@ public class LoadConfiguration {
 
     public ILoaderFactory getLoaderFactory() {
         return loaderFactory;
-    }
-
-    public void setLoaderFactory(ILoaderFactory loaderFactory) {
-        this.loaderFactory = loaderFactory;
     }
 
     public Map<Route, ISchemaNode> getPreloadedSchemas() {
