@@ -73,5 +73,6 @@ public class DereferencerIT {
 
         JsonNode json2 = dereferencer.dereference(URI.create(HOME+"/Temp/service/fipc-db-service.yaml").normalize());
         System.out.println(json2);
+
     }
 }

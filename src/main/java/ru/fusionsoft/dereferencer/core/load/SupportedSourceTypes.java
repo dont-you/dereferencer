@@ -1,4 +1,4 @@
-package ru.fusionsoft.dereferencer.core.utils.load;
+package ru.fusionsoft.dereferencer.core.load;
 
 public enum SupportedSourceTypes {
     JSON,

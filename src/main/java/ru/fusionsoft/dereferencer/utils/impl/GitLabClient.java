@@ -1,13 +1,13 @@
-package ru.fusionsoft.dereferencer.core.utils.load.impl;
+package ru.fusionsoft.dereferencer.utils.impl;
 
 import java.io.InputStream;
 
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
-import ru.fusionsoft.dereferencer.core.utils.load.SourceLoader;
-import ru.fusionsoft.dereferencer.core.utils.load.SupportedSourceTypes;
+import ru.fusionsoft.dereferencer.core.load.SourceLoader;
+import ru.fusionsoft.dereferencer.core.load.SupportedSourceTypes;
 
-public class GitLabLoader implements SourceLoader {
+public class GitLabClient implements SourceLoader {
 
     private String token = null;
 

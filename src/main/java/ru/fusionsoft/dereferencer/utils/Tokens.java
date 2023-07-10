@@ -1,4 +1,4 @@
-package ru.fusionsoft.dereferencer.core;
+package ru.fusionsoft.dereferencer.utils;
 
 public class Tokens {
     private String gitHubToken;

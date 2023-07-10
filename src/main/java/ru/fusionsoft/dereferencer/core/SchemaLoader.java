@@ -17,7 +17,7 @@ import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 import ru.fusionsoft.dereferencer.core.exceptions.UnknownException;
 import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
 import ru.fusionsoft.dereferencer.core.schema.SchemaStatus;
-import ru.fusionsoft.dereferencer.core.utils.RetrievalManager;
+import ru.fusionsoft.dereferencer.core.load.RetrievalManager;
 import ru.fusionsoft.dereferencer.core.routing.Route;
 import ru.fusionsoft.dereferencer.core.routing.RouteManager;
 import ru.fusionsoft.dereferencer.core.routing.ref.JsonPtr;
@@ -39,7 +39,7 @@ public class SchemaLoader {
         preloadedSchemas = cfg.getPreloadedSchemas();
         logger = cfg.getLogger();
         routeManager = new RouteManager(cfg.getDefaultBaseUri(), preloadedSchemas.keySet(), logger);
-        retrievalManager = new RetrievalManager(cfg.getTokens(), logger);
+        retrievalManager = new RetrievalManager(cfg.getLoaderFactory(),logger);
         setCache(cfg.getCashSize());
     }
 
@@ -96,7 +96,7 @@ public class SchemaLoader {
         logger = cfg.getLogger();
         routeManager.setDefaultBaseUri(cfg.getDefaultBaseUri()).setPreloadedRoutes(cfg.getPreloadedSchemas().keySet())
                 .setLogger(logger);
-        retrievalManager.setTokens(cfg.getTokens()).setLogger(logger);
+        retrievalManager.setLoaderFactory(cfg.getLoaderFactory()).setLogger(logger);
         preloadedSchemas = cfg.getPreloadedSchemas();
         setCache(cfg.getCashSize());
     }

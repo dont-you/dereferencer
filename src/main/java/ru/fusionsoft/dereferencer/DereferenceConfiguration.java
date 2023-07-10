@@ -1,24 +1,18 @@
 package ru.fusionsoft.dereferencer;
 
 import java.net.URI;
-import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
 import ru.fusionsoft.dereferencer.core.LoadConfiguration;
 import ru.fusionsoft.dereferencer.core.LoadingFlag;
-import ru.fusionsoft.dereferencer.core.Tokens;
+import ru.fusionsoft.dereferencer.core.load.ILoaderFactory;
+import ru.fusionsoft.dereferencer.utils.ClientFactory;
+import ru.fusionsoft.dereferencer.utils.Tokens;
 import ru.fusionsoft.dereferencer.core.routing.Route;
 import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
 
-public class DereferenceConfiguration implements LoadConfiguration {
-
-    private Logger logger;
-    private LoadingFlag[] loadingFlags;
-    private int cashSize;
-    private Map<Route, ISchemaNode> preloadedSchemas;
-    private URI defaultBaseUri;
+public class DereferenceConfiguration extends LoadConfiguration {
     private Tokens tokens;
 
     private DereferenceConfiguration() {
@@ -29,10 +23,7 @@ public class DereferenceConfiguration implements LoadConfiguration {
 
         private DereferenceConfigurationBuilder() {
             cfg = new DereferenceConfiguration();
-            setLogger(Logger.getGlobal())
-                    .setLoadingFlags(new LoadingFlag[] {}).setCashSize(-1)
-                    .setPreloadedSchemas(new HashMap<>()).setTokens(new Tokens())
-                    .setDefaultBaseUri(Paths.get("./").toAbsolutePath().toUri());
+            setTokens(new Tokens()).setLoaderFactory(new ClientFactory(cfg.tokens));
         }
 
         public DereferenceConfigurationBuilder setLoadingFlags(LoadingFlag[] loadingFlags) {
@@ -75,6 +66,11 @@ public class DereferenceConfiguration implements LoadConfiguration {
             return this;
         }
 
+        public DereferenceConfigurationBuilder setLoaderFactory(ILoaderFactory loaderFactory) {
+            cfg.setLoaderFactory(loaderFactory);
+            return this;
+        }
+
         public DereferenceConfiguration build() {
             return cfg;
         }
@@ -85,58 +81,18 @@ public class DereferenceConfiguration implements LoadConfiguration {
         return new DereferenceConfigurationBuilder();
     }
 
-    @Override
-    public LoadingFlag[] getLoadingFlags() {
-        return loadingFlags;
-    }
-
-    @Override
-    public int getCashSize() {
-        return cashSize;
-    }
-
-    @Override
-    public Map<Route, ISchemaNode> getPreloadedSchemas() {
-        return preloadedSchemas;
-    }
-
-    @Override
-    public Logger getLogger() {
-        return logger;
-    }
-
-    @Override
-    public URI getDefaultBaseUri() {
-        return defaultBaseUri;
-    }
-
-    @Override
     public Tokens getTokens() {
         return tokens;
     }
 
-    public void setLoadingFlags(LoadingFlag[] loadingFlags) {
-        this.loadingFlags = loadingFlags;
-    }
-
-    public void setCashSize(int cashSize) {
-        this.cashSize = cashSize;
-    }
-
-    public void setPreloadedSchemas(Map<Route, ISchemaNode> preloadedSchemas) {
-        this.preloadedSchemas = preloadedSchemas;
-    }
-
-    public void setLogger(Logger logger) {
-        this.logger = logger;
-    }
-
-    public void setDefaultBaseUri(URI defaultBaseUri) {
-        this.defaultBaseUri = defaultBaseUri;
-    }
-
     public void setTokens(Tokens tokens) {
-        this.tokens = tokens;
+        if(this.tokens==null){
+            this.tokens = tokens;
+        } else {
+            tokens.setGitHubToken(tokens.getGitHubToken());
+            tokens.setGitLabToken(tokens.getGitLabToken());
+        }
+
     }
 
     public String getGitLabToken() {
