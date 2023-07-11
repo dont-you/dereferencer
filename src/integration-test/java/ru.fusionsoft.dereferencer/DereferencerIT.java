@@ -76,4 +76,7 @@ public class DereferencerIT {
 
     }
 
+    @Test
+    public void some(){
+    }
 }

@@ -48,7 +48,7 @@ public class ClientFactory implements ILoaderFactory{
     @Override
     public SourceLoader getLoader(URI uri) throws LoadException {
         if (isUrnReference(uri))
-            return getLoader(urnResolver.getLocator(new URN(uri)));
+            return getLoader(urnResolver.getLocator(URN.parse(uri)));
         if (isGitHubReference(uri))
             return gitHubClient;
         else if (isFileSystemReference(uri))
@@ -65,7 +65,7 @@ public class ClientFactory implements ILoaderFactory{
         else if (isFileSystemReference(uri))
             return fileClient;
         else if (isUrnReference(uri))
-            return getClient(urnResolver.getLocator(new URN(uri)));
+            return getClient(urnResolver.getLocator(URN.parse(uri)));
         else
             throw new RetrievingException("source client for resource with uri " + uri + " is not implemented");
     }

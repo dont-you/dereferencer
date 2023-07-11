@@ -29,9 +29,6 @@ import ru.fusionsoft.dereferencer.utils.urn.URNResolver;
 // - Dereferencer class
 // ---- feat: dereference uri array
 //
-// - URN class
-// ---- parse urn
-//
 // - TagUri class
 // ---- parse tag uri
 // ---- make uri by tag uri and uri from cache
@@ -102,7 +99,7 @@ public class Dereferencer {
                 Iterator<Entry<String, JsonNode>> fields = map.fields();
                 while(fields.hasNext()){
                     Entry<String, JsonNode> pair = fields.next();
-                    cache.put(new URN(new URI(pair.getKey())), new URI(pair.getValue().asText()));
+                    cache.put(URN.parse(new URI(pair.getKey())), new URI(pair.getValue().asText()));
                 }
             }
 
