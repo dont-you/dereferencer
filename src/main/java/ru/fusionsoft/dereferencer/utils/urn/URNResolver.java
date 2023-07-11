@@ -20,13 +20,7 @@ public class URNResolver{
         URI uri = cache.get(urn);
 
         if(urn.getNID().equals("tag")){
-            try {
-                return TagUri.makeTargetUri(new TagUri(new URI(urn.getNID() + urn.getNSS() + urn.getRqComponent() + urn.getfComponent())),
-                                     uri);
-            } catch (URISyntaxException e) {
-                throw new URIException(""); // TODO
-            }
-
+            return TagUri.makeTargetUri(TagUri.parseByUrn(urn),uri);
         }else{
 
                 throw new RetrievingException("uri with NID" + urn.getNID() + " not supported");

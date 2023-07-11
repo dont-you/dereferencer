@@ -8,13 +8,15 @@ import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 public class URN{
     private final String NID;
     private final String NSS;
-    private final String rqComponent;
+    private final String rComponent;
+    private final String qComponent;
     private final String fComponent;
 
-    private URN(String NID, String NSS, String rqComponent,String fComponent){
+    private URN(String NID, String NSS, String rComponent, String qComponent,String fComponent){
         this.NID = NID;
         this.NSS = NSS;
-        this.rqComponent = rqComponent;
+        this.rComponent = rComponent;
+        this.qComponent = qComponent;
         this.fComponent = fComponent;
     }
 
@@ -29,11 +31,11 @@ public class URN{
         String NSS = substringUntilAny(schemeSpecificPart, "?=", "?+", "#");
         String rqfComponents = schemeSpecificPart.substring(NSS.length());
 
-        int fCompIndex = rqfComponents.indexOf("#");
-        String rqComponent = rqfComponents.substring(0,fCompIndex);
-        String fComponent = rqComponent.substring(fCompIndex);
+        String rComponent = substringUntilAny(rqfComponents, "?=", "#");
+        String qComponent = substringUntilAny(rqfComponents.substring(rComponent.length()), "#");
+        String fComponent = rqfComponents.substring(rComponent.length() + qComponent.length());
 
-        return new URN(NID, NSS, rqComponent, fComponent);
+        return new URN(NID, NSS, rComponent, qComponent, fComponent);
     }
 
     private static String substringUntilAny(String line, String... endDelimiters){
@@ -61,17 +63,21 @@ public class URN{
         return NSS;
     }
 
-    public String getRqComponent() {
-        return rqComponent;
-    }
-
     public String getfComponent() {
         return fComponent;
     }
 
+    public String getrComponent() {
+        return rComponent;
+    }
+
+    public String getqComponent() {
+        return qComponent;
+    }
+
     @Override
     public String toString(){
-        return "urn:" + NID + ":" + NSS + rqComponent + fComponent;
+        return "urn:" + NID + ":" + NSS + rComponent + qComponent + fComponent;
     }
 
     @Override

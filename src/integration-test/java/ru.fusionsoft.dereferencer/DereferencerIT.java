@@ -16,6 +16,8 @@ import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 import ru.fusionsoft.dereferencer.core.exceptions.UnknownException;
 import ru.fusionsoft.dereferencer.utils.impl.GitHubClient;
+import ru.fusionsoft.dereferencer.utils.urn.TagUri;
+import ru.fusionsoft.dereferencer.utils.urn.URN;
 
 import java.io.*;
 import java.net.*;
@@ -77,6 +79,12 @@ public class DereferencerIT {
     }
 
     @Test
-    public void some(){
+    public void some() throws URISyntaxException, LoadException {
+        String urnLiterl = "urn:tag:fusionsoft.ru,2023:file?=sss#some";
+        URN urn = URN.parse(new URI(urnLiterl));
+        System.out.println(urn);
+        TagUri tagUri = TagUri.parseByUrn(urn);
+        URI uri = new URI(urnLiterl);
+        System.out.println(TagUri.makeTargetUri(TagUri.parseByUrn(urn),new URI("https://google.com/")));
     }
 }
