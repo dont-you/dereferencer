@@ -15,14 +15,14 @@ import static org.junit.Assert.assertEquals;
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 import ru.fusionsoft.dereferencer.core.exceptions.UnknownException;
+import ru.fusionsoft.dereferencer.utils.impl.GitHubClient;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URLConnection;
+import java.io.*;
+import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -75,4 +75,5 @@ public class DereferencerIT {
         System.out.println(json2);
 
     }
+
 }

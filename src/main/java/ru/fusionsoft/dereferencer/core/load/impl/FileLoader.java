@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -12,15 +13,14 @@ import org.apache.tika.Tika;
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 import ru.fusionsoft.dereferencer.core.exceptions.RetrievingException;
 import ru.fusionsoft.dereferencer.core.exceptions.UnknownException;
-import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
 import ru.fusionsoft.dereferencer.core.load.SourceLoader;
 import ru.fusionsoft.dereferencer.core.load.SupportedSourceTypes;
 
 public class FileLoader implements SourceLoader {
 
     @Override
-    public InputStream getSource(Reference ref) throws LoadException {
-        File file = Paths.get(ref.getAbsolute()).toAbsolutePath().toFile();
+    public InputStream getSource(URI uri) throws LoadException {
+        File file = Paths.get(uri).toAbsolutePath().toFile();
         try {
             return new FileInputStream(file);
         } catch (FileNotFoundException e) {
@@ -29,8 +29,8 @@ public class FileLoader implements SourceLoader {
     }
 
     @Override
-    public SupportedSourceTypes getSourceType(Reference ref) throws LoadException {
-        Path path = Paths.get(ref.getAbsolute());
+    public SupportedSourceTypes getSourceType(URI uri) throws LoadException {
+        Path path = Paths.get(uri);
         try {
             Tika tika = new Tika();
             return SupportedSourceTypes.resolveSourceTypeByMimeType(tika.detect(path));

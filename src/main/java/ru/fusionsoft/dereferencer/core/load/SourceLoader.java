@@ -1,12 +1,12 @@
 package ru.fusionsoft.dereferencer.core.load;
 
 import java.io.InputStream;
+import java.net.URI;
 
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
-import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
 
 public interface SourceLoader {
-    InputStream getSource(Reference ref) throws LoadException;
+    InputStream getSource(URI uri) throws LoadException;
 
-    SupportedSourceTypes getSourceType(Reference ref) throws LoadException;
+    SupportedSourceTypes getSourceType(URI uri) throws LoadException;
 }

@@ -3,19 +3,19 @@ package ru.fusionsoft.dereferencer.core.load.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 import ru.fusionsoft.dereferencer.core.exceptions.UnknownException;
-import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
 import ru.fusionsoft.dereferencer.core.load.SourceLoader;
 import ru.fusionsoft.dereferencer.core.load.SupportedSourceTypes;
 
 public class URLLoader implements SourceLoader {
 
     @Override
-    public InputStream getSource(Reference ref) throws LoadException {
+    public InputStream getSource(URI uri) throws LoadException {
         try {
-            return ref.getAbsolute().toURL().openStream();
+            return uri.toURL().openStream();
         } catch (IOException e) {
             throw new UnknownException(
                     "unknown exception caused while getting source with msg - " + e.getMessage());
@@ -23,9 +23,9 @@ public class URLLoader implements SourceLoader {
     }
 
     @Override
-    public SupportedSourceTypes getSourceType(Reference ref) throws LoadException {
+    public SupportedSourceTypes getSourceType(URI uri) throws LoadException {
         try {
-            HttpURLConnection connection = (HttpURLConnection) ref.getAbsolute().toURL().openConnection();
+            HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
             connection.setRequestMethod("HEAD");
             return SupportedSourceTypes.resolveSourceTypeByMimeType(connection.getContentType());
         } catch (IOException e) {
