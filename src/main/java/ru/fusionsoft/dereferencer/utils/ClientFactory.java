@@ -16,7 +16,7 @@ import ru.fusionsoft.dereferencer.utils.impl.GitHubClient;
 import ru.fusionsoft.dereferencer.utils.urn.URN;
 import ru.fusionsoft.dereferencer.utils.urn.URNResolver;
 
-public class ClientFactory implements ILoaderFactory{
+public class ClientFactory implements ILoaderFactory {
     private final FileClient fileClient;
     private final GitHubClient gitHubClient;
     private final URLLoader urlLoader;
@@ -88,10 +88,10 @@ public class ClientFactory implements ILoaderFactory{
     }
 
     private boolean isUrnReference(URI uri) {
-        return uri.getScheme()!=null && uri.getScheme().equals("urn");
+        return uri.getScheme() != null && uri.getScheme().equals("urn");
     }
 
-    public URNResolver getUrnResolver(){
+    public URNResolver getUrnResolver() {
         return urnResolver;
     }
 }

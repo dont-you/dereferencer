@@ -81,7 +81,7 @@ public class DereferenceConfiguration extends LoadConfiguration {
     }
 
     public void setTokens(Tokens tokens) {
-        if(this.tokens==null){
+        if (this.tokens == null) {
             this.tokens = tokens;
         } else {
             tokens.setGitHubToken(tokens.getGitHubToken());
