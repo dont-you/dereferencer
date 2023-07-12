@@ -10,7 +10,7 @@ import ru.fusionsoft.dereferencer.utils.SourceClient;
 import ru.fusionsoft.dereferencer.core.load.SourceLoader;
 import ru.fusionsoft.dereferencer.core.load.SupportedSourceTypes;
 
-public class GitLabClient implements SourceLoader, SourceClient{
+public class GitLabClient implements SourceLoader, SourceClient {
 
     private String token = null;
 

@@ -34,7 +34,11 @@ public class GitHubClient implements SourceLoader, SourceClient {
     @Override
     public InputStream getSource(URI uri) throws LoadException {
         URI apiUri = transformToGetReposContentCall(uri);
-        Map<String, String> properties = new HashMap<>() {{put("Accept", "application/vnd.github.v3.raw");}};
+        Map<String, String> properties = new HashMap<>() {
+            {
+                put("Accept", "application/vnd.github.v3.raw");
+            }
+        };
 
         if (token != null)
             properties.put("Authorization", "token " + token);
@@ -55,9 +59,13 @@ public class GitHubClient implements SourceLoader, SourceClient {
     }
 
     @Override
-    public List<String> directoryList(URI uri) throws LoadException{
+    public List<String> directoryList(URI uri) throws LoadException {
         URI apiUri = transformToGetReposContentCall(uri);
-        Map<String, String> properties = new HashMap<>() {{put("Accept", "application/vnd.github.+json");}};
+        Map<String, String> properties = new HashMap<>() {
+            {
+                put("Accept", "application/vnd.github.+json");
+            }
+        };
 
         if (token != null)
             properties.put("Authorization", "Bearer " + token);
@@ -66,14 +74,15 @@ public class GitHubClient implements SourceLoader, SourceClient {
         try {
             JsonNode response = obj.readTree(apiCall(properties, apiUri));
             List<String> result = new ArrayList<>();
-            for(int i = 0 ; i < response.size() ; i++){
-                JsonNode value = response.at("/"+i+"/html_url");
+            for (int i = 0; i < response.size(); i++) {
+                JsonNode value = response.at("/" + i + "/html_url");
                 result.add(value.asText().substring(value.asText().lastIndexOf("/") + 1));
             }
             return result;
         } catch (IOException e) {
             throw new UnknownException(
-                    "unknown exception caused while reading response from api github call with msg - " + e.getMessage());
+                    "unknown exception caused while reading response from api github call with msg - "
+                            + e.getMessage());
         }
     }
 
@@ -98,8 +107,9 @@ public class GitHubClient implements SourceLoader, SourceClient {
 
         String[] uriPath = uri.getPath().split("/");
         String resultPath = "/repos/" + uriPath[1] + "/" + uriPath[2] + "/contents/";
-        if(uriPath.length>3)
-                resultPath+=String.join("/", Arrays.stream(uriPath).collect(Collectors.toList()).subList(5, uriPath.length));
+        if (uriPath.length > 3)
+            resultPath += String.join("/",
+                    Arrays.stream(uriPath).collect(Collectors.toList()).subList(5, uriPath.length));
         URI resultUri;
 
         try {
@@ -107,7 +117,7 @@ public class GitHubClient implements SourceLoader, SourceClient {
                     uri.getScheme(), uri.getUserInfo(),
                     apiGithubHostName,
                     uri.getPort(), resultPath,
-                    uriPath.length>3?"ref=" + uriPath[4]:"", uri.getFragment());
+                    uriPath.length > 3 ? "ref=" + uriPath[4] : "", uri.getFragment());
         } catch (URISyntaxException e) {
             throw new URIException(resultPath);
         }

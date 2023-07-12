@@ -85,7 +85,7 @@ public class MissingSchemaNode implements ISchemaNode {
     }
 
     @Override
-    public Route getSchemaRoute(){
+    public Route getSchemaRoute() {
         return schemaRoute;
     }
 

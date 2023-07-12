@@ -79,7 +79,7 @@ public class DereferencerIT {
     }
 
     @Test
-    public void some() throws URISyntaxException, LoadException {
+    public void Test_scheme_With_urn_tag_reference() throws URISyntaxException, LoadException {
         String urnLiterl = "urn:tag:fusionsoft.ru,2023:file?=sss#some";
         URN urn = URN.parse(new URI(urnLiterl));
         System.out.println(urn);

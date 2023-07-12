@@ -5,6 +5,6 @@ import java.util.List;
 
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 
-public interface SourceClient{
+public interface SourceClient {
     public List<String> directoryList(URI uri) throws LoadException;
 }

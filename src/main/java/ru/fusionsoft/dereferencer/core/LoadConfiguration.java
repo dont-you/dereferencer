@@ -24,8 +24,8 @@ public class LoadConfiguration {
 
     protected URI defaultBaseUri;
 
-    public LoadConfiguration(){
-        loadingFlags = new LoadingFlag[]{};
+    public LoadConfiguration() {
+        loadingFlags = new LoadingFlag[] {};
         cashSize = -1;
         loaderFactory = new LoaderFactory();
         preloadedSchemas = new HashMap<>();
@@ -76,6 +76,5 @@ public class LoadConfiguration {
     public void setDefaultBaseUri(URI defaultBaseUri) {
         this.defaultBaseUri = defaultBaseUri;
     }
-
 
 }

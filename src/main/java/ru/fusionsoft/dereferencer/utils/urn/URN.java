@@ -5,14 +5,14 @@ import java.net.URI;
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 
-public class URN{
+public class URN {
     private final String NID;
     private final String NSS;
     private final String rComponent;
     private final String qComponent;
     private final String fComponent;
 
-    private URN(String NID, String NSS, String rComponent, String qComponent,String fComponent){
+    private URN(String NID, String NSS, String rComponent, String qComponent, String fComponent) {
         this.NID = NID;
         this.NSS = NSS;
         this.rComponent = rComponent;
@@ -20,11 +20,11 @@ public class URN{
         this.fComponent = fComponent;
     }
 
-    private static URN parse(String urn) throws LoadException{
+    private static URN parse(String urn) throws LoadException {
         String[] parts = urn.toString().split(":");
 
-        if(parts.length<3)
-            throw new URIException(String.format("wrong syntax of urn %s",urn));
+        if (parts.length < 3)
+            throw new URIException(String.format("wrong syntax of urn %s", urn));
 
         String NID = parts[1];
         String schemeSpecificPart = urn.substring(parts[1].length() + 5);
@@ -38,10 +38,10 @@ public class URN{
         return new URN(NID, NSS, rComponent, qComponent, fComponent);
     }
 
-    private static String substringUntilAny(String line, String... endDelimiters){
+    private static String substringUntilAny(String line, String... endDelimiters) {
         int endIndex = line.length();
-        for(String delimiter: endDelimiters){
-            if(line.contains(delimiter)){
+        for (String delimiter : endDelimiters) {
+            if (line.contains(delimiter)) {
                 int index = line.indexOf(delimiter);
                 endIndex = endIndex > index ? index : endIndex;
             }
@@ -51,7 +51,7 @@ public class URN{
         return line.substring(0, endIndex);
     }
 
-    public static URN parse(URI uri) throws LoadException{
+    public static URN parse(URI uri) throws LoadException {
         return parse(uri.toASCIIString());
     }
 
@@ -76,7 +76,7 @@ public class URN{
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return "urn:" + NID + ":" + NSS + rComponent + qComponent + fComponent;
     }
 

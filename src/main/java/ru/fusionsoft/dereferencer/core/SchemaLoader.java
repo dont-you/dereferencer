@@ -39,7 +39,7 @@ public class SchemaLoader {
         preloadedSchemas = cfg.getPreloadedSchemas();
         logger = cfg.getLogger();
         routeManager = new RouteManager(cfg.getDefaultBaseUri(), preloadedSchemas.keySet(), logger);
-        retrievalManager = new RetrievalManager(cfg.getLoaderFactory(),logger);
+        retrievalManager = new RetrievalManager(cfg.getLoaderFactory(), logger);
         setCache(cfg.getCashSize());
     }
 
@@ -158,11 +158,11 @@ public class SchemaLoader {
 
         // TODO set
         // if (source.has("allOf")) {
-        //     // TODO do after writing class AllOfSchemaNode
-        //     targetNode = null;
-        //     // targetNode = new AllOfSchemaNode(this, routeToSchema);
+        // // TODO do after writing class AllOfSchemaNode
+        // targetNode = null;
+        // // targetNode = new AllOfSchemaNode(this, routeToSchema);
         // } else {
-        //     targetNode = new SchemaNode(this, route, source, false);
+        // targetNode = new SchemaNode(this, route, source, false);
         // }
 
         // TODO remove

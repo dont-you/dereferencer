@@ -83,36 +83,37 @@ public class Dereferencer {
         schemaLoader.setDereferenceConfiguration(cfg);
     }
 
-    private Map<URN, URI> getUrnCache(URI uri) throws LoadException{
+    private Map<URN, URI> getUrnCache(URI uri) throws LoadException {
         Map<URN, URI> cache = new HashMap<>();
         String somePattern = "$";
-        try{
-            URI uriToDirectory = makeUriWithNewPath(uri, uri.getPath().substring(0,uri.getPath().lastIndexOf("/")));
+        try {
+            URI uriToDirectory = makeUriWithNewPath(uri, uri.getPath().substring(0, uri.getPath().lastIndexOf("/")));
             SourceClient client = clientFactory.getClient(uri);
-            List<String> urnMapsFiles = client.directoryList(uriToDirectory).stream().filter(e -> e.startsWith(somePattern)).toList();
+            List<String> urnMapsFiles = client.directoryList(uriToDirectory).stream()
+                    .filter(e -> e.startsWith(somePattern)).toList();
             SourceLoader loader = clientFactory.getLoader(uriToDirectory);
             ObjectMapper jsonMapper = new ObjectMapper();
 
-            for(String fileName: urnMapsFiles){
+            for (String fileName : urnMapsFiles) {
                 URI uriToFile = makeUriWithNewPath(uriToDirectory, fileName);
                 JsonNode map = jsonMapper.readTree(loader.getSource(uriToFile));
                 Iterator<Entry<String, JsonNode>> fields = map.fields();
-                while(fields.hasNext()){
+                while (fields.hasNext()) {
                     Entry<String, JsonNode> pair = fields.next();
                     cache.put(URN.parse(new URI(pair.getKey())), new URI(pair.getValue().asText()));
                 }
             }
 
-        } catch (IOException e){
-            throw new UnknownException(""); //TODO
-        } catch (URISyntaxException e){
-            throw new URIException(""); //TODO
+        } catch (IOException e) {
+            throw new UnknownException(""); // TODO
+        } catch (URISyntaxException e) {
+            throw new URIException(""); // TODO
         }
 
         return cache;
     }
 
-    private URI makeUriWithNewPath(URI uri, String path) throws URISyntaxException{
+    private URI makeUriWithNewPath(URI uri, String path) throws URISyntaxException {
         return new URI(uri.getScheme(),
                 uri.getUserInfo(), uri.getHost(), uri.getPort(),
                 path, uri.getQuery(),

@@ -7,7 +7,7 @@ import ru.fusionsoft.dereferencer.core.exceptions.RetrievingException;
 import ru.fusionsoft.dereferencer.core.load.impl.FileLoader;
 import ru.fusionsoft.dereferencer.core.load.impl.URLLoader;
 
-public class LoaderFactory implements ILoaderFactory{
+public class LoaderFactory implements ILoaderFactory {
     private final FileLoader fileLoader;
     private final URLLoader urlLoader;
 

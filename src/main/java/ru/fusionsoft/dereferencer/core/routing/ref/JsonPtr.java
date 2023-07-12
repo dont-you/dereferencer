@@ -33,11 +33,13 @@ public class JsonPtr {
     }
 
     public JsonPtr getParent() {
-        return Objects.requireNonNullElseGet(parentJsonPointer, () -> parentJsonPointer = new JsonPtr(jsonPointer.substring(0, jsonPointer.lastIndexOf("/"))));
+        return Objects.requireNonNullElseGet(parentJsonPointer,
+                () -> parentJsonPointer = new JsonPtr(jsonPointer.substring(0, jsonPointer.lastIndexOf("/"))));
     }
 
     public String getPropertyName() {
-        return Objects.requireNonNullElseGet(propertyName, () -> propertyName = jsonPointer.substring(jsonPointer.lastIndexOf("/") + 1));
+        return Objects.requireNonNullElseGet(propertyName,
+                () -> propertyName = jsonPointer.substring(jsonPointer.lastIndexOf("/") + 1));
     }
 
     public JsonPtr subtractPtr(JsonPtr ptr) {
@@ -53,7 +55,7 @@ public class JsonPtr {
 
     @Override
     public boolean equals(Object obj) {
-        if(getClass() != obj.getClass())
+        if (getClass() != obj.getClass())
             return false;
 
         JsonPtr rightPtr = (JsonPtr) obj;
