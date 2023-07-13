@@ -42,10 +42,9 @@ public class GitHubSourceLoader implements SourceLoader{
 
     @Override
     public SupportedSourceTypes getSourceType(URI uri) throws LoadException {
-        Path path = Paths.get(uri);
         try {
             Tika tika = new Tika();
-            return SupportedSourceTypes.resolveSourceTypeByMimeType(tika.detect(path));
+            return SupportedSourceTypes.resolveSourceTypeByMimeType(tika.detect(transformToGetReposContentCall(uri).toURL()));
         } catch (IOException e) {
             throw new UnknownException(
                     "unknown exception caused while getting mime type with msg - " + e.getMessage());
