@@ -106,7 +106,7 @@ public class Dereferencer {
                 Iterator<Entry<String, JsonNode>> tagEntityes = origins.fields();
                 while(tagEntityes.hasNext()){
                     Entry<String, JsonNode> taggingEntity = tagEntityes.next();
-                    Iterator<Entry<String, JsonNode>> tags = origins.fields();
+                    Iterator<Entry<String, JsonNode>> tags = taggingEntity.getValue().fields();
 
                     while(tags.hasNext()){
                         Entry<String, JsonNode> tag = tags.next();
