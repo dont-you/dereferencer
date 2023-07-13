@@ -68,15 +68,12 @@ public class DereferencerIT {
     }
 
     @Test
-    public void some() throws URISyntaxException, LoadException {
-        Map<String, Integer> m= new HashMap<>(){{
-            put("qqqq",1);
-            put("qqq",2);
-            put("dsadk",3);
-            put("dks",4);
-        }};
+    public void Test_simple_schema_With_urn_ref() throws URISyntaxException, LoadException, IOException {
+         Dereferencer dereferencer = new Dereferencer(DereferenceConfiguration.builder().build());
+         JsonNode actual = dereferencer.dereference(URI.create("https://github.com/dont-you/dereferencer/blob/feature-urn-tag-resolving/src/integration-test/resources/test-schemes/schemes/urn-resolving/simple_schema_with_urn_ref.json"));
+         JsonNode expected = jsonMapper.readTree(Paths
+                .get("./src/integration-test/resources/test-schemes/expected-result/dereferenced_simple_schema_with_urn_ref.json").toFile());
 
-        Integer str = m.entrySet().stream().filter(e-> "qqqq".startsWith(e.getKey())).max(Comparator.comparing(Map.Entry::getKey)).get().getValue();
-        System.out.println(str);
+         assertEquals(expected, actual);
     }
 }
