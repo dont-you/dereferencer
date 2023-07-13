@@ -76,4 +76,9 @@ public class DereferencerIT {
 
          assertEquals(expected, actual);
     }
+
+    @Test
+    public void test() throws URISyntaxException, LoadException, IOException {
+        Paths.get("/home/who/Temp/schemes/.origings.yaml").toAbsolutePath().toFile();
+    }
 }

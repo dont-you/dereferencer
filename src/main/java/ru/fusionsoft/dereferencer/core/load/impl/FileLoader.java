@@ -25,7 +25,7 @@ public class FileLoader implements SourceLoader {
     }
     @Override
     public InputStream getSource() throws LoadException {
-        File file = Paths.get(uri).toAbsolutePath().toFile();
+        File file = Paths.get(uri.normalize()).toFile();
         try {
             return new FileInputStream(file);
         } catch (FileNotFoundException e) {
@@ -35,10 +35,10 @@ public class FileLoader implements SourceLoader {
 
     @Override
     public SupportedSourceTypes getSourceType() throws LoadException {
-        Path path = Paths.get(uri);
+        File file = Paths.get(uri.normalize()).toFile();
         try {
             Tika tika = new Tika();
-            return SupportedSourceTypes.resolveSourceTypeByMimeType(tika.detect(path));
+            return SupportedSourceTypes.resolveSourceTypeByMimeType(tika.detect(file));
         } catch (IOException e) {
             throw new UnknownException(
                     "unknown exception caused while getting mime type with msg - " + e.getMessage());

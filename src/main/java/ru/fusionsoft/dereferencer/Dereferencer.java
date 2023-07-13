@@ -36,16 +36,19 @@ public class Dereferencer {
 
     private SchemaLoader schemaLoader;
     private DereferenceLoaderFactory loaderFactory;
+    private URI defaultBaseUri;
 
     public Dereferencer() throws LoadException {
         DereferenceConfiguration cfg = DereferenceConfiguration.builder().build();
         schemaLoader = new SchemaLoader(cfg);
         loaderFactory = (DereferenceLoaderFactory) cfg.getLoaderFactory();
+        defaultBaseUri = cfg.getDefaultBaseUri();
     }
 
     public Dereferencer(DereferenceConfiguration cfg) throws LoadException {
         schemaLoader = new SchemaLoader(cfg);
         loaderFactory = (DereferenceLoaderFactory) cfg.getLoaderFactory();
+        defaultBaseUri = cfg.getDefaultBaseUri();
     }
 
     public static JsonNode deref(URI uri) throws LoadException {
@@ -89,31 +92,40 @@ public class Dereferencer {
         return cache;
     }
 
-    private Map<URN, URI> getTagUriCache(URI uris[]) throws LoadException {
+    private Map<URN, URI> getTagUriCache(URI uris[]) throws LoadException{
         Map<URN, URI> cache = new HashMap<>();
         try {
             for (URI uri : uris) {
-                URI uriToOrigins = makeUriWithNewPath(uri,
+                URI uriToOrigins = makeUriWithNewPath(defaultBaseUri.resolve(uri),
                         uri.getPath().substring(0, uri.getPath().lastIndexOf("/") + 1) + ".origins.yaml");
                 SourceLoader sourceLoader = loaderFactory.getLoader(uriToOrigins);
                 ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
                 ObjectMapper jsonMapper = new ObjectMapper();
 
-                JsonNode origins = jsonMapper.readTree(
-                        jsonMapper.writeValueAsString(
-                                yamlMapper.readValue(sourceLoader.getSource(), Object.class)));
+                boolean hasOrigins=true;
+                JsonNode origins = null;
+                try{
+                     origins = jsonMapper.readTree(
+                         jsonMapper.writeValueAsString(
+                                 yamlMapper.readValue(sourceLoader.getSource(), Object.class)));
+                } catch (LoadException e){
+                    hasOrigins = false;
+                }
 
-                Iterator<Entry<String, JsonNode>> tagEntityes = origins.fields();
-                while(tagEntityes.hasNext()){
-                    Entry<String, JsonNode> taggingEntity = tagEntityes.next();
-                    Iterator<Entry<String, JsonNode>> tags = taggingEntity.getValue().fields();
+                if(hasOrigins){
+                     Iterator<Entry<String, JsonNode>> tagEntityes = origins.fields();
+                    while(tagEntityes.hasNext()){
+                     Entry<String, JsonNode> taggingEntity = tagEntityes.next();
+                     Iterator<Entry<String, JsonNode>> tags = taggingEntity.getValue().fields();
 
-                    while(tags.hasNext()){
-                        Entry<String, JsonNode> tag = tags.next();
-                        cache.put(URN.parse(new URI(String.format("urn:tag:%s:%s", taggingEntity.getKey(), tag.getKey()))),
-                                new URI(tag.getValue().asText()));
+                     while(tags.hasNext()){
+                         Entry<String, JsonNode> tag = tags.next();
+                             cache.put(URN.parse(new URI(String.format("urn:tag:%s:%s", taggingEntity.getKey(), tag.getKey()))),
+                                     new URI(tag.getValue().asText()));
+                        }
                     }
                 }
+
             }
         } catch (IOException e) {
             throw new UnknownException(""); // TODO
