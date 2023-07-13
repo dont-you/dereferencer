@@ -94,10 +94,10 @@ public class Dereferencer {
 
     private Map<URN, URI> getTagUriCache(URI uris[]) throws LoadException{
         Map<URN, URI> cache = new HashMap<>();
-        try {
-            for (URI uri : uris) {
-                URI uriToOrigins = makeUriWithNewPath(defaultBaseUri.resolve(uri),
-                        uri.getPath().substring(0, uri.getPath().lastIndexOf("/") + 1) + ".origins.yaml");
+        for (URI uri : uris) {
+            try {
+                URI uriToOrigins = defaultBaseUri.resolve(uri).resolve(uri.getPath().substring(0, uri.getPath().lastIndexOf("/") + 1) + ".origins.yaml");
+
                 SourceLoader sourceLoader = loaderFactory.getLoader(uriToOrigins);
                 ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
                 ObjectMapper jsonMapper = new ObjectMapper();
@@ -105,43 +105,37 @@ public class Dereferencer {
                 boolean hasOrigins=true;
                 JsonNode origins = null;
                 try{
-                     origins = jsonMapper.readTree(
-                         jsonMapper.writeValueAsString(
-                                 yamlMapper.readValue(sourceLoader.getSource(), Object.class)));
+                    origins = jsonMapper.readTree(
+                                                  jsonMapper.writeValueAsString(
+                                                                                yamlMapper.readValue(sourceLoader.getSource(), Object.class)));
                 } catch (LoadException e){
                     hasOrigins = false;
                 }
-
                 if(hasOrigins){
-                     Iterator<Entry<String, JsonNode>> tagEntityes = origins.fields();
+                    Iterator<Entry<String, JsonNode>> tagEntityes = origins.fields();
                     while(tagEntityes.hasNext()){
-                     Entry<String, JsonNode> taggingEntity = tagEntityes.next();
-                     Iterator<Entry<String, JsonNode>> tags = taggingEntity.getValue().fields();
+                        Entry<String, JsonNode> taggingEntity = tagEntityes.next();
+                        Iterator<Entry<String, JsonNode>> tags = taggingEntity.getValue().fields();
 
-                     while(tags.hasNext()){
-                         Entry<String, JsonNode> tag = tags.next();
-                             cache.put(URN.parse(new URI(String.format("urn:tag:%s:%s", taggingEntity.getKey(), tag.getKey()))),
-                                     new URI(tag.getValue().asText()));
+                        while(tags.hasNext()){
+                            Entry<String, JsonNode> tag = tags.next();
+                            try{
+                                cache.put(URN.parse(new URI(String.format("urn:tag:%s:%s", taggingEntity.getKey(), tag.getKey()))),
+                                          new URI(tag.getValue().asText()));
+                            } catch(URISyntaxException e){
+                                throw new URIException( String.format(
+                                        "could not create urn tag with:\n\ttaggingEntity - %s\n\ttag - %s",
+                                        taggingEntity.getKey(), tag.getKey()));
+                            }
                         }
                     }
                 }
 
+            } catch (IOException e){
+                throw new UnknownException("unknow exception during getting uri cache with msg - " + e.getMessage());
             }
-        } catch (IOException e) {
-            throw new UnknownException(""); // TODO
-        } catch (URISyntaxException e) {
-            throw new URIException(""); // TODO
         }
-
         return cache;
-
-    }
-
-    private URI makeUriWithNewPath(URI uri, String path) throws URISyntaxException {
-        return new URI(uri.getScheme(),
-                uri.getUserInfo(), uri.getHost(), uri.getPort(),
-                path, uri.getQuery(),
-                uri.getFragment());
     }
 
     private static JsonNode executeDereference(SchemaLoader loader, URI uri) throws LoadException {
