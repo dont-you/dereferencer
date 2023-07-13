@@ -13,6 +13,7 @@ import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
 
 public class DereferenceConfiguration extends LoadConfiguration {
     private Tokens tokens;
+    private String pathToSavedDirectory;
 
     private DereferenceConfiguration() {
     }
@@ -24,6 +25,7 @@ public class DereferenceConfiguration extends LoadConfiguration {
             cfg = new DereferenceConfiguration();
             setTokens(new Tokens());
             cfg.loaderFactory = new DereferenceLoaderFactory(cfg.tokens);
+            cfg.setPathToSavedDirectory(null);
         }
 
         public DereferenceConfigurationBuilder setLoadingFlags(LoadingFlag[] loadingFlags) {
@@ -66,6 +68,12 @@ public class DereferenceConfiguration extends LoadConfiguration {
             return this;
         }
 
+        public DereferenceConfigurationBuilder setPathToSavedDirectory(String pathToSavedDirectory) {
+            cfg.setPathToSavedDirectory(pathToSavedDirectory);
+            return this;
+        }
+
+
         public DereferenceConfiguration build() {
             return cfg;
         }
@@ -104,5 +112,13 @@ public class DereferenceConfiguration extends LoadConfiguration {
 
     public void setGitLabToken(String gitLabToken) {
         tokens.setGitLabToken(gitLabToken);
+    }
+
+    public String getPathToSavedDirectory() {
+        return pathToSavedDirectory;
+    }
+
+    public void setPathToSavedDirectory(String pathToSavedDirectory) {
+        this.pathToSavedDirectory = pathToSavedDirectory;
     }
 }
