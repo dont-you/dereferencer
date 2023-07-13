@@ -8,20 +8,15 @@ import ru.fusionsoft.dereferencer.core.load.impl.FileLoader;
 import ru.fusionsoft.dereferencer.core.load.impl.URLLoader;
 
 public class LoaderFactory implements ILoaderFactory {
-    private final FileLoader fileLoader;
-    private final URLLoader urlLoader;
-
     public LoaderFactory() {
-        fileLoader = new FileLoader();
-        urlLoader = new URLLoader();
     }
 
     @Override
     public SourceLoader getLoader(URI uri) throws LoadException {
         if (isFileSystemReference(uri))
-            return fileLoader;
+            return new FileLoader(uri);
         else if (isURLReference(uri))
-            return urlLoader;
+            return new URLLoader(uri);
         else
             throw new RetrievingException("source loader for resource with uri " + uri + " is not implemented");
     }

@@ -23,10 +23,16 @@ import ru.fusionsoft.dereferencer.core.load.SupportedSourceTypes;
 
 public class GitHubSourceLoader implements SourceLoader{
 
-    private String token = null;
+    private String token;
+    private URI uri;
+
+    public GitHubSourceLoader(String token, URI uri){
+        this.token = token;
+        this.uri = uri;
+    }
 
     @Override
-    public InputStream getSource(URI uri) throws LoadException {
+    public InputStream getSource() throws LoadException {
         URI apiUri = transformToGetReposContentCall(uri);
         Map<String, String> properties = new HashMap<>() {
             {
@@ -41,14 +47,10 @@ public class GitHubSourceLoader implements SourceLoader{
     }
 
     @Override
-    public SupportedSourceTypes getSourceType(URI uri) throws LoadException {
-        try {
-            Tika tika = new Tika();
-            return SupportedSourceTypes.resolveSourceTypeByMimeType(tika.detect(transformToGetReposContentCall(uri).toURL()));
-        } catch (IOException e) {
-            throw new UnknownException(
-                    "unknown exception caused while getting mime type with msg - " + e.getMessage());
-        }
+    public SupportedSourceTypes getSourceType() throws LoadException {
+        String path = uri.getPath();
+        String fileExtension = path.substring(path.lastIndexOf(".")+1);
+        return SupportedSourceTypes.resolveSourceTypeByMimeType("application/"+fileExtension);
     }
 
     private InputStream apiCall(Map<String, String> connectionProperties, URI uri) throws LoadException {

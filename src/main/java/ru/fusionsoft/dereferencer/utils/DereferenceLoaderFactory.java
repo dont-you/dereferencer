@@ -17,10 +17,8 @@ import ru.fusionsoft.dereferencer.utils.urn.URN;
 import ru.fusionsoft.dereferencer.utils.urn.URNResolver;
 
 public class DereferenceLoaderFactory implements ILoaderFactory {
-    private final FileLoader fileLoader;
-    private final GitHubSourceLoader gitHubSourceLoader;
-    private final URLLoader urlLoader;
-    private final URNResolver urnResolver;
+    Tokens tokens;
+    URNResolver urnResolver;
     public static final Properties HOSTNAMES;
 
     static {
@@ -37,12 +35,8 @@ public class DereferenceLoaderFactory implements ILoaderFactory {
     }
 
     public DereferenceLoaderFactory(Tokens tokens) {
-        fileLoader = new FileLoader();
-        gitHubSourceLoader = new GitHubSourceLoader();
-        urlLoader = new URLLoader();
+        this.tokens = tokens;
         urnResolver = new URNResolver();
-
-        gitHubSourceLoader.setToken(tokens.getGitHubToken());
     }
 
     @Override
@@ -50,17 +44,17 @@ public class DereferenceLoaderFactory implements ILoaderFactory {
         if (isUrnReference(uri))
             return getLoader(urnResolver.getLocator(URN.parse(uri)));
         if (isGitHubReference(uri))
-            return gitHubSourceLoader;
+            return new GitHubSourceLoader(tokens.getGitHubToken(),uri);
         else if (isFileSystemReference(uri))
-            return fileLoader;
+            return new FileLoader(uri);
         else if (isURLReference(uri))
-            return urlLoader;
+            return new URLLoader(uri);
         else
             throw new RetrievingException("source loader for resource with uri " + uri + " is not implemented");
     }
 
     public void setTokens(Tokens tokens) {
-        gitHubSourceLoader.setToken(tokens.getGitHubToken());
+        this.tokens = tokens;
     }
 
     private boolean isGitHubReference(URI uri) {

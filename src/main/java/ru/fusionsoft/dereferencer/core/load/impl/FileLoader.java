@@ -18,8 +18,13 @@ import ru.fusionsoft.dereferencer.core.load.SupportedSourceTypes;
 
 public class FileLoader implements SourceLoader {
 
+    private URI uri;
+
+    public FileLoader(URI uri){
+        this.uri = uri;
+    }
     @Override
-    public InputStream getSource(URI uri) throws LoadException {
+    public InputStream getSource() throws LoadException {
         File file = Paths.get(uri).toAbsolutePath().toFile();
         try {
             return new FileInputStream(file);
@@ -29,7 +34,7 @@ public class FileLoader implements SourceLoader {
     }
 
     @Override
-    public SupportedSourceTypes getSourceType(URI uri) throws LoadException {
+    public SupportedSourceTypes getSourceType() throws LoadException {
         Path path = Paths.get(uri);
         try {
             Tika tika = new Tika();

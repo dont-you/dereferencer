@@ -9,16 +9,22 @@ import ru.fusionsoft.dereferencer.core.load.SupportedSourceTypes;
 
 public class GitLabSourceLoader implements SourceLoader{
 
-    private String token = null;
+    private String token;
+    private URI uri;
+
+    public GitLabSourceLoader(String token, URI uri){
+        this.token = token;
+        this.uri = uri;
+    }
 
     @Override
-    public InputStream getSource(URI uri) throws LoadException {
+    public InputStream getSource() throws LoadException {
         // TODO
         return null;
     }
 
     @Override
-    public SupportedSourceTypes getSourceType(URI uri) throws LoadException {
+    public SupportedSourceTypes getSourceType() throws LoadException {
         // TODO
         return null;
     }

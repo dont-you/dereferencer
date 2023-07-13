@@ -30,14 +30,14 @@ public class RetrievalManager {
             throws LoadException {
         Reference canonical = route.getCanonical();
         SourceLoader sourceLoader = loaderFactory.getLoader(canonical.getAbsolute());
-        SupportedSourceTypes sourceType = sourceLoader.getSourceType(canonical.getAbsolute());
+        SupportedSourceTypes sourceType = sourceLoader.getSourceType();
         JsonNode result;
         try {
             if (sourceType.isYaml()) {
-                Object obj = yamlMapper.readValue(sourceLoader.getSource(canonical.getAbsolute()), Object.class);
+                Object obj = yamlMapper.readValue(sourceLoader.getSource(), Object.class);
                 result = jsonMapper.readTree(jsonMapper.writeValueAsString(obj));
             } else if (sourceType.isJson()) {
-                result = jsonMapper.readTree(sourceLoader.getSource(canonical.getAbsolute()));
+                result = jsonMapper.readTree(sourceLoader.getSource());
             } else {
                 throw new RetrievingException(
                         "source type of resource by uri - " + canonical.getUri() + " is not supported");

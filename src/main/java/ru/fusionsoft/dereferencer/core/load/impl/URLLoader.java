@@ -11,9 +11,13 @@ import ru.fusionsoft.dereferencer.core.load.SourceLoader;
 import ru.fusionsoft.dereferencer.core.load.SupportedSourceTypes;
 
 public class URLLoader implements SourceLoader {
+    private URI uri;
 
+    public URLLoader(URI uri){
+        this.uri = uri;
+    }
     @Override
-    public InputStream getSource(URI uri) throws LoadException {
+    public InputStream getSource() throws LoadException {
         try {
             return uri.toURL().openStream();
         } catch (IOException e) {
@@ -23,7 +27,7 @@ public class URLLoader implements SourceLoader {
     }
 
     @Override
-    public SupportedSourceTypes getSourceType(URI uri) throws LoadException {
+    public SupportedSourceTypes getSourceType() throws LoadException {
         try {
             HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
             connection.setRequestMethod("HEAD");

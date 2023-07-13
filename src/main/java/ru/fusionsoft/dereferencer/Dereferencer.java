@@ -101,7 +101,7 @@ public class Dereferencer {
 
                 JsonNode origins = jsonMapper.readTree(
                         jsonMapper.writeValueAsString(
-                                yamlMapper.readValue(sourceLoader.getSource(uriToOrigins), Object.class)));
+                                yamlMapper.readValue(sourceLoader.getSource(), Object.class)));
 
                 Iterator<Entry<String, JsonNode>> tagEntityes = origins.fields();
                 while(tagEntityes.hasNext()){

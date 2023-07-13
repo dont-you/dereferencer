@@ -6,7 +6,7 @@ import java.net.URI;
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 
 public interface SourceLoader {
-    InputStream getSource(URI uri) throws LoadException;
+    InputStream getSource() throws LoadException;
 
-    SupportedSourceTypes getSourceType(URI uri) throws LoadException;
+    SupportedSourceTypes getSourceType() throws LoadException;
 }
