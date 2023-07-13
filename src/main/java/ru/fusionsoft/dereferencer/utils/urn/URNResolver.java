@@ -28,7 +28,13 @@ public class URNResolver {
     public URI getLocator(URN urn) throws LoadException {
         String urnLiteral = urn.toString();
         URI uri = cache.entrySet().stream()
-            .filter(e -> urnLiteral.startsWith(e.getKey().toString()))
+            .filter(e -> {
+                String findUrn = e.getKey().toString();
+                if(findUrn.endsWith("*"))
+                    return urnLiteral.startsWith(findUrn.substring(0,findUrn.length()-1));
+                else
+                    return urnLiteral.equals(findUrn);
+            })
             .max(new URNCacheComporator())
             .orElseThrow(() -> new URIException(String.format("urn %s is not defined",urnLiteral)))
             .getValue();
