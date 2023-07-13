@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 import ru.fusionsoft.dereferencer.core.LoadConfiguration;
 import ru.fusionsoft.dereferencer.core.LoadingFlag;
-import ru.fusionsoft.dereferencer.utils.ClientFactory;
+import ru.fusionsoft.dereferencer.utils.DereferenceLoaderFactory;
 import ru.fusionsoft.dereferencer.utils.Tokens;
 import ru.fusionsoft.dereferencer.core.routing.Route;
 import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
@@ -23,7 +23,7 @@ public class DereferenceConfiguration extends LoadConfiguration {
         private DereferenceConfigurationBuilder() {
             cfg = new DereferenceConfiguration();
             setTokens(new Tokens());
-            cfg.loaderFactory = new ClientFactory(cfg.tokens);
+            cfg.loaderFactory = new DereferenceLoaderFactory(cfg.tokens);
         }
 
         public DereferenceConfigurationBuilder setLoadingFlags(LoadingFlag[] loadingFlags) {

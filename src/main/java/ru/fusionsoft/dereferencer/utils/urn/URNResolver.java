@@ -1,11 +1,14 @@
 package ru.fusionsoft.dereferencer.utils.urn;
 
 import java.net.URI;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 import ru.fusionsoft.dereferencer.core.exceptions.RetrievingException;
+import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 
 public class URNResolver {
     Map<URN, URI> cache;
@@ -14,8 +17,21 @@ public class URNResolver {
         cache = new HashMap<>();
     }
 
+    static class URNCacheComporator implements Comparator<Entry<URN,URI>>{
+        @Override
+        public int compare(Entry<URN, URI> arg0, Entry<URN, URI> arg1) {
+            return arg0.getKey().toString().length() - arg1.getKey().toString().length();
+        }
+
+    }
+
     public URI getLocator(URN urn) throws LoadException {
-        URI uri = cache.get(urn);
+        String urnLiteral = urn.toString();
+        URI uri = cache.entrySet().stream()
+            .filter(e -> urnLiteral.startsWith(e.getKey().toString()))
+            .max(new URNCacheComporator())
+            .orElseThrow(() -> new URIException(String.format("urn %s is not defined",urnLiteral)))
+            .getValue();
 
         if (urn.getNID().equals("tag")) {
             return TagUri.makeTargetUri(TagUri.parseByUrn(urn), uri);

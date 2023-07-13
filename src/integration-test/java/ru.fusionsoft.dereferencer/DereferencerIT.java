@@ -3,30 +3,19 @@ package ru.fusionsoft.dereferencer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.google.common.base.Throwables;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import org.apache.tika.Tika;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
-import ru.fusionsoft.dereferencer.core.exceptions.URIException;
-import ru.fusionsoft.dereferencer.core.exceptions.UnknownException;
-import ru.fusionsoft.dereferencer.utils.impl.GitHubClient;
 import ru.fusionsoft.dereferencer.utils.urn.TagUri;
 import ru.fusionsoft.dereferencer.utils.urn.URN;
 
 import java.io.*;
 import java.net.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 public class DereferencerIT {
 
@@ -79,12 +68,15 @@ public class DereferencerIT {
     }
 
     @Test
-    public void Test_scheme_With_urn_tag_reference() throws URISyntaxException, LoadException {
-        String urnLiterl = "urn:tag:fusionsoft.ru,2023:file?=sss#some";
-        URN urn = URN.parse(new URI(urnLiterl));
-        System.out.println(urn);
-        TagUri tagUri = TagUri.parseByUrn(urn);
-        URI uri = new URI(urnLiterl);
-        System.out.println(TagUri.makeTargetUri(TagUri.parseByUrn(urn),new URI("https://google.com/")));
+    public void some() throws URISyntaxException, LoadException {
+        Map<String, Integer> m= new HashMap<>(){{
+            put("qqqq",1);
+            put("qqq",2);
+            put("dsadk",3);
+            put("dks",4);
+        }};
+
+        Integer str = m.entrySet().stream().filter(e-> "qqqq".startsWith(e.getKey())).max(Comparator.comparing(Map.Entry::getKey)).get().getValue();
+        System.out.println(str);
     }
 }

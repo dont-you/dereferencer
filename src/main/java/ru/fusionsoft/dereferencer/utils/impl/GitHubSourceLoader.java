@@ -7,27 +7,21 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.tika.Tika;
 
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 import ru.fusionsoft.dereferencer.core.exceptions.UnknownException;
-import ru.fusionsoft.dereferencer.utils.ClientFactory;
-import ru.fusionsoft.dereferencer.utils.SourceClient;
+import ru.fusionsoft.dereferencer.utils.DereferenceLoaderFactory;
 import ru.fusionsoft.dereferencer.core.load.SourceLoader;
 import ru.fusionsoft.dereferencer.core.load.SupportedSourceTypes;
 
-public class GitHubClient implements SourceLoader, SourceClient {
+public class GitHubSourceLoader implements SourceLoader{
 
     private String token = null;
 
@@ -58,34 +52,6 @@ public class GitHubClient implements SourceLoader, SourceClient {
         }
     }
 
-    @Override
-    public List<String> directoryList(URI uri) throws LoadException {
-        URI apiUri = transformToGetReposContentCall(uri);
-        Map<String, String> properties = new HashMap<>() {
-            {
-                put("Accept", "application/vnd.github.+json");
-            }
-        };
-
-        if (token != null)
-            properties.put("Authorization", "Bearer " + token);
-
-        ObjectMapper obj = new ObjectMapper();
-        try {
-            JsonNode response = obj.readTree(apiCall(properties, apiUri));
-            List<String> result = new ArrayList<>();
-            for (int i = 0; i < response.size(); i++) {
-                JsonNode value = response.at("/" + i + "/html_url");
-                result.add(value.asText().substring(value.asText().lastIndexOf("/") + 1));
-            }
-            return result;
-        } catch (IOException e) {
-            throw new UnknownException(
-                    "unknown exception caused while reading response from api github call with msg - "
-                            + e.getMessage());
-        }
-    }
-
     private InputStream apiCall(Map<String, String> connectionProperties, URI uri) throws LoadException {
         try {
             HttpURLConnection conn;
@@ -100,7 +66,7 @@ public class GitHubClient implements SourceLoader, SourceClient {
     }
 
     private URI transformToGetReposContentCall(URI uri) throws URIException {
-        String apiGithubHostName = ClientFactory.HOSTNAMES.getProperty("refs.hostname.api-github");
+        String apiGithubHostName = DereferenceLoaderFactory.HOSTNAMES.getProperty("refs.hostname.api-github");
 
         if (uri.getHost().equals(apiGithubHostName))
             return uri;

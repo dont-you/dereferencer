@@ -5,12 +5,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
@@ -19,8 +19,7 @@ import ru.fusionsoft.dereferencer.core.load.SourceLoader;
 import ru.fusionsoft.dereferencer.core.routing.ref.ReferenceFactory;
 import ru.fusionsoft.dereferencer.core.SchemaLoader;
 import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
-import ru.fusionsoft.dereferencer.utils.ClientFactory;
-import ru.fusionsoft.dereferencer.utils.SourceClient;
+import ru.fusionsoft.dereferencer.utils.DereferenceLoaderFactory;
 import ru.fusionsoft.dereferencer.utils.urn.URN;
 import ru.fusionsoft.dereferencer.utils.urn.URNResolver;
 
@@ -36,18 +35,17 @@ import ru.fusionsoft.dereferencer.utils.urn.URNResolver;
 public class Dereferencer {
 
     private SchemaLoader schemaLoader;
-    private ClientFactory clientFactory;
+    private DereferenceLoaderFactory loaderFactory;
 
     public Dereferencer() throws LoadException {
         DereferenceConfiguration cfg = DereferenceConfiguration.builder().build();
         schemaLoader = new SchemaLoader(cfg);
-        clientFactory = (ClientFactory) cfg.getLoaderFactory();
-
+        loaderFactory = (DereferenceLoaderFactory) cfg.getLoaderFactory();
     }
 
     public Dereferencer(DereferenceConfiguration cfg) throws LoadException {
         schemaLoader = new SchemaLoader(cfg);
-        clientFactory = (ClientFactory) cfg.getLoaderFactory();
+        loaderFactory = (DereferenceLoaderFactory) cfg.getLoaderFactory();
     }
 
     public static JsonNode deref(URI uri) throws LoadException {
@@ -70,8 +68,8 @@ public class Dereferencer {
     }
 
     public JsonNode dereference(URI uri) throws LoadException {
-        URNResolver urnResolver = clientFactory.getUrnResolver();
-        urnResolver.addToCache(getUrnCache(uri));
+        URNResolver urnResolver = loaderFactory.getUrnResolver();
+        urnResolver.addToCache(getUrnCache(new URI[]{uri}));
         return executeDereference(schemaLoader, uri);
     }
 
@@ -83,27 +81,40 @@ public class Dereferencer {
         schemaLoader.setDereferenceConfiguration(cfg);
     }
 
-    private Map<URN, URI> getUrnCache(URI uri) throws LoadException {
+    private Map<URN, URI> getUrnCache(URI uris[]) throws LoadException {
         Map<URN, URI> cache = new HashMap<>();
-        String somePattern = "$";
-        try {
-            URI uriToDirectory = makeUriWithNewPath(uri, uri.getPath().substring(0, uri.getPath().lastIndexOf("/")));
-            SourceClient client = clientFactory.getClient(uri);
-            List<String> urnMapsFiles = client.directoryList(uriToDirectory).stream()
-                    .filter(e -> e.startsWith(somePattern)).toList();
-            SourceLoader loader = clientFactory.getLoader(uriToDirectory);
-            ObjectMapper jsonMapper = new ObjectMapper();
 
-            for (String fileName : urnMapsFiles) {
-                URI uriToFile = makeUriWithNewPath(uriToDirectory, fileName);
-                JsonNode map = jsonMapper.readTree(loader.getSource(uriToFile));
-                Iterator<Entry<String, JsonNode>> fields = map.fields();
-                while (fields.hasNext()) {
-                    Entry<String, JsonNode> pair = fields.next();
-                    cache.put(URN.parse(new URI(pair.getKey())), new URI(pair.getValue().asText()));
+        cache.putAll(getTagUriCache(uris));
+
+        return cache;
+    }
+
+    private Map<URN, URI> getTagUriCache(URI uris[]) throws LoadException {
+        Map<URN, URI> cache = new HashMap<>();
+        try {
+            for (URI uri : uris) {
+                URI uriToOrigins = makeUriWithNewPath(uri,
+                        uri.getPath().substring(0, uri.getPath().lastIndexOf("/") + 1) + ".origins.yaml");
+                SourceLoader sourceLoader = loaderFactory.getLoader(uriToOrigins);
+                ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+                ObjectMapper jsonMapper = new ObjectMapper();
+
+                JsonNode origins = jsonMapper.readTree(
+                        jsonMapper.writeValueAsString(
+                                yamlMapper.readValue(sourceLoader.getSource(uriToOrigins), Object.class)));
+
+                Iterator<Entry<String, JsonNode>> tagEntityes = origins.fields();
+                while(tagEntityes.hasNext()){
+                    Entry<String, JsonNode> taggingEntity = tagEntityes.next();
+                    Iterator<Entry<String, JsonNode>> tags = origins.fields();
+
+                    while(tags.hasNext()){
+                        Entry<String, JsonNode> tag = tags.next();
+                        cache.put(URN.parse(new URI(String.format("urn:tag:%s:%s", taggingEntity.getKey(), tag.getKey()))),
+                                new URI(tag.getValue().asText()));
+                    }
                 }
             }
-
         } catch (IOException e) {
             throw new UnknownException(""); // TODO
         } catch (URISyntaxException e) {
@@ -111,6 +122,7 @@ public class Dereferencer {
         }
 
         return cache;
+
     }
 
     private URI makeUriWithNewPath(URI uri, String path) throws URISyntaxException {

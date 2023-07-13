@@ -45,8 +45,7 @@ public class TagUri {
     }
 
     public static URI makeTargetUri(TagUri tagUri, URI locator) throws URIException {
-        String uriLiteral = locator.getScheme() + "://" + locator.getAuthority() + "/" + tagUri.getSpecific()
-                + tagUri.getFragment();
+        String uriLiteral = locator.toASCIIString() + tagUri.getFragment();
         try {
             return new URI(uriLiteral);
         } catch (URISyntaxException e) {

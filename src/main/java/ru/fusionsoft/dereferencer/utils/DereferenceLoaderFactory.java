@@ -10,15 +10,15 @@ import ru.fusionsoft.dereferencer.core.exceptions.RetrievingException;
 import ru.fusionsoft.dereferencer.core.load.ILoaderFactory;
 import ru.fusionsoft.dereferencer.core.load.LoaderFactory;
 import ru.fusionsoft.dereferencer.core.load.SourceLoader;
+import ru.fusionsoft.dereferencer.core.load.impl.FileLoader;
 import ru.fusionsoft.dereferencer.core.load.impl.URLLoader;
-import ru.fusionsoft.dereferencer.utils.impl.FileClient;
-import ru.fusionsoft.dereferencer.utils.impl.GitHubClient;
+import ru.fusionsoft.dereferencer.utils.impl.GitHubSourceLoader;
 import ru.fusionsoft.dereferencer.utils.urn.URN;
 import ru.fusionsoft.dereferencer.utils.urn.URNResolver;
 
-public class ClientFactory implements ILoaderFactory {
-    private final FileClient fileClient;
-    private final GitHubClient gitHubClient;
+public class DereferenceLoaderFactory implements ILoaderFactory {
+    private final FileLoader fileLoader;
+    private final GitHubSourceLoader gitHubSourceLoader;
     private final URLLoader urlLoader;
     private final URNResolver urnResolver;
     public static final Properties HOSTNAMES;
@@ -36,13 +36,13 @@ public class ClientFactory implements ILoaderFactory {
         }
     }
 
-    public ClientFactory(Tokens tokens) {
-        fileClient = new FileClient();
-        gitHubClient = new GitHubClient();
+    public DereferenceLoaderFactory(Tokens tokens) {
+        fileLoader = new FileLoader();
+        gitHubSourceLoader = new GitHubSourceLoader();
         urlLoader = new URLLoader();
         urnResolver = new URNResolver();
 
-        gitHubClient.setToken(tokens.getGitHubToken());
+        gitHubSourceLoader.setToken(tokens.getGitHubToken());
     }
 
     @Override
@@ -50,28 +50,17 @@ public class ClientFactory implements ILoaderFactory {
         if (isUrnReference(uri))
             return getLoader(urnResolver.getLocator(URN.parse(uri)));
         if (isGitHubReference(uri))
-            return gitHubClient;
+            return gitHubSourceLoader;
         else if (isFileSystemReference(uri))
-            return fileClient;
+            return fileLoader;
         else if (isURLReference(uri))
             return urlLoader;
         else
             throw new RetrievingException("source loader for resource with uri " + uri + " is not implemented");
     }
 
-    public SourceClient getClient(URI uri) throws LoadException {
-        if (isGitHubReference(uri))
-            return gitHubClient;
-        else if (isFileSystemReference(uri))
-            return fileClient;
-        else if (isUrnReference(uri))
-            return getClient(urnResolver.getLocator(URN.parse(uri)));
-        else
-            throw new RetrievingException("source client for resource with uri " + uri + " is not implemented");
-    }
-
     public void setTokens(Tokens tokens) {
-        gitHubClient.setToken(tokens.getGitHubToken());
+        gitHubSourceLoader.setToken(tokens.getGitHubToken());
     }
 
     private boolean isGitHubReference(URI uri) {
