@@ -3,10 +3,13 @@ package ru.fusionsoft.dereferencer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.gitlab4j.api.GitLabApi;
+import org.gitlab4j.api.GitLabApiException;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
+import ru.fusionsoft.dereferencer.utils.Tokens;
 import ru.fusionsoft.dereferencer.utils.urn.TagUri;
 import ru.fusionsoft.dereferencer.utils.urn.URN;
 
@@ -75,10 +78,5 @@ public class DereferencerIT {
                 .get("./src/integration-test/resources/test-schemes/expected-result/dereferenced_simple_schema_with_urn_ref.json").toFile());
 
          assertEquals(expected, actual);
-    }
-
-    @Test
-    public void test() throws URISyntaxException, LoadException, IOException {
-        Paths.get("/home/who/Temp/schemes/.origings.yaml").toAbsolutePath().toFile();
     }
 }

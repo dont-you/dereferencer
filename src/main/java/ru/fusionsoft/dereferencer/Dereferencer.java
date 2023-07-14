@@ -22,11 +22,6 @@ import ru.fusionsoft.dereferencer.utils.DereferenceLoaderFactory;
 import ru.fusionsoft.dereferencer.utils.urn.URN;
 import ru.fusionsoft.dereferencer.utils.urn.URNResolver;
 
-// TODO LIST
-//
-// - TagUri class
-// ---- parse tag uri
-
 public class Dereferencer {
 
     private SchemaLoader schemaLoader;
@@ -124,6 +119,7 @@ public class Dereferencer {
                 } catch (LoadException e) {
                     hasOrigins = false;
                 }
+
                 if (hasOrigins) {
                     Iterator<Entry<String, JsonNode>> tagEntityes = origins.fields();
                     while (tagEntityes.hasNext()) {

@@ -18,15 +18,6 @@ public class TagUri {
         this.fragment = fragment;
     }
 
-    private static TagUri parse(String tagUri) {
-        // TODO
-        return null;
-    }
-
-    public static TagUri parse(URI uri) {
-        return parse(uri.toASCIIString());
-    }
-
     public static TagUri parseByUrn(URN urn) {
         String NSS = urn.getNSS();
         String[] parts = NSS.split(":");
