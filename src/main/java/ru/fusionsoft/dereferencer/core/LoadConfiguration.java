@@ -5,14 +5,14 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import ru.fusionsoft.dereferencer.core.routing.Route;
-import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
+import ru.fusionsoft.dereferencer.core.schema.SchemaNode;
 
 public interface LoadConfiguration {
     LoadingFlag[] getLoadingFlags();
 
     int getCashSize();
 
-    Map<Route, ISchemaNode> getPreloadedSchemas();
+    Map<Route, SchemaNode> getPreloadedSchemas();
 
     Tokens getTokens();
 

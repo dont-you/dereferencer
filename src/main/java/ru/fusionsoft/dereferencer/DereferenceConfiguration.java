@@ -10,14 +10,14 @@ import ru.fusionsoft.dereferencer.core.LoadConfiguration;
 import ru.fusionsoft.dereferencer.core.LoadingFlag;
 import ru.fusionsoft.dereferencer.core.Tokens;
 import ru.fusionsoft.dereferencer.core.routing.Route;
-import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
+import ru.fusionsoft.dereferencer.core.schema.SchemaNode;
 
 public class DereferenceConfiguration implements LoadConfiguration {
 
     private Logger logger;
     private LoadingFlag[] loadingFlags;
     private int cashSize;
-    private Map<Route, ISchemaNode> preloadedSchemas;
+    private Map<Route, SchemaNode> preloadedSchemas;
     private URI defaultBaseUri;
     private Tokens tokens;
 
@@ -45,7 +45,7 @@ public class DereferenceConfiguration implements LoadConfiguration {
             return this;
         }
 
-        public DereferenceConfigurationBuilder setPreloadedSchemas(Map<Route, ISchemaNode> preloadedSchemas) {
+        public DereferenceConfigurationBuilder setPreloadedSchemas(Map<Route, SchemaNode> preloadedSchemas) {
             cfg.setPreloadedSchemas(preloadedSchemas);
             return this;
         }
@@ -96,7 +96,7 @@ public class DereferenceConfiguration implements LoadConfiguration {
     }
 
     @Override
-    public Map<Route, ISchemaNode> getPreloadedSchemas() {
+    public Map<Route, SchemaNode> getPreloadedSchemas() {
         return preloadedSchemas;
     }
 
@@ -123,7 +123,7 @@ public class DereferenceConfiguration implements LoadConfiguration {
         this.cashSize = cashSize;
     }
 
-    public void setPreloadedSchemas(Map<Route, ISchemaNode> preloadedSchemas) {
+    public void setPreloadedSchemas(Map<Route, SchemaNode> preloadedSchemas) {
         this.preloadedSchemas = preloadedSchemas;
     }
 

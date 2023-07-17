@@ -1,42 +1,35 @@
 package ru.fusionsoft.dereferencer.core.schema.impl;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Map.Entry;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.MissingNode;
 
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 import ru.fusionsoft.dereferencer.core.routing.Route;
 import ru.fusionsoft.dereferencer.core.routing.ref.JsonPtr;
 import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
-import ru.fusionsoft.dereferencer.core.routing.ref.ReferenceFactory;
-import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
+import ru.fusionsoft.dereferencer.core.schema.SchemaNode;
 import ru.fusionsoft.dereferencer.core.SchemaLoader;
 import ru.fusionsoft.dereferencer.core.schema.SchemaStatus;
 import ru.fusionsoft.dereferencer.core.schema.SchemaType;
 import static ru.fusionsoft.dereferencer.core.schema.SchemaType.*;
 import static ru.fusionsoft.dereferencer.core.schema.SchemaStatus.*;
 
-public class MissingSchemaNode implements ISchemaNode {
+public class MissingSchema implements SchemaNode {
     private final SchemaLoader loader;
     private final Route schemaRoute;
-    private final Map<JsonPtr, ISchemaNode> childs;
-    private ISchemaNode presentSchema;
+    private SchemaNode presentSchema;
+    private SchemaRelatives relatives;
 
-    public MissingSchemaNode(SchemaLoader loader, Route schemaRoute) {
+    public MissingSchema(SchemaLoader loader, Route schemaRoute) {
         this.loader = loader;
         this.schemaRoute = schemaRoute;
         presentSchema = null;
-        childs = new HashMap<>();
+        relatives = new SchemaRelatives();
     }
 
-    public void setPresentSchema(ISchemaNode presentSchema) throws LoadException {
+    public void setPresentSchema(SchemaNode presentSchema) throws LoadException {
+        presentSchema.setRelatives(relatives);
         this.presentSchema = presentSchema;
-        for (Entry<JsonPtr, ISchemaNode> child : childs.entrySet()) {
-            presentSchema.delegate(child.getKey(), child.getValue());
-        }
-        childs.clear();
     }
 
     @Override
@@ -49,9 +42,9 @@ public class MissingSchemaNode implements ISchemaNode {
     }
 
     @Override
-    public void delegate(JsonPtr childPtr, ISchemaNode childSchema) throws LoadException {
+    public void delegate(JsonPtr childPtr, SchemaNode childSchema) throws LoadException {
         if (presentSchema == null)
-            childs.put(childPtr, childSchema);
+            relatives.addChild(childPtr, childSchema);
         else
             presentSchema.delegate(childPtr, childSchema);
     }
@@ -65,20 +58,14 @@ public class MissingSchemaNode implements ISchemaNode {
     }
 
     @Override
-    public ISchemaNode getSchemaNodeByJsonPointer(JsonPtr jsonPointer) throws LoadException {
+    public SchemaNode getSchemaNodeByJsonPointer(JsonPtr jsonPointer) throws LoadException {
         if (presentSchema == null) {
-            if (childs.containsKey(jsonPointer))
-                return childs.get(jsonPointer);
-
-            Optional<JsonPtr> superSet = childs.keySet().stream().filter((e) -> e.isSuperSetTo(jsonPointer)).findAny();
-            if (superSet.isPresent())
-                return childs.get(superSet.get()).getSchemaNodeByJsonPointer(jsonPointer);
-
-            ISchemaNode createdSubSchema = loader.get(
-                    ReferenceFactory.create(schemaRoute.getCanonical(), jsonPointer),
-                    null);
-            childs.put(jsonPointer, createdSubSchema);
-            return createdSubSchema;
+            SchemaNode target= relatives.getChild(jsonPointer);
+            if(target==null){
+                target = loader.get(schemaRoute.resolveRelative("#" + jsonPointer.getResolved()),MissingNode.getInstance());
+                relatives.addChild(jsonPointer, target);
+            }
+            return target;
         } else {
             return presentSchema.getSchemaNodeByJsonPointer(jsonPointer);
         }
@@ -112,5 +99,21 @@ public class MissingSchemaNode implements ISchemaNode {
                     "schema with canonical - " + schemaRoute.getCanonical().getUri() + " could not be found");
         else
             presentSchema.resolve();
+    }
+
+    @Override
+    public SchemaRelatives getSchemaRelatives() throws LoadException {
+        if(presentSchema==null)
+            return relatives;
+        else
+            return presentSchema.getSchemaRelatives();
+    }
+
+    @Override
+    public void setRelatives(SchemaRelatives relatives) throws LoadException{
+        this.relatives = relatives;
+
+        if(presentSchema!=null)
+            presentSchema.setRelatives(relatives);
     }
 }
