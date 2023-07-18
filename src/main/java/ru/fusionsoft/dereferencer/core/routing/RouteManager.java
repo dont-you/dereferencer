@@ -25,9 +25,9 @@ public class RouteManager {
         Route target = new Route(ReferenceFactory.create(defaultBaseReference, retrievalReference));
         Iterator<Route> iter = cache.iterator();
 
-        while(iter.hasNext()){
+        while (iter.hasNext()) {
             Route intendedExistingRoute = iter.next();
-            if(intendedExistingRoute.equals(target))
+            if (intendedExistingRoute.equals(target))
                 return intendedExistingRoute;
         }
 

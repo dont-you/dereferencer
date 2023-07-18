@@ -50,7 +50,7 @@ public class MissingSchema implements SchemaNode {
     }
 
     @Override
-    public Reference getCanonicalReference() throws LoadException {
+    public Reference getCanonicalReference() {
         if (presentSchema == null)
             return schemaRoute.getCanonical();
         else
@@ -60,9 +60,10 @@ public class MissingSchema implements SchemaNode {
     @Override
     public SchemaNode getSchemaNodeByJsonPointer(JsonPtr jsonPointer) throws LoadException {
         if (presentSchema == null) {
-            SchemaNode target= relatives.getChild(jsonPointer);
-            if(target==null){
-                target = loader.get(schemaRoute.resolveRelative("#" + jsonPointer.getResolved()),MissingNode.getInstance());
+            SchemaNode target = relatives.getChild(jsonPointer);
+            if (target == null) {
+                target = loader.get(schemaRoute.resolveRelative("#" + jsonPointer.getResolved()),
+                        MissingNode.getInstance());
                 relatives.addChild(jsonPointer, target);
             }
             return target;
@@ -72,7 +73,7 @@ public class MissingSchema implements SchemaNode {
     }
 
     @Override
-    public Route getSchemaRoute(){
+    public Route getSchemaRoute() {
         return schemaRoute;
     }
 
@@ -103,17 +104,17 @@ public class MissingSchema implements SchemaNode {
 
     @Override
     public SchemaRelatives getSchemaRelatives() throws LoadException {
-        if(presentSchema==null)
+        if (presentSchema == null)
             return relatives;
         else
             return presentSchema.getSchemaRelatives();
     }
 
     @Override
-    public void setRelatives(SchemaRelatives relatives) throws LoadException{
+    public void setRelatives(SchemaRelatives relatives) throws LoadException {
         this.relatives = relatives;
 
-        if(presentSchema!=null)
+        if (presentSchema != null)
             presentSchema.setRelatives(relatives);
     }
 }

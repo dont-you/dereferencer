@@ -1,0 +1,1 @@
+{"obj-with-anchor":{"properties":{"$anchor":"test-anchor","prop1":1,"prop2":2}},"ref-to-anchor":{"$anchor":"test-anchor","prop1":1,"prop2":2}}

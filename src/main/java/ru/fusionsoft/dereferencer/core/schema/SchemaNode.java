@@ -11,7 +11,7 @@ import ru.fusionsoft.dereferencer.core.schema.impl.SchemaRelatives;
 public interface SchemaNode {
     JsonNode asJson() throws LoadException;
 
-    Reference getCanonicalReference() throws LoadException;
+    Reference getCanonicalReference();
 
     SchemaNode getSchemaNodeByJsonPointer(JsonPtr jsonPointer) throws LoadException;
 

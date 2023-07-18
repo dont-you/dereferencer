@@ -102,10 +102,15 @@ public class Schema implements SchemaNode {
     @Override
     public SchemaNode getSchemaNodeByJsonPointer(JsonPtr jsonPointer)
             throws LoadException {
-        SchemaNode target= relatives.getChild(jsonPointer);
-        if(target==null){
-            target = loader.get(schemaRoute.resolveRelative("#" + jsonPointer.getResolved()),
-                                jsonPointer.isResolved() ? sourceJson.at(jsonPointer.getResolved()) : MissingNode.getInstance());
+        SchemaNode target = relatives.getChild(jsonPointer);
+        if (target == null) {
+            if (jsonPointer.isResolved())
+                target = loader.get(schemaRoute.resolveRelative("#" + jsonPointer.getResolved()),
+                        sourceJson.at(jsonPointer.getResolved()));
+            else
+                target = loader.get(schemaRoute.resolveRelative("#" + jsonPointer.getPlainName()),
+                        MissingNode.getInstance());
+
             relatives.addChild(jsonPointer, target);
         }
         return target;
@@ -162,18 +167,21 @@ public class Schema implements SchemaNode {
                     loader.getLogger().info(
                             "in schema $" + id + " found " + fieldKey + " key with value: " + fieldValue.asText());
 
-                    if (fieldKey.equals("$ref"))
+                    if (fieldKey.equals("$ref")) {
                         relatives.addChild(new JsonPtr(currentPath),
                                 loader.get(schemaRoute.resolveRelative(fieldValue.asText())));
+                    }
                     // else if (fieldKey.equals("allOf"))
                     // relatives.addChild(new JsonPtr(currentPath),
                     // loader.get(schemaRoute.resolveRelative(currentPath), fieldValue));
-                    else if (!currentPath.isEmpty() && fieldKey.equals("$id"))
+                    else if (!currentPath.isEmpty() && fieldKey.equals("$id")) {
                         relatives.addChild(new JsonPtr(currentPath),
                                 loader.get(schemaRoute.resolveRelative(currentPath), currentNode));
-                    else if (!currentPath.isEmpty() && fieldKey.equals("$anchor"))
-                        relatives.addChild(new JsonPtr(currentPath, fieldValue.asText()),
-                                loader.get(schemaRoute.resolveRelative(currentPath), currentNode));
+                    } else if (!currentPath.isEmpty() && fieldKey.equals("$anchor")) {
+                        Reference ref = schemaRoute.resolveRelative("#" + currentPath);
+                        ref.getJsonPtr().setPlainName(fieldValue.asText());
+                        relatives.addChild(ref.getJsonPtr(), loader.get(ref, currentNode));
+                    }
 
                     continue;
                 }
@@ -218,7 +226,7 @@ public class Schema implements SchemaNode {
     }
 
     @Override
-    public void setRelatives(SchemaRelatives relatives) throws LoadException{
+    public void setRelatives(SchemaRelatives relatives) throws LoadException {
         this.relatives = relatives;
     }
 }

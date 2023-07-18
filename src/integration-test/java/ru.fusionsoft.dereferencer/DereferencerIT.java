@@ -64,14 +64,14 @@ public class DereferencerIT {
     }
 
     @Test
-    public void Test_schema_With_ref_To_schema_With_Ancor() throws LoadException, IOException {
+    public void Test_schema_With_ref_To_schema_With_Anchor() throws LoadException, IOException {
         Dereferencer dereferencer = new Dereferencer(DereferenceConfiguration.builder().build());
         JsonNode actual = dereferencer.dereference(URI.create("./src/integration-test/resources/test-schemes/schemes/schema_with_ref_to_schema_with_anchor.json"));
         JsonNode expected = jsonMapper.readTree(Paths
                 .get("./src/integration-test/resources/test-schemes/expected-result/dereferenced_schema_with_ref_to_schema_with_anchor.json").toFile());
 
-//        assertEquals(expected, actual);
-        System.out.println(actual);
+        assertEquals(expected, actual);
+//        System.out.println(actual);
     }
 
     @Test
