@@ -13,7 +13,7 @@ public class Route implements Comparable<Route> {
     private Reference canonical;
     private final Set<Reference> duplicates;
 
-    public Route(Reference canonical){
+    public Route(Reference canonical) {
         this.canonical = canonical;
         duplicates = new TreeSet<>();
         duplicates.add(canonical);
@@ -38,7 +38,7 @@ public class Route implements Comparable<Route> {
 
     @Override
     public boolean equals(Object obj) {
-        if(getClass() != obj.getClass())
+        if (getClass() != obj.getClass())
             return false;
         return duplicates.contains(((Route) obj).canonical);
     }

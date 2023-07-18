@@ -33,11 +33,13 @@ public class JsonPtr {
     }
 
     public JsonPtr getParent() {
-        return Objects.requireNonNullElseGet(parentJsonPointer, () -> parentJsonPointer = new JsonPtr(jsonPointer.substring(0, jsonPointer.lastIndexOf("/"))));
+        return Objects.requireNonNullElseGet(parentJsonPointer,
+                () -> parentJsonPointer = new JsonPtr(jsonPointer.substring(0, jsonPointer.lastIndexOf("/"))));
     }
 
     public String getPropertyName() {
-        return Objects.requireNonNullElseGet(propertyName, () -> propertyName = jsonPointer.substring(jsonPointer.lastIndexOf("/") + 1));
+        return Objects.requireNonNullElseGet(propertyName,
+                () -> propertyName = jsonPointer.substring(jsonPointer.lastIndexOf("/") + 1));
     }
 
     public JsonPtr subtractPtr(JsonPtr ptr) {
@@ -53,14 +55,19 @@ public class JsonPtr {
 
     @Override
     public boolean equals(Object obj) {
-        if(getClass() != obj.getClass())
+        if (getClass() != obj.getClass())
             return false;
 
         JsonPtr rightPtr = (JsonPtr) obj;
-        if (rightPtr.isResolved() && this.isResolved()) {
+        if (rightPtr.isResolved() && this.isResolved())
             return this.jsonPointer.equals(rightPtr.jsonPointer);
-        } else {
+        else if (rightPtr.plainName != null && this.plainName != null)
             return this.plainName.equals(rightPtr.plainName);
-        }
+        else
+            return false;
+    }
+
+    public void setPlainName(String plainName) {
+        this.plainName = plainName;
     }
 }

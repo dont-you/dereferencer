@@ -7,34 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 import ru.fusionsoft.dereferencer.core.routing.ref.ReferenceFactory;
 import ru.fusionsoft.dereferencer.core.SchemaLoader;
-import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
-
-// TODO LIST
-//
-// - Refactoring
-// ---- SchemaNode
-// ---- SchemaLoader
-//
-// - Tests
-// ---- write integrations tests && fix bugs
-// -------- test simple_scheme.json
-// -------- test layer_1_scheme_1.json
-// ---- write unit tests && fix bugs
-// -------- some....
-//
-// - Referencing & Retrieving
-// ---- Reference factory method create(Reference reference, JsonPtr ptr)
-// ---- feat: write GitLabLoader
-// ---- feat: logs while resolving relative
-//
-// - Schema nodes
-// ---- write AllOfSchemaNode
-// ---- feat: allOf merge is on and of
-//
-// - Dereferencer class
-// ---- feat: method of creating preloaded schemas
-//
-// - feat: anon dereferencing(SchemaLoader.get(JsonNode), RouteManager.makeAnon())
+import ru.fusionsoft.dereferencer.core.schema.SchemaNode;
 
 public class Dereferencer {
 
@@ -80,13 +53,13 @@ public class Dereferencer {
     }
 
     private static JsonNode executeDereference(SchemaLoader loader, URI uri) throws LoadException {
-        ISchemaNode resultNode = loader.get(ReferenceFactory.create(uri));
+        SchemaNode resultNode = loader.get(ReferenceFactory.create(uri));
         return resultNode.asJson();
     }
 
     private static JsonNode executeAnonymousDereference(SchemaLoader loader, JsonNode node)
             throws LoadException {
-        ISchemaNode resultNode = loader.get(node);
+        SchemaNode resultNode = loader.get(node);
         return resultNode.asJson();
     }
 
