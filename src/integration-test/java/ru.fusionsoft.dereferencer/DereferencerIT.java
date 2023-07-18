@@ -1,5 +1,7 @@
 package ru.fusionsoft.dereferencer;
 
+import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -61,7 +63,6 @@ public class DereferencerIT {
                 .get("./src/integration-test/resources/test-schemes/expected-result/dereferenced_schema_with_ref_to_schema_with_anchor.json").toFile());
 
         assertEquals(expected, actual);
-//        System.out.println(actual);
     }
 
     @Test
@@ -76,18 +77,43 @@ public class DereferencerIT {
         System.out.println(json2);
 
     }
+//    @Test
+//    public void Test_simple_schema_With_urn_ref() throws URISyntaxException, LoadException, IOException {
+//        InputStream inputStream = Dereferencer.class.getClassLoader().getResourceAsStream("config.properties");
+//        Properties properties = new Properties();
+//        properties.load(inputStream);
+//        Dereferencer dereferencer = new Dereferencer(DereferenceConfiguration.builder().setTokens(new Tokens().setGitHubToken(properties.getProperty("github-token"))).build());
+//        JsonNode actual = dereferencer.dereference(URI.create("https://github.com/dont-you/dereferencer/blob/master/src/integration-test/resources/test-schemes/schemes/urn-resolving/simple_schema_with_urn_ref.json"));
+//        JsonNode expected = jsonMapper.readTree(Paths
+//                .get("./src/integration-test/resources/test-schemes/expected-result/dereferenced_simple_schema_with_urn_ref.json").toFile());
+//
+//        assertEquals(expected, actual);
+//    }
+
+
     @Test
-    public void Test_simple_schema_With_urn_ref() throws URISyntaxException, LoadException, IOException {
-        InputStream inputStream = Dereferencer.class.getClassLoader().getResourceAsStream("config.properties");
-        Properties properties = new Properties();
-        properties.load(inputStream);
-        Dereferencer dereferencer = new Dereferencer(DereferenceConfiguration.builder().setTokens(new Tokens().setGitHubToken(properties.getProperty("github-token"))).build());
-        JsonNode actual = dereferencer.dereference(URI.create("https://github.com/dont-you/dereferencer/blob/feature-urn-tag-resolving/src/integration-test/resources/test-schemes/schemes/urn-resolving/simple_schema_with_urn_ref.json"));
-        JsonNode expected = jsonMapper.readTree(Paths
-                .get("./src/integration-test/resources/test-schemes/expected-result/dereferenced_simple_schema_with_urn_ref.json").toFile());
+    public void Test_simple_merge_scheme()
+            throws StreamReadException, DatabindException, IOException, URISyntaxException, LoadException {
+        Dereferencer dereferencer = new Dereferencer(DereferenceConfiguration.builder().build());
+        JsonNode actual = dereferencer
+                .dereference(URI.create("./src/integration-test/resources/test-schemes/schemes/simple_merge_scheme.json"));
+        JsonNode expected = jsonMapper.readTree(
+                Paths.get("./src/integration-test/resources/test-schemes/expected-result/dereferenced_simple_merge_scheme.json")
+                        .toFile());
 
         assertEquals(expected, actual);
     }
 
+    @Test
+    public void Test_simple_merge_scheme_With_refs_And_nesting()
+            throws StreamReadException, DatabindException, IOException, URISyntaxException, LoadException {
 
+        Dereferencer dereferencer = new Dereferencer(DereferenceConfiguration.builder().build());
+        JsonNode actual = dereferencer.dereference(
+                URI.create("./src/integration-test/resources/test-schemes/schemes/simple_merge_scheme_with_refs_and_nesting.json"));
+        JsonNode expected = jsonMapper.readTree(Paths.get(
+                "./src/integration-test/resources/test-schemes/expected-result/dereferenced_simple_merge_scheme_with_refs_and_nesting.json")
+                .toFile());
+        assertEquals(expected, actual);
+    }
 }

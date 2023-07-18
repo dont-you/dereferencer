@@ -23,6 +23,7 @@ import ru.fusionsoft.dereferencer.core.routing.RouteManager;
 import ru.fusionsoft.dereferencer.core.routing.ref.JsonPtr;
 import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
 import ru.fusionsoft.dereferencer.core.routing.ref.ReferenceFactory;
+import ru.fusionsoft.dereferencer.core.schema.impl.AllOfSchema;
 import ru.fusionsoft.dereferencer.core.schema.impl.MissingSchema;
 import ru.fusionsoft.dereferencer.core.schema.impl.Schema;
 
@@ -156,17 +157,10 @@ public class SchemaLoader {
             }
         }
 
-        // TODO set
-        // if (source.has("allOf")) {
-        // // TODO do after writing class AllOfSchemaNode
-        // targetNode = null;
-        // // targetNode = new AllOfSchemaNode(this, routeToSchema);
-        // } else {
-        // targetNode = new SchemaNode(this, route, source, false);
-        // }
-
-        // TODO remove
-        targetNode = new Schema(this, route, source, false);
+        if (source.has("allOf"))
+           targetNode = new AllOfSchema(this, route, source, false);
+        else
+           targetNode = new Schema(this, route, source, false);
 
         countCreatedSchemas++;
         return targetNode;
