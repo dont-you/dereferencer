@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 import ru.fusionsoft.dereferencer.core.load.ILoaderFactory;
 import ru.fusionsoft.dereferencer.core.load.LoaderFactory;
 import ru.fusionsoft.dereferencer.core.routing.Route;
-import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
+import ru.fusionsoft.dereferencer.core.schema.SchemaNode;
 
 public class LoadConfiguration {
     protected LoadingFlag[] loadingFlags;
@@ -18,7 +18,7 @@ public class LoadConfiguration {
 
     protected ILoaderFactory loaderFactory;
 
-    protected Map<Route, ISchemaNode> preloadedSchemas;
+    protected Map<Route, SchemaNode> preloadedSchemas;
 
     protected Logger logger;
 
@@ -53,11 +53,11 @@ public class LoadConfiguration {
         return loaderFactory;
     }
 
-    public Map<Route, ISchemaNode> getPreloadedSchemas() {
+    public Map<Route, SchemaNode> getPreloadedSchemas() {
         return preloadedSchemas;
     }
 
-    public void setPreloadedSchemas(Map<Route, ISchemaNode> preloadedSchemas) {
+    public void setPreloadedSchemas(Map<Route, SchemaNode> preloadedSchemas) {
         this.preloadedSchemas = preloadedSchemas;
     }
 

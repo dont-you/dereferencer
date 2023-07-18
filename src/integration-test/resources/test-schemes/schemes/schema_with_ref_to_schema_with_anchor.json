@@ -1,0 +1,4 @@
+{
+  "obj-with-anchor":{"$ref": "./fragments/fragment_with_ref_to_anchor.json"},
+  "ref-to-anchor":{"$ref": "#test-anchor"}
+}

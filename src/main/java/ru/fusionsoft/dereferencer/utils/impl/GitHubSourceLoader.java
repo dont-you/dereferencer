@@ -44,7 +44,7 @@ public class GitHubSourceLoader implements SourceLoader{
         try {
             return gitHub.getRepository(repo).getFileContent(filePath,ref).read();
         } catch (IOException e) {
-            throw new UnknownException(String.format("error while getting file from gitlab with: \n\trepo - %s\n\tfilepath - %s\n\tref - %s",repo,filePath,ref));
+            throw new UnknownException(String.format("error while getting file from github with: \n\trepo - %s\n\tfilepath - %s\n\tref - %s",repo,filePath,ref));
         }
     }
 

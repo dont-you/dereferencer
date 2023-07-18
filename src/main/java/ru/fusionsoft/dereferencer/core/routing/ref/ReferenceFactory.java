@@ -10,33 +10,32 @@ public class ReferenceFactory {
         return new Reference(uri);
     }
 
+    public static Reference create(URI absolute, JsonPtr jsonPtr) throws URIException {
+        return new Reference(absolute, jsonPtr);
+    }
+
     public static Reference create(Reference contextReference, URI relative) throws URIException {
-        return create(contextReference.getAbsolute(), relative);
+        return create(resolveUri(contextReference.getAbsolute(), relative));
     }
 
     public static Reference create(Reference contextReference, Reference relativeReference) throws URIException {
-        return create(contextReference.getAbsolute(), relativeReference.getUri());
+        URI resolvedUri = resolveUri(contextReference.getAbsolute(), relativeReference.getAbsolute());
+        return create(resolvedUri, relativeReference.getJsonPtr());
     }
 
-    public static Reference create(URI contextUri, URI relative) throws URIException {
+    public static URI resolveUri(URI contextUri, URI relative) throws URIException {
         try {
             if (!contextUri.getPath().startsWith("/"))
-                return create(addSlashToUriPath(contextUri).resolve(relative));
+                return addSlashToUriPath(contextUri).resolve(relative);
             else
-                return create(contextUri.resolve(relative));
+                return contextUri.resolve(relative);
         } catch (URISyntaxException e) {
             throw new URIException("can't resolve - " + relative + ", relative to - " + contextUri);
         }
     }
 
     public static Reference create(Reference reference, JsonPtr ptr) throws URIException {
-        String result = reference.getAbsolute().toString() + "#" + ptr.getResolved();
-        System.out.println(result);
-        try {
-            return create(new URI(result));
-        } catch (URISyntaxException e) {
-            throw new URIException("fragment " + ptr.getResolved() + " contains errors");
-        }
+        return create(reference.getAbsolute(), ptr);
     }
 
     private static URI addSlashToUriPath(URI uri) throws URISyntaxException {

@@ -9,7 +9,7 @@ import ru.fusionsoft.dereferencer.core.LoadingFlag;
 import ru.fusionsoft.dereferencer.utils.DereferenceLoaderFactory;
 import ru.fusionsoft.dereferencer.utils.Tokens;
 import ru.fusionsoft.dereferencer.core.routing.Route;
-import ru.fusionsoft.dereferencer.core.schema.ISchemaNode;
+import ru.fusionsoft.dereferencer.core.schema.SchemaNode;
 
 public class DereferenceConfiguration extends LoadConfiguration {
     private Tokens tokens;
@@ -38,7 +38,7 @@ public class DereferenceConfiguration extends LoadConfiguration {
             return this;
         }
 
-        public DereferenceConfigurationBuilder setPreloadedSchemas(Map<Route, ISchemaNode> preloadedSchemas) {
+        public DereferenceConfigurationBuilder setPreloadedSchemas(Map<Route, SchemaNode> preloadedSchemas) {
             cfg.setPreloadedSchemas(preloadedSchemas);
             return this;
         }

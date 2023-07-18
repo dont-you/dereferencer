@@ -59,10 +59,15 @@ public class JsonPtr {
             return false;
 
         JsonPtr rightPtr = (JsonPtr) obj;
-        if (rightPtr.isResolved() && this.isResolved()) {
+        if (rightPtr.isResolved() && this.isResolved())
             return this.jsonPointer.equals(rightPtr.jsonPointer);
-        } else {
+        else if (rightPtr.plainName != null && this.plainName != null)
             return this.plainName.equals(rightPtr.plainName);
-        }
+        else
+            return false;
+    }
+
+    public void setPlainName(String plainName) {
+        this.plainName = plainName;
     }
 }

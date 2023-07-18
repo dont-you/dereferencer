@@ -107,7 +107,6 @@ public class Dereferencer {
                 URI uriToOrigins = defaultBaseUri.resolve(uri)
                         .resolve(uri.getPath().substring(0, uri.getPath().lastIndexOf("/") + 1) + ".origins.yaml");
                 ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory()), jsonMapper = new ObjectMapper();
-
                 boolean hasOrigins = true;
                 JsonNode origins = null;
 
