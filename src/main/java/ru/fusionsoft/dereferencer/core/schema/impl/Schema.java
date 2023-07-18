@@ -145,7 +145,7 @@ public class Schema implements SchemaNode {
     }
 
     protected void executeResolving() throws LoadException {
-        Set<String> processedKeywords = new HashSet<>(Arrays.asList("$ref", "$id", "$anchor"));
+        Set<String> processedKeywords = new HashSet<>(Arrays.asList("$ref", "$id", "$anchor", "allOf"));
         JsonNode currentNode;
         String currentPath;
         Stack<JsonNode> memory = new Stack<>();
@@ -170,20 +170,21 @@ public class Schema implements SchemaNode {
                     if (fieldKey.equals("$ref")) {
                         relatives.addChild(new JsonPtr(currentPath),
                                 loader.get(schemaRoute.resolveRelative(fieldValue.asText())));
-                    }
-                    // else if (fieldKey.equals("allOf"))
-                    // relatives.addChild(new JsonPtr(currentPath),
-                    // loader.get(schemaRoute.resolveRelative(currentPath), fieldValue));
-                    else if (!currentPath.isEmpty() && fieldKey.equals("$id")) {
+                        continue;
+                    } else if (!currentPath.isEmpty() && fieldKey.equals("allOf")){
+                        Reference ref = schemaRoute.resolveRelative("#" + currentPath);
+                        relatives.addChild(ref.getJsonPtr(), loader.get(ref, currentNode));
+                        continue;
+                    } else if (!currentPath.isEmpty() && fieldKey.equals("$id")) {
                         relatives.addChild(new JsonPtr(currentPath),
                                 loader.get(schemaRoute.resolveRelative(currentPath), currentNode));
+                        continue;
                     } else if (!currentPath.isEmpty() && fieldKey.equals("$anchor")) {
                         Reference ref = schemaRoute.resolveRelative("#" + currentPath);
                         ref.getJsonPtr().setPlainName(fieldValue.asText());
                         relatives.addChild(ref.getJsonPtr(), loader.get(ref, currentNode));
+                        continue;
                     }
-
-                    continue;
                 }
 
                 if (fieldKey.contains("/")) {

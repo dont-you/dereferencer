@@ -111,8 +111,7 @@ public class SchemaRelatives {
 
     private Set<SchemaNode> getFullProgeny() {
         return Stream
-                .of(new HashSet<SchemaNode>(children.values()), new HashSet<SchemaNode>(resolveMeLater.values()),
-                        grandChildren)
+                .of(new HashSet<SchemaNode>(children.values()), grandChildren)
                 .flatMap(x -> x.stream())
                 .collect(Collectors.toSet());
     }
