@@ -2,7 +2,10 @@ package ru.fusionsoft.dereferencer.core;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
@@ -34,8 +37,10 @@ public class SchemaLoader {
     private Map<Route, SchemaNode> preloadedSchemas;
     private LoadingCache<Route, SchemaNode> cache;
     private int countCreatedSchemas;
+    private Set<LoadingFlag> flags;
 
     public SchemaLoader(LoadConfiguration cfg) throws LoadException {
+        flags = new HashSet<>(Arrays.asList(cfg.getLoadingFlags()));
         countCreatedSchemas = 0;
         preloadedSchemas = cfg.getPreloadedSchemas();
         logger = cfg.getLogger();
@@ -157,10 +162,10 @@ public class SchemaLoader {
             }
         }
 
-        if (source.has("allOf"))
-           targetNode = new AllOfSchema(this, route, source, false);
+        if (source.has("allOf") && flags.contains(LoadingFlag.MERGE_ALL_OF))
+           targetNode = new AllOfSchema(this, route, source);
         else
-           targetNode = new Schema(this, route, source, false);
+           targetNode = new Schema(this, route, source);
 
         countCreatedSchemas++;
         return targetNode;

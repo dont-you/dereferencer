@@ -35,16 +35,14 @@ public class Schema implements SchemaNode {
     protected JsonNode sourceJson;
     protected JsonNode resolvedJson;
     protected SchemaRelatives relatives;
-    protected boolean mergeAllOfFlag;
     protected SchemaStatus status;
 
-    public Schema(SchemaLoader loader, Route schemaRoute, JsonNode sourceJson, Boolean mergeAllOfFlag) {
+    public Schema(SchemaLoader loader, Route schemaRoute, JsonNode sourceJson) {
         this.loader = loader;
         this.schemaRoute = schemaRoute;
         this.sourceJson = sourceJson;
         this.resolvedJson = null;
         this.relatives = new SchemaRelatives();
-        this.mergeAllOfFlag = mergeAllOfFlag;
         status = NOT_RESOLVED;
         id = loader.getCountCreatedSchemas() + 1;
         loader.getLogger()

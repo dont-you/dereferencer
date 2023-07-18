@@ -10,6 +10,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
+import ru.fusionsoft.dereferencer.core.LoadingFlag;
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 import ru.fusionsoft.dereferencer.utils.Tokens;
 
@@ -94,7 +95,7 @@ public class DereferencerIT {
     @Test
     public void Test_simple_merge_scheme()
             throws StreamReadException, DatabindException, IOException, URISyntaxException, LoadException {
-        Dereferencer dereferencer = new Dereferencer(DereferenceConfiguration.builder().build());
+        Dereferencer dereferencer = new Dereferencer(DereferenceConfiguration.builder().setLoadingFlags(new LoadingFlag[]{LoadingFlag.MERGE_ALL_OF}).build());
         JsonNode actual = dereferencer
                 .dereference(URI.create("./src/integration-test/resources/test-schemes/schemes/simple_merge_scheme.json"));
         JsonNode expected = jsonMapper.readTree(
@@ -108,7 +109,7 @@ public class DereferencerIT {
     public void Test_simple_merge_scheme_With_refs_And_nesting()
             throws StreamReadException, DatabindException, IOException, URISyntaxException, LoadException {
 
-        Dereferencer dereferencer = new Dereferencer(DereferenceConfiguration.builder().build());
+        Dereferencer dereferencer = new Dereferencer(DereferenceConfiguration.builder().setLoadingFlags(new LoadingFlag[]{LoadingFlag.MERGE_ALL_OF}).build());
         JsonNode actual = dereferencer.dereference(
                 URI.create("./src/integration-test/resources/test-schemes/schemes/simple_merge_scheme_with_refs_and_nesting.json"));
         JsonNode expected = jsonMapper.readTree(Paths.get(

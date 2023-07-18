@@ -17,8 +17,8 @@ import java.util.Map;
 import java.util.Stack;
 
 public class AllOfSchema extends Schema{
-    public AllOfSchema(SchemaLoader loader, Route schemaRoute, JsonNode sourceJson, Boolean mergeAllOfFlag) {
-        super(loader, schemaRoute, sourceJson, mergeAllOfFlag);
+    public AllOfSchema(SchemaLoader loader, Route schemaRoute, JsonNode sourceJson) {
+        super(loader, schemaRoute, sourceJson);
     }
 
     @Override
