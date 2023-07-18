@@ -3,22 +3,17 @@ package ru.fusionsoft.dereferencer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.gitlab4j.api.GitLabApi;
-import org.gitlab4j.api.GitLabApiException;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
+import org.kohsuke.github.GitHub;
+import org.kohsuke.github.GitHubBuilder;
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 import ru.fusionsoft.dereferencer.utils.Tokens;
-import ru.fusionsoft.dereferencer.utils.urn.TagUri;
-import ru.fusionsoft.dereferencer.utils.urn.URN;
 
 import java.io.*;
 import java.net.*;
 import java.nio.file.Paths;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
 
 public class DereferencerIT {
 
