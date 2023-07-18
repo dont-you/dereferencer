@@ -1,4 +1,4 @@
-package ru.fusionsoft.dereferencer.core.utils.load;
+package ru.fusionsoft.dereferencer.core.load;
 
 public enum SupportedSourceTypes {
     JSON,
@@ -16,7 +16,8 @@ public enum SupportedSourceTypes {
     public static SupportedSourceTypes resolveSourceTypeByMimeType(String extension) {
         if (extension.contains("application/json"))
             return JSON;
-        else if (extension.contains("application/x-yaml") || extension.contains("application/yaml") || extension.contains("text/x-yaml"))
+        else if (extension.contains("application/x-yaml") || extension.contains("application/yaml")
+                || extension.contains("text/x-yaml"))
             return YAML;
         else
             return NOT_IMPLEMENTED;

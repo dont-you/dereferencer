@@ -1,4 +1,4 @@
-package ru.fusionsoft.dereferencer.core;
+package ru.fusionsoft.dereferencer.utils;
 
 public class Tokens {
     private String gitHubToken;
@@ -17,11 +17,13 @@ public class Tokens {
         return gitHubToken;
     }
 
-    public void setGitHubToken(String gitHubToken) {
+    public Tokens setGitHubToken(String gitHubToken) {
         this.gitHubToken = gitHubToken;
+        return this;
     }
 
-    public void setGitLabToken(String gitLabToken) {
+    public Tokens setGitLabToken(String gitLabToken) {
         this.gitLabToken = gitLabToken;
+        return this;
     }
 }

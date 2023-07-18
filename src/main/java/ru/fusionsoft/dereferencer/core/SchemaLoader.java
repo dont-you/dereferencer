@@ -17,14 +17,14 @@ import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 import ru.fusionsoft.dereferencer.core.exceptions.UnknownException;
 import ru.fusionsoft.dereferencer.core.schema.SchemaNode;
 import ru.fusionsoft.dereferencer.core.schema.SchemaStatus;
-import ru.fusionsoft.dereferencer.core.schema.impl.Schema;
-import ru.fusionsoft.dereferencer.core.utils.RetrievalManager;
+import ru.fusionsoft.dereferencer.core.load.RetrievalManager;
 import ru.fusionsoft.dereferencer.core.routing.Route;
 import ru.fusionsoft.dereferencer.core.routing.RouteManager;
 import ru.fusionsoft.dereferencer.core.routing.ref.JsonPtr;
 import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
 import ru.fusionsoft.dereferencer.core.routing.ref.ReferenceFactory;
 import ru.fusionsoft.dereferencer.core.schema.impl.MissingSchema;
+import ru.fusionsoft.dereferencer.core.schema.impl.Schema;
 
 public class SchemaLoader {
     private final RouteManager routeManager;
@@ -39,7 +39,7 @@ public class SchemaLoader {
         preloadedSchemas = cfg.getPreloadedSchemas();
         logger = cfg.getLogger();
         routeManager = new RouteManager(cfg.getDefaultBaseUri(), preloadedSchemas.keySet(), logger);
-        retrievalManager = new RetrievalManager(cfg.getTokens(), logger);
+        retrievalManager = new RetrievalManager(cfg.getLoaderFactory(), logger);
         setCache(cfg.getCashSize());
     }
 
@@ -96,7 +96,7 @@ public class SchemaLoader {
         logger = cfg.getLogger();
         routeManager.setDefaultBaseUri(cfg.getDefaultBaseUri()).setPreloadedRoutes(cfg.getPreloadedSchemas().keySet())
                 .setLogger(logger);
-        retrievalManager.setTokens(cfg.getTokens()).setLogger(logger);
+        retrievalManager.setLoaderFactory(cfg.getLoaderFactory()).setLogger(logger);
         preloadedSchemas = cfg.getPreloadedSchemas();
         setCache(cfg.getCashSize());
     }
@@ -158,11 +158,11 @@ public class SchemaLoader {
 
         // TODO set
         // if (source.has("allOf")) {
-        //     // TODO do after writing class AllOfSchemaNode
-        //     targetNode = null;
-        //     // targetNode = new AllOfSchemaNode(this, routeToSchema);
+        // // TODO do after writing class AllOfSchemaNode
+        // targetNode = null;
+        // // targetNode = new AllOfSchemaNode(this, routeToSchema);
         // } else {
-        //     targetNode = new SchemaNode(this, route, source, false);
+        // targetNode = new SchemaNode(this, route, source, false);
         // }
 
         // TODO remove

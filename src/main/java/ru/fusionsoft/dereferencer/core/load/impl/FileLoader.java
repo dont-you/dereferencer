@@ -1,10 +1,11 @@
-package ru.fusionsoft.dereferencer.core.utils.load.impl;
+package ru.fusionsoft.dereferencer.core.load.impl;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -12,15 +13,19 @@ import org.apache.tika.Tika;
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 import ru.fusionsoft.dereferencer.core.exceptions.RetrievingException;
 import ru.fusionsoft.dereferencer.core.exceptions.UnknownException;
-import ru.fusionsoft.dereferencer.core.routing.ref.Reference;
-import ru.fusionsoft.dereferencer.core.utils.load.SourceLoader;
-import ru.fusionsoft.dereferencer.core.utils.load.SupportedSourceTypes;
+import ru.fusionsoft.dereferencer.core.load.SourceLoader;
+import ru.fusionsoft.dereferencer.core.load.SupportedSourceTypes;
 
 public class FileLoader implements SourceLoader {
 
+    private URI uri;
+
+    public FileLoader(URI uri){
+        this.uri = uri;
+    }
     @Override
-    public InputStream getSource(Reference ref) throws LoadException {
-        File file = Paths.get(ref.getAbsolute()).toAbsolutePath().toFile();
+    public InputStream getSource() throws LoadException {
+        File file = Paths.get(uri.normalize()).toFile();
         try {
             return new FileInputStream(file);
         } catch (FileNotFoundException e) {
@@ -29,11 +34,11 @@ public class FileLoader implements SourceLoader {
     }
 
     @Override
-    public SupportedSourceTypes getSourceType(Reference ref) throws LoadException {
-        Path path = Paths.get(ref.getAbsolute());
+    public SupportedSourceTypes getSourceType() throws LoadException {
+        File file = Paths.get(uri.normalize()).toFile();
         try {
             Tika tika = new Tika();
-            return SupportedSourceTypes.resolveSourceTypeByMimeType(tika.detect(path));
+            return SupportedSourceTypes.resolveSourceTypeByMimeType(tika.detect(file));
         } catch (IOException e) {
             throw new UnknownException(
                     "unknown exception caused while getting mime type with msg - " + e.getMessage());
