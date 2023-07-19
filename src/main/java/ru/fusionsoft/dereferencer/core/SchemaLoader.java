@@ -34,7 +34,6 @@ public class SchemaLoader {
     private final RouteManager routeManager;
     private final RetrievalManager retrievalManager;
     private Logger logger;
-    private Map<Route, SchemaNode> preloadedSchemas;
     private LoadingCache<Route, SchemaNode> cache;
     private int countCreatedSchemas;
     private Set<LoadingFlag> flags;
@@ -42,11 +41,11 @@ public class SchemaLoader {
     public SchemaLoader(LoadConfiguration cfg) throws LoadException {
         flags = new HashSet<>(Arrays.asList(cfg.getLoadingFlags()));
         countCreatedSchemas = 0;
-        preloadedSchemas = cfg.getPreloadedSchemas();
         logger = cfg.getLogger();
-        routeManager = new RouteManager(cfg.getDefaultBaseUri(), preloadedSchemas.keySet(), logger);
+        routeManager = new RouteManager(cfg.getDefaultBaseUri(), cfg.getPreloadedSchemas().keySet(), logger);
         retrievalManager = new RetrievalManager(cfg.getLoaderFactory(), logger);
         setCache(cfg.getCashSize());
+        cache.putAll(cfg.getPreloadedSchemas());
     }
 
     public SchemaNode get(Reference reference) throws LoadException {
@@ -77,25 +76,20 @@ public class SchemaLoader {
     }
 
     public SchemaNode get(JsonNode node) throws LoadException {
-        // TODO make anon schemas
         return null;
     }
 
     private SchemaNode getFromCache(Route schemaRoute) throws LoadException {
-        SchemaNode targetNode;
-        if (preloadedSchemas.containsKey(schemaRoute)) {
-            targetNode = preloadedSchemas.get(schemaRoute);
-        } else {
-            try {
-                targetNode = cache.get(schemaRoute);
-            } catch (ExecutionException e) {
-                throw handleException(e);
-            }
+        try {
+            SchemaNode targetNode = cache.get(schemaRoute);
+
             if (targetNode.getStatus() == SchemaStatus.NOT_RESOLVED)
                 targetNode.resolve();
-        }
 
-        return targetNode;
+            return targetNode;
+        } catch (ExecutionException e) {
+            throw handleException(e);
+        }
     }
 
     public void setDereferenceConfiguration(LoadConfiguration cfg) throws LoadException {
@@ -103,8 +97,8 @@ public class SchemaLoader {
         routeManager.setDefaultBaseUri(cfg.getDefaultBaseUri()).setPreloadedRoutes(cfg.getPreloadedSchemas().keySet())
                 .setLogger(logger);
         retrievalManager.setLoaderFactory(cfg.getLoaderFactory()).setLogger(logger);
-        preloadedSchemas = cfg.getPreloadedSchemas();
         setCache(cfg.getCashSize());
+        cache.putAll(cfg.getPreloadedSchemas());
     }
 
     public Logger getLogger() {
@@ -113,10 +107,6 @@ public class SchemaLoader {
 
     public void setLogger(Logger logger) {
         this.logger = logger;
-    }
-
-    public void setPreloadedSchemas(Map<Route, SchemaNode> preloadedSchemas) {
-        this.preloadedSchemas = preloadedSchemas;
     }
 
     public void setCache(int cacheSize) {
@@ -149,9 +139,6 @@ public class SchemaLoader {
                         + "\tfrom - " + lastCanonical
                         + "\tto - " + route.getCanonical().getUri()
                         + "}");
-                if (preloadedSchemas.containsKey(route)) {
-                    return preloadedSchemas.get(route);
-                }
 
                 SchemaNode alreadyExistingSchema = cache.getIfPresent(route);
                 if (alreadyExistingSchema != null)
@@ -163,9 +150,9 @@ public class SchemaLoader {
         }
 
         if (source.has("allOf") && flags.contains(LoadingFlag.MERGE_ALL_OF))
-           targetNode = new AllOfSchema(this, route, source);
+            targetNode = new AllOfSchema(this, route, source);
         else
-           targetNode = new Schema(this, route, source);
+            targetNode = new Schema(this, route, source);
 
         countCreatedSchemas++;
         return targetNode;
