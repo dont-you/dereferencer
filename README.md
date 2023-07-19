@@ -7,7 +7,7 @@ Java library to resolve `$ref` references in a given set of JSON schemas
 [comment]: # (some about dereferencing with example)
 The dereferencer removes all properties with the key `$ref` from the init schema and instead sets the obtained schema by the `$ref` value. This process is recursive and stops when all references from init and dereferenced schemas have been removed. At the output, we get the single schema containing all the dereferenced schemas
 
-For example we have the document customer.json
+For example, we have the document customer.json
 
 **customer.json:**
 ```json
@@ -24,7 +24,7 @@ For example we have the document customer.json
 }
 ```
 
-Also we have the document common.json and addres.json
+Also, we have the document common.json and addres.json
 
 **common.json:**
 ```json
@@ -35,7 +35,7 @@ Also we have the document common.json and addres.json
   "$defs": {
     "phone": {
       "type": "string",
-      "pattern": "^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$"
+      "pattern": "^[\\+]?[(]?[0-9]{3}[)]?[-\\s\\.]?[0-9]{3}[-\\s\\.]?[0-9]{4,6}$"
     },
     "usaPostalCode": {
       "type": "string",
@@ -84,7 +84,7 @@ The output document will be:
     "name": { "type": "string" },
     "phone": {
       "type": "string",
-      "pattern": "^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$"
+      "pattern": "^[\\+]?[(]?[0-9]{3}[)]?[-\\s\\.]?[0-9]{3}[-\\s\\.]?[0-9]{4,6}$"
     }
     "address": {
       "$schema": "https://json-schema.org/draft/2020-12",
