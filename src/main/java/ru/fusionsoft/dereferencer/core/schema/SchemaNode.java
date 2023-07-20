@@ -15,7 +15,9 @@ public interface SchemaNode {
 
     SchemaNode getSchemaNodeByJsonPointer(JsonPtr jsonPointer) throws LoadException;
 
-    void resolve() throws LoadException;
+    SchemaNode resolve() throws LoadException;
+
+    SchemaNode resolveIfNotResolved() throws LoadException;
 
     void delegate(JsonPtr childPtr, SchemaNode childSchema) throws LoadException;
 

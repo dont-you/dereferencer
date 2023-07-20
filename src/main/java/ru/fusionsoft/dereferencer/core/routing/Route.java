@@ -13,7 +13,7 @@ public class Route implements Comparable<Route> {
     private Reference canonical;
     private final Set<Reference> duplicates;
 
-    public Route(Reference canonical) {
+    Route(Reference canonical) {
         this.canonical = canonical;
         duplicates = new TreeSet<>();
         duplicates.add(canonical);

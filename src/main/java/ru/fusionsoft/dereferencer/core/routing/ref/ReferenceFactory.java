@@ -6,6 +6,14 @@ import java.net.URISyntaxException;
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 
 public class ReferenceFactory {
+    public static Reference create(String uri) throws URIException {
+        try {
+            return new Reference(new URI(uri));
+        } catch (URISyntaxException e) {
+            throw new URIException("uri " + uri + " contains errors");
+        }
+    }
+
     public static Reference create(URI uri) throws URIException {
         return new Reference(uri);
     }

@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
@@ -18,6 +21,8 @@ import java.io.*;
 import java.net.*;
 import java.nio.file.Paths;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 
 public class DereferencerIT {
 
@@ -117,4 +122,11 @@ public class DereferencerIT {
                 .toFile());
         assertEquals(expected, actual);
     }
+
+    @Test
+    public void test()
+            throws StreamReadException, DatabindException, IOException, URISyntaxException, LoadException, ExecutionException {
+
+    }
+
 }

@@ -1,10 +1,8 @@
 package ru.fusionsoft.dereferencer.core;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
@@ -19,7 +17,6 @@ import ru.fusionsoft.dereferencer.core.exceptions.RetrievingException;
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 import ru.fusionsoft.dereferencer.core.exceptions.UnknownException;
 import ru.fusionsoft.dereferencer.core.schema.SchemaNode;
-import ru.fusionsoft.dereferencer.core.schema.SchemaStatus;
 import ru.fusionsoft.dereferencer.core.load.RetrievalManager;
 import ru.fusionsoft.dereferencer.core.routing.Route;
 import ru.fusionsoft.dereferencer.core.routing.RouteManager;
@@ -49,13 +46,21 @@ public class SchemaLoader {
     }
 
     public SchemaNode get(Reference reference) throws LoadException {
-        if (reference.isContainsFragment()) {
-            URI absolute = reference.getAbsolute();
-            JsonPtr jsonPtr = reference.getJsonPtr();
-            return getFromCache(routeManager.getRoute(ReferenceFactory.create(absolute)))
-                    .getSchemaNodeByJsonPointer(jsonPtr);
-        } else {
-            return getFromCache(routeManager.getRoute(reference));
+        try {
+            if (reference.isContainsFragment()) {
+                URI absolute = reference.getAbsolute();
+                JsonPtr jsonPtr = reference.getJsonPtr();
+                return cache
+                        .get(routeManager.getRoute(ReferenceFactory.create(absolute)))
+                        .resolveIfNotResolved()
+                        .getSchemaNodeByJsonPointer(jsonPtr);
+            } else {
+                return cache
+                        .get(routeManager.getRoute(reference))
+                        .resolveIfNotResolved();
+            }
+        } catch (ExecutionException e) {
+            throw handleException(e);
         }
     }
 
@@ -67,29 +72,79 @@ public class SchemaLoader {
             return new MissingSchema(this, routeToSchema);
         }
 
-        SchemaNode targetNode = createSchema(routeToSchema, node);
+        SchemaNode targetNode = makeSchema(routeToSchema, node);
         cache.put(targetNode.getSchemaRoute(), targetNode);
-        logger.info("successful loading schema into cache with current canonical uri - "
+        logger.info("successful loading schema into cache with retrieval uri uri - "
                 + targetNode.getSchemaRoute().getCanonical().getUri());
         targetNode.resolve();
         return targetNode;
     }
 
     public SchemaNode get(JsonNode node) throws LoadException {
-        return null;
+        if (node.has("$id")) {
+            return create(routeManager.getRoute(ReferenceFactory.create(node.at("/$id").asText())),node);
+        } else {
+            throw new LoadException("anonymous schema should contain property $id");
+        }
     }
 
-    private SchemaNode getFromCache(Route schemaRoute) throws LoadException {
-        try {
-            SchemaNode targetNode = cache.get(schemaRoute);
+    public void setCache(int cacheSize) {
+        CacheBuilder<Object, Object> builder = CacheBuilder.newBuilder();
 
-            if (targetNode.getStatus() == SchemaStatus.NOT_RESOLVED)
-                targetNode.resolve();
-
-            return targetNode;
-        } catch (ExecutionException e) {
-            throw handleException(e);
+        if (cacheSize != -1) {
+            builder.maximumSize(cacheSize);
         }
+
+        cache = builder.build(new CacheLoader<>() {
+            @Override
+            public SchemaNode load(Route key) throws LoadException {
+                SchemaNode SchemaNode = makeSchema(key, retrievalManager.retrieve(key));
+                logger.info("successful loading schema into cache with current canonical uri - "
+                        + key.getCanonical().getUri());
+                return SchemaNode;
+            }
+
+        });
+    }
+
+    private SchemaNode makeSchema(Route route, JsonNode source) throws LoadException {
+        if (source.has("$id"))
+            route.setCanonical(ReferenceFactory.create(source.at("/$id").asText()));
+
+        return create(route, source);
+    }
+
+    private SchemaNode create(Route route, JsonNode source){
+        SchemaNode targetNode = cache.getIfPresent(route);
+        if (targetNode != null)
+            return targetNode;
+
+        if (source.has("allOf") && flags.contains(LoadingFlag.MERGE_ALL_OF))
+            targetNode = new AllOfSchema(this, route, source);
+        else
+            targetNode = new Schema(this, route, source);
+
+        countCreatedSchemas++;
+
+        return targetNode;
+
+    }
+
+    private static LoadException handleException(Exception e) {
+        Throwable t = e.getCause();
+        if (t instanceof RetrievingException) {
+            return (RetrievingException) t;
+        } else if (t instanceof URIException) {
+            return (URIException) t;
+        } else if (t instanceof UnknownException) {
+            return (UnknownException) t;
+        } else {
+            return (LoadException) t;
+        }
+    }
+
+    public int getCountCreatedSchemas() {
+        return countCreatedSchemas;
     }
 
     public void setDereferenceConfiguration(LoadConfiguration cfg) throws LoadException {
@@ -109,69 +164,4 @@ public class SchemaLoader {
         this.logger = logger;
     }
 
-    public void setCache(int cacheSize) {
-        CacheBuilder<Object, Object> builder = CacheBuilder.newBuilder();
-
-        if (cacheSize != -1) {
-            builder.maximumSize(cacheSize);
-        }
-
-        cache = builder.build(new CacheLoader<>() {
-            @Override
-            public SchemaNode load(Route key) throws LoadException {
-                SchemaNode SchemaNode = createSchema(key, retrievalManager.retrieve(key));
-                logger.info("successful loading schema into cache with current canonical uri - "
-                        + key.getCanonical().getUri());
-                return SchemaNode;
-            }
-
-        });
-    }
-
-    private SchemaNode createSchema(Route route, JsonNode source) throws LoadException {
-        SchemaNode targetNode;
-        String lastCanonical = route.getCanonical().getUri().toString();
-
-        if (source.has("$id")) {
-            try {
-                route.setCanonical(ReferenceFactory.create(new URI(source.at("/$id").asText())));
-                logger.info("canonical change by embedded in content uri: {"
-                        + "\tfrom - " + lastCanonical
-                        + "\tto - " + route.getCanonical().getUri()
-                        + "}");
-
-                SchemaNode alreadyExistingSchema = cache.getIfPresent(route);
-                if (alreadyExistingSchema != null)
-                    return alreadyExistingSchema;
-            } catch (URISyntaxException e) {
-                throw new URIException(
-                        "embedded in content uri of schema with retrieval uri " + lastCanonical + " contains errors");
-            }
-        }
-
-        if (source.has("allOf") && flags.contains(LoadingFlag.MERGE_ALL_OF))
-            targetNode = new AllOfSchema(this, route, source);
-        else
-            targetNode = new Schema(this, route, source);
-
-        countCreatedSchemas++;
-        return targetNode;
-    }
-
-    public int getCountCreatedSchemas() {
-        return countCreatedSchemas;
-    }
-
-    private static LoadException handleException(Exception e) {
-        Throwable t = e.getCause();
-        if (t instanceof RetrievingException) {
-            return (RetrievingException) t;
-        } else if (t instanceof URIException) {
-            return (URIException) t;
-        } else if (t instanceof UnknownException) {
-            return (UnknownException) t;
-        } else {
-            return (LoadException) t;
-        }
-    }
 }

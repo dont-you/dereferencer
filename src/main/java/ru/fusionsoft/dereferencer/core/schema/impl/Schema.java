@@ -115,13 +115,22 @@ public class Schema implements SchemaNode {
     }
 
     @Override
-    public void resolve() throws LoadException {
+    public SchemaNode resolveIfNotResolved() throws LoadException{
+        if (status == SchemaStatus.NOT_RESOLVED)
+            return resolve();
+        else
+            return this;
+    }
+
+    @Override
+    public SchemaNode resolve() throws LoadException {
         loader.getLogger()
                 .info("schema $" + id + " STARTED the PROCESSING");
         status = PROCESSING;
         executeResolving();
         status = RESOLVED;
         loader.getLogger().info("schema $" + id + " IS RESOLVED");
+        return this;
     }
 
     @Override
