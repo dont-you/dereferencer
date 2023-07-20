@@ -3,6 +3,7 @@ package ru.fusionsoft.dereferencer.core;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
@@ -43,6 +44,10 @@ public class SchemaLoader {
         retrievalManager = new RetrievalManager(cfg.getLoaderFactory(), logger);
         setCache(cfg.getCashSize());
         cache.putAll(cfg.getPreloadedSchemas());
+    }
+
+    public SchemaNode get(URI uri) throws LoadException{
+        return get(ReferenceFactory.create(uri));
     }
 
     public SchemaNode get(Reference reference) throws LoadException {
@@ -163,4 +168,7 @@ public class SchemaLoader {
         this.logger = logger;
     }
 
+    public Map<Route,SchemaNode> getCache() {
+        return cache.asMap();
+    }
 }

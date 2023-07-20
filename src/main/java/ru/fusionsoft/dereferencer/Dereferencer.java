@@ -16,7 +16,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 import ru.fusionsoft.dereferencer.core.exceptions.UnknownException;
-import ru.fusionsoft.dereferencer.core.routing.ref.ReferenceFactory;
+import ru.fusionsoft.dereferencer.core.routing.Route;
+import ru.fusionsoft.dereferencer.core.schema.SchemaNode;
 import ru.fusionsoft.dereferencer.core.SchemaLoader;
 import ru.fusionsoft.dereferencer.utils.DereferenceLoaderFactory;
 import ru.fusionsoft.dereferencer.utils.urn.URN;
@@ -50,7 +51,7 @@ public class Dereferencer {
 
     public static JsonNode deref(URI uri, DereferenceConfiguration cfg) throws LoadException {
         SchemaLoader schemaLoader = new SchemaLoader(cfg);
-        return schemaLoader.get(ReferenceFactory.create(uri)).asJson();
+        return schemaLoader.get(uri).asJson();
     }
 
     public static JsonNode anonymousDeref(JsonNode node) throws LoadException {
@@ -66,7 +67,7 @@ public class Dereferencer {
     public JsonNode dereference(URI uri) throws LoadException {
         URNResolver urnResolver = loaderFactory.getUrnResolver();
         urnResolver.addToCache(getUrnCache(new URI[] { uri }));
-        return schemaLoader.get(ReferenceFactory.create(uri)).asJson();
+        return schemaLoader.get(uri).asJson();
     }
 
     public void dereference(URI[] uris) throws LoadException {
@@ -79,7 +80,7 @@ public class Dereferencer {
                 jsonMapper.writeValue(
                         Paths.get(pathToSavedDirectory + uri.getPath().substring(uri.getPath().lastIndexOf("/") + 1))
                                 .toFile(),
-                        schemaLoader.get(ReferenceFactory.create(uri)).asJson());
+                        schemaLoader.get(uri).asJson());
             } catch (IOException e) {
                 throw new UnknownException("could not write result by path - " + pathToSavedDirectory);
             }
@@ -92,6 +93,13 @@ public class Dereferencer {
 
     public void setDereferenceConfiguration(DereferenceConfiguration cfg) throws LoadException {
         schemaLoader.setDereferenceConfiguration(cfg);
+    }
+
+    public static Map<Route, SchemaNode> makePreloadedSchemas(URI uri) throws LoadException {
+        DereferenceConfiguration cfg = DereferenceConfiguration.builder().build();
+        SchemaLoader loader = new SchemaLoader(cfg);
+        loader.get(uri);
+        return loader.getCache();
     }
 
     private Map<URN, URI> getUrnCache(URI uris[]) throws LoadException {
