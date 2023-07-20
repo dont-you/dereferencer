@@ -16,7 +16,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 
-public class AllOfSchema extends Schema{
+public class AllOfSchema extends Schema {
     public AllOfSchema(SchemaLoader loader, Route schemaRoute, JsonNode sourceJson) {
         super(loader, schemaRoute, sourceJson);
     }
@@ -36,7 +36,7 @@ public class AllOfSchema extends Schema{
         for (int i = 0; i < resolvedJson.at("/allOf").size(); i++) {
             Stack<JsonNode> memory = new Stack<>();
             Stack<String> pathStack = new Stack<>();
-            memory.push(resolvedJson.at("/allOf/"+i));
+            memory.push(resolvedJson.at("/allOf/" + i));
             pathStack.push("");
 
             while (!memory.empty()) {

@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.apache.tika.Tika;
@@ -20,9 +19,10 @@ public class FileLoader implements SourceLoader {
 
     private URI uri;
 
-    public FileLoader(URI uri){
+    public FileLoader(URI uri) {
         this.uri = uri;
     }
+
     @Override
     public InputStream getSource() throws LoadException {
         File file = Paths.get(uri.normalize()).toFile();

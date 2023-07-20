@@ -94,7 +94,7 @@ public class MissingSchema implements SchemaNode {
     }
 
     @Override
-    public SchemaNode resolveIfNotResolved() throws LoadException{
+    public SchemaNode resolveIfNotResolved() throws LoadException {
         if (presentSchema == null)
             throw new LoadException(
                     "schema with canonical - " + schemaRoute.getCanonical().getUri() + " could not be found");

@@ -73,7 +73,6 @@ public class DereferenceConfiguration extends LoadConfiguration {
             return this;
         }
 
-
         public DereferenceConfiguration build() {
             return cfg;
         }

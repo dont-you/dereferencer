@@ -28,8 +28,8 @@ public class Reference implements Comparable<Reference> {
     Reference(URI absolute, JsonPtr jsonPtr) throws URIException {
         try {
             if (jsonPtr != null)
-                this.uri = new URI(absolute.normalize().toASCIIString()+
-                        "#"+ (jsonPtr.isResolved() ? jsonPtr.getResolved() : jsonPtr.getPlainName()));
+                this.uri = new URI(absolute.normalize().toASCIIString() +
+                        "#" + (jsonPtr.isResolved() ? jsonPtr.getResolved() : jsonPtr.getPlainName()));
             else
                 this.uri = absolute;
             this.absolute = absolute;

@@ -115,7 +115,7 @@ public class Schema implements SchemaNode {
     }
 
     @Override
-    public SchemaNode resolveIfNotResolved() throws LoadException{
+    public SchemaNode resolveIfNotResolved() throws LoadException {
         if (status == SchemaStatus.NOT_RESOLVED)
             return resolve();
         else
@@ -178,7 +178,7 @@ public class Schema implements SchemaNode {
                         relatives.addChild(new JsonPtr(currentPath),
                                 loader.get(schemaRoute.resolveRelative(fieldValue.asText())));
                         continue;
-                    } else if (!currentPath.isEmpty() && fieldKey.equals("allOf")){
+                    } else if (!currentPath.isEmpty() && fieldKey.equals("allOf")) {
                         Reference ref = schemaRoute.resolveRelative("#" + currentPath);
                         relatives.addChild(ref.getJsonPtr(), loader.get(ref, currentNode));
                         continue;

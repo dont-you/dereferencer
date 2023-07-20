@@ -46,9 +46,9 @@ public class DereferenceLoaderFactory implements ILoaderFactory {
         if (isUrnReference(uri))
             return getLoader(urnResolver.getLocator(URN.parse(uri)));
         else if (isGitHubReference(uri))
-            return new GitHubSourceLoader(tokens.getGitHubToken(),uri);
+            return new GitHubSourceLoader(tokens.getGitHubToken(), uri);
         else if (isGitLabRegerence(uri))
-            return new GitLabSourceLoader(tokens.getGitLabToken(),uri);
+            return new GitLabSourceLoader(tokens.getGitLabToken(), uri);
         else if (isFileSystemReference(uri))
             return new FileLoader(uri);
         else if (isURLReference(uri))

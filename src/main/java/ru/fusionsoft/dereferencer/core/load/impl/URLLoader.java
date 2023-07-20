@@ -13,9 +13,10 @@ import ru.fusionsoft.dereferencer.core.load.SupportedSourceTypes;
 public class URLLoader implements SourceLoader {
     private URI uri;
 
-    public URLLoader(URI uri){
+    public URLLoader(URI uri) {
         this.uri = uri;
     }
+
     @Override
     public InputStream getSource() throws LoadException {
         try {

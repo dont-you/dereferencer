@@ -5,7 +5,7 @@ import java.net.URI;
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 import ru.fusionsoft.dereferencer.core.exceptions.URIException;
 
-public class URN implements Comparable{
+public class URN {
     private final String NID;
     private final String NSS;
     private final String rComponent;
@@ -84,10 +84,5 @@ public class URN implements Comparable{
     public boolean equals(Object obj) {
         URN urn = (URN) obj;
         return NID.equals(urn.getNID()) && NSS.equals(urn.getNSS());
-    }
-
-    @Override
-    public int compareTo(Object arg0) {
-        return 0;
     }
 }

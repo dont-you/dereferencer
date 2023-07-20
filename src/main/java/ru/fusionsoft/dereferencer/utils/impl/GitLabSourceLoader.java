@@ -37,16 +37,19 @@ public class GitLabSourceLoader implements SourceLoader {
     @Override
     public InputStream getSource() throws LoadException {
         try {
-            return new ByteArrayInputStream(gitLabApi.getRepositoryFileApi().getFile(projectPath,filePath,ref).getDecodedContentAsBytes());
+            return new ByteArrayInputStream(
+                    gitLabApi.getRepositoryFileApi().getFile(projectPath, filePath, ref).getDecodedContentAsBytes());
         } catch (GitLabApiException e) {
-            throw new UnknownException(String.format("error while getting file from gitlab with: \n\tmessage - %s\n\thttp code - %s",e.getMessage(),e.getHttpStatus()));
+            throw new UnknownException(
+                    String.format("error while getting file from gitlab with: \n\tmessage - %s\n\thttp code - %s",
+                            e.getMessage(), e.getHttpStatus()));
         }
     }
 
     @Override
     public SupportedSourceTypes getSourceType() throws LoadException {
-        String fileExtension = filePath.substring(filePath.lastIndexOf(".")+1);
-        return SupportedSourceTypes.resolveSourceTypeByMimeType("application/"+fileExtension);
+        String fileExtension = filePath.substring(filePath.lastIndexOf(".") + 1);
+        return SupportedSourceTypes.resolveSourceTypeByMimeType("application/" + fileExtension);
     }
 
     public void setToken(String token) {
@@ -54,6 +57,6 @@ public class GitLabSourceLoader implements SourceLoader {
     }
 
     private void setApiClient(String token) {
-        gitLabApi = new GitLabApi(locator,token);
+        gitLabApi = new GitLabApi(locator, token);
     }
 }

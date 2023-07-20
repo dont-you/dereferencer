@@ -74,10 +74,12 @@ public class Dereferencer {
         urnResolver.addToCache(getUrnCache(uris));
         ObjectMapper jsonMapper = new ObjectMapper();
 
-        for(URI uri: uris){
+        for (URI uri : uris) {
             try {
-                jsonMapper.writeValue(Paths.get(pathToSavedDirectory + uri.getPath().substring(uri.getPath().lastIndexOf("/")+1)).toFile(),
-                                      schemaLoader.get(ReferenceFactory.create(uri)).asJson());
+                jsonMapper.writeValue(
+                        Paths.get(pathToSavedDirectory + uri.getPath().substring(uri.getPath().lastIndexOf("/") + 1))
+                                .toFile(),
+                        schemaLoader.get(ReferenceFactory.create(uri)).asJson());
             } catch (IOException e) {
                 throw new UnknownException("could not write result by path - " + pathToSavedDirectory);
             }
