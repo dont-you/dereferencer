@@ -39,7 +39,7 @@ public class SchemaLoader {
         flags = new HashSet<>(Arrays.asList(cfg.getLoadingFlags()));
         countCreatedSchemas = 0;
         logger = cfg.getLogger();
-        routeManager = new RouteManager(cfg.getDefaultBaseUri(), cfg.getPreloadedSchemas().keySet(), logger);
+        routeManager = new RouteManager(cfg.getDefaultBaseUri(), cfg.getPreloadedSchemas().keySet());
         retrievalManager = new RetrievalManager(cfg.getLoaderFactory(), logger);
         setCache(cfg.getCashSize());
         cache.putAll(cfg.getPreloadedSchemas());
@@ -149,8 +149,7 @@ public class SchemaLoader {
 
     public void setDereferenceConfiguration(LoadConfiguration cfg) throws LoadException {
         logger = cfg.getLogger();
-        routeManager.setDefaultBaseUri(cfg.getDefaultBaseUri()).setPreloadedRoutes(cfg.getPreloadedSchemas().keySet())
-                .setLogger(logger);
+        routeManager.setDefaultBaseUri(cfg.getDefaultBaseUri()).setPreloadedRoutes(cfg.getPreloadedSchemas().keySet());
         retrievalManager.setLoaderFactory(cfg.getLoaderFactory()).setLogger(logger);
         setCache(cfg.getCashSize());
         cache.putAll(cfg.getPreloadedSchemas());
