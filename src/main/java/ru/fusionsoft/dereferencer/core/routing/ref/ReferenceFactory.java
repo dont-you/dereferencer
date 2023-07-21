@@ -46,6 +46,45 @@ public class ReferenceFactory {
         return create(reference.getAbsolute(), ptr);
     }
 
+    public static Reference create(Reference reference, String pathToRelativeReference, String relativeReference) throws URIException {
+        URI uri;
+        URI relativeUri;
+        try {
+            relativeUri = new URI(relativeReference);
+        } catch (URISyntaxException e1) {
+            throw new URIException("uri " + relativeReference + " contains errors");
+        }
+
+        String pathFromUri = relativeUri.getPath();
+        String[] parts = pathFromUri.split("/");
+
+        try{
+            Integer.parseInt(parts[0]);
+            return create(reference, resolveJsonPtr(pathToRelativeReference, parts));
+        } catch (NumberFormatException e) {
+            return create(reference, relativeUri);
+        }
+
+    }
+
+    private static JsonPtr resolveJsonPtr(String pathToValue, String pathFromValue[]){
+        String currentPath = pathToValue;
+        for(String key: pathFromValue){
+            try{
+                int upLevelTo = Integer.parseInt(key);
+                for(int i=0 ; i < upLevelTo ; i++){
+                    currentPath = currentPath.substring(0, currentPath.lastIndexOf("/"));
+                }
+            } catch (NumberFormatException e) {
+                currentPath += "/" + key;
+            }
+        }
+
+        return new JsonPtr(currentPath);
+    }
+
+
+
     private static URI addSlashToUriPath(URI uri) throws URISyntaxException {
         return new URI(uri.getScheme(),
                 uri.getUserInfo(), uri.getHost(), uri.getPort(),

@@ -176,7 +176,7 @@ public class Schema implements SchemaNode {
 
                     if (fieldKey.equals("$ref")) {
                         relatives.addChild(new JsonPtr(currentPath),
-                                loader.get(schemaRoute.resolveRelative(fieldValue.asText())));
+                                loader.get(schemaRoute.resolveRelative(currentPath, fieldValue.asText())));
                         continue;
                     } else if (!currentPath.isEmpty() && fieldKey.equals("allOf")) {
                         Reference ref = schemaRoute.resolveRelative("#" + currentPath);
@@ -214,10 +214,6 @@ public class Schema implements SchemaNode {
                 }
             }
         }
-    }
-
-    protected boolean isRelativeSchemaTo(SchemaNode intendedRelativeSchema) throws LoadException {
-        return intendedRelativeSchema.getCanonicalReference().equals(this.getCanonicalReference());
     }
 
     public Route getSchemaRoute() {

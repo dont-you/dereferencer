@@ -87,7 +87,9 @@ public class SchemaLoader {
 
     public SchemaNode get(JsonNode node) throws LoadException {
         if (node.has("$id")) {
-            return create(routeManager.getRoute(ReferenceFactory.create(node.at("/$id").asText())), node);
+            SchemaNode schemaNode = create(routeManager.getRoute(ReferenceFactory.create(node.at("/$id").asText())), node);
+            cache.put(schemaNode.getSchemaRoute(),schemaNode);
+            return schemaNode.resolve();
         } else {
             throw new LoadException("anonymous schema should contain property $id");
         }
