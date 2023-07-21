@@ -46,6 +46,9 @@ public class Route implements Comparable<Route> {
         return ReferenceFactory.create(canonical, pathToRef, refValue);
     }
 
+    public Reference resolveRelative(JsonPtr ptr) throws URIException {
+        return ReferenceFactory.create(canonical, ptr);
+    }
     @Override
     public boolean equals(Object obj) {
         if (getClass() != obj.getClass())

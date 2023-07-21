@@ -102,13 +102,7 @@ public class Schema implements SchemaNode {
             throws LoadException {
         SchemaNode target = relatives.getChild(jsonPointer);
         if (target == null) {
-            if (jsonPointer.isResolved())
-                target = loader.get(schemaRoute.resolveRelative("#" + jsonPointer.getResolved()),
-                        sourceJson.at(jsonPointer.getResolved()));
-            else
-                target = loader.get(schemaRoute.resolveRelative("#" + jsonPointer.getPlainName()),
-                        MissingNode.getInstance());
-
+            target = loader.get(schemaRoute.resolveRelative(jsonPointer),JsonNodeRetriever.retrieve(sourceJson, jsonPointer));
             relatives.addChild(jsonPointer, target);
         }
         return target;
