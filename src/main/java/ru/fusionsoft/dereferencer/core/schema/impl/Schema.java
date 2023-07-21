@@ -175,8 +175,16 @@ public class Schema implements SchemaNode {
                             "in schema $" + id + " found " + fieldKey + " key with value: " + fieldValue.asText());
 
                     if (fieldKey.equals("$ref")) {
+                        // relatives.addChild(new JsonPtr(currentPath),
+                        // loader.get(schemaRoute.resolveRelative(fieldValue.asText())));
+                        // String fieldValueLiteral = fieldValue.asText();
+                        // Reference ref = fieldValueLiteral.startsWith("#")
+                        //         ? schemaRoute.resolveRelative(resolveJsonPtrFromRef(fieldValueLiteral,currentPath))
+                        //         : schemaRoute.resolveRelative(fieldValueLiteral);
+                        Reference ref = schemaRoute.resolveRelative(currentPath, fieldValue.asText());
+
                         relatives.addChild(new JsonPtr(currentPath),
-                                loader.get(schemaRoute.resolveRelative(fieldValue.asText())));
+                                loader.get(ref));
                         continue;
                     } else if (!currentPath.isEmpty() && fieldKey.equals("allOf")) {
                         Reference ref = schemaRoute.resolveRelative("#" + currentPath);
@@ -214,6 +222,31 @@ public class Schema implements SchemaNode {
                 }
             }
         }
+    }
+
+    protected JsonPtr resolveJsonPtrFromRef(String refValue, String pathToValue) throws LoadException{
+        String pathFromValue = refValue.substring(1);
+        String[] parts = pathFromValue.split("/");
+
+        try{
+            Integer.parseInt(parts[0]);
+        } catch (NumberFormatException e) {
+            return new JsonPtr(pathFromValue);
+        }
+
+        String currentPath = pathToValue;
+        for(String key: parts){
+            try{
+                int upLevelTo = Integer.parseInt(key);
+                for(int i=0 ; i < upLevelTo ; i++){
+                    currentPath = currentPath.substring(0, currentPath.lastIndexOf("/"));
+                }
+            } catch (NumberFormatException e) {
+                currentPath += "/" + key;
+            }
+        }
+
+        return new JsonPtr(currentPath);
     }
 
     protected boolean isRelativeSchemaTo(SchemaNode intendedRelativeSchema) throws LoadException {

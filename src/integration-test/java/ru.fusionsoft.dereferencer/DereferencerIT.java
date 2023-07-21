@@ -5,14 +5,9 @@ import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
-import org.kohsuke.github.GitHub;
-import org.kohsuke.github.GitHubBuilder;
 import ru.fusionsoft.dereferencer.core.LoadingFlag;
 import ru.fusionsoft.dereferencer.core.exceptions.LoadException;
 import ru.fusionsoft.dereferencer.utils.Tokens;
@@ -22,7 +17,6 @@ import java.net.*;
 import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Function;
 
 public class DereferencerIT {
 
@@ -126,7 +120,35 @@ public class DereferencerIT {
     @Test
     public void test()
             throws StreamReadException, DatabindException, IOException, URISyntaxException, LoadException, ExecutionException {
+        Dereferencer dereferencer = new Dereferencer(DereferenceConfiguration.builder().setLoadingFlags(new LoadingFlag[]{LoadingFlag.MERGE_ALL_OF}).build());
+        JsonNode node = jsonMapper.readTree("{" +
+                "\"$id\":\"https://example.com\","+
+                "\"type\":\"object\"," +
+                "\"properties\":{" +
+                "\"first_email\":{" +
+                "\"type\":\"string\"," +
+                "\"format\":\"email\"" +
+                "}," +
+                "\"second_email\":{" +
+                "\"$ref\":\"1/first_email\"" +
+                "}}}");
 
+        JsonNode actual = dereferencer.anonymousDereference(node);
+        JsonNode expected = jsonMapper.readTree(
+                "{" +
+                    "\"$id\":\"https://example.com\"," +
+                    "\"type\":\"object\"," +
+                    "\"properties\":{" +
+                        "\"first_email\":{" +
+                            "\"type\":\"string\"," +
+                            "\"format\":\"email\"" +
+                        "}," +
+                        "\"second_email\":{" +
+                            "\"type\":\"string\"," +
+                            "\"format\":\"email\"" +
+                "}}}");
+
+        assertEquals(expected,actual);
     }
 
 }
