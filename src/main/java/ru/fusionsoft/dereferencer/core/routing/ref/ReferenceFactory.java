@@ -60,7 +60,7 @@ public class ReferenceFactory {
 
         try{
             Integer.parseInt(parts[0]);
-            return create(reference, resolveJsonPtr(pathFromUri, parts));
+            return create(reference, resolveJsonPtr(pathToRelativeReference, parts));
         } catch (NumberFormatException e) {
             return create(reference, relativeUri);
         }
