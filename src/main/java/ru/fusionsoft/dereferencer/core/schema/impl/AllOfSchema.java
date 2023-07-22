@@ -24,52 +24,54 @@ public class AllOfSchema extends Schema {
     @Override
     public JsonNode asJson() throws LoadException {
         super.asJson();
-        JsonNode result;
-        try {
-            result = new ObjectMapper().readTree("{}");
-        } catch (JsonMappingException e) {
-            throw new UnknownException(""); // todo
-        } catch (JsonProcessingException e) {
-            throw new UnknownException(""); // todo
-        }
+        if(!resolvedJson.at("/allOf").isMissingNode()){
+            JsonNode result;
+            try {
+                result = new ObjectMapper().readTree("{}");
+            } catch (JsonMappingException e) {
+                throw new UnknownException(""); // todo
+            } catch (JsonProcessingException e) {
+                throw new UnknownException(""); // todo
+            }
 
-        for (int i = 0; i < resolvedJson.at("/allOf").size(); i++) {
-            Stack<JsonNode> memory = new Stack<>();
-            Stack<String> pathStack = new Stack<>();
-            memory.push(resolvedJson.at("/allOf/" + i));
-            pathStack.push("");
+            for (int i = 0; i < resolvedJson.at("/allOf").size(); i++) {
+                Stack<JsonNode> memory = new Stack<>();
+                Stack<String> pathStack = new Stack<>();
+                memory.push(resolvedJson.at("/allOf/" + i));
+                pathStack.push("");
 
-            while (!memory.empty()) {
-                JsonNode currentNode = memory.pop();
-                String currentPath = pathStack.pop();
-                Iterator<Map.Entry<String, JsonNode>> fields = currentNode.fields();
-                JsonNode resNodeByPath = result.at(currentPath);
+                while (!memory.empty()) {
+                    JsonNode currentNode = memory.pop();
+                    String currentPath = pathStack.pop();
+                    Iterator<Map.Entry<String, JsonNode>> fields = currentNode.fields();
+                    JsonNode resNodeByPath = result.at(currentPath);
 
-                if (resNodeByPath.isObject() && currentNode.isObject()) {
-                    while (fields.hasNext()) {
-                        Map.Entry<String, JsonNode> field = fields.next();
+                    if (resNodeByPath.isObject() && currentNode.isObject()) {
+                        while (fields.hasNext()) {
+                            Map.Entry<String, JsonNode> field = fields.next();
 
-                        memory.push(field.getValue());
-                        pathStack.push(currentPath + "/" + field.getKey());
-                    }
+                            memory.push(field.getValue());
+                            pathStack.push(currentPath + "/" + field.getKey());
+                        }
 
-                } else if (resNodeByPath.isMissingNode() || !currentNode.isArray()) {
-                    result = setNode(result, currentNode, currentPath);
-                } else {
-                    Iterator<JsonNode> elements = currentNode.elements();
-                    ArrayNode resArray = (ArrayNode) resNodeByPath;
+                    } else if (resNodeByPath.isMissingNode() || !currentNode.isArray()) {
+                        result = setNode(result, currentNode, currentPath);
+                    } else {
+                        Iterator<JsonNode> elements = currentNode.elements();
+                        ArrayNode resArray = (ArrayNode) resNodeByPath;
 
-                    while (elements.hasNext()) {
-                        JsonNode value = elements.next();
-                        if (!findInArrayNode(resArray, value))
-                            ((ArrayNode) resArray).add(value);
+                        while (elements.hasNext()) {
+                            JsonNode value = elements.next();
+                            if (!findInArrayNode(resArray, value))
+                                ((ArrayNode) resArray).add(value);
+                        }
                     }
                 }
-
             }
+
+            resolvedJson = result;
         }
 
-        resolvedJson = result;
         return resolvedJson;
     }
 

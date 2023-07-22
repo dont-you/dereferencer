@@ -67,7 +67,7 @@ public class DereferencerIT {
 
     @Test
     public void delme() throws LoadException, IOException {
-        Dereferencer dereferencer = new Dereferencer(DereferenceConfiguration.builder().build());
+        Dereferencer dereferencer = new Dereferencer(DereferenceConfiguration.builder().setLoadingFlags(new LoadingFlag[]{LoadingFlag.MERGE_ALL_OF}).build());
         String HOME = System.getenv().get("HOME");
 
         JsonNode json1 = dereferencer.dereference(URI.create(HOME+"/Temp/schemes/fipc.yaml").normalize());
