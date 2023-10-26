@@ -6,7 +6,7 @@ import ru.fusionsoft.dereferencer.core.AbsoluteURI;
 import ru.fusionsoft.dereferencer.core.File;
 import ru.fusionsoft.dereferencer.core.FileRegister;
 import ru.fusionsoft.dereferencer.core.ref.ReferenceManager;
-import ru.fusionsoft.dereferencer.load.LoaderFactory;
+import ru.fusionsoft.dereferencer.core.load.LoaderFactory;
 
 public class AllOfFileRegister extends FileRegister{
 

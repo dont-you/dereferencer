@@ -5,7 +5,7 @@ import java.net.URI;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import ru.fusionsoft.dereferencer.core.ref.ReferenceManager;
-import ru.fusionsoft.dereferencer.load.LoaderFactory;
+import ru.fusionsoft.dereferencer.core.load.LoaderFactory;
 
 public class FileRegister {
     public FileRegister(LoaderFactory loaderFactory, ReferenceManager referenceManager){

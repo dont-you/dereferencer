@@ -1,4 +1,4 @@
-package ru.fusionsoft.dereferencer.exceptions;
+package ru.fusionsoft.dereferencer.core.exceptions;
 
 public class DereferenceException extends Exception{
     public DereferenceException(String msg){

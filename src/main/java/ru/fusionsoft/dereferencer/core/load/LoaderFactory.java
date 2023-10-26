@@ -1,4 +1,4 @@
-package ru.fusionsoft.dereferencer.load;
+package ru.fusionsoft.dereferencer.core.load;
 
 import java.net.URI;
 
