@@ -1,13 +1,17 @@
 package ru.fusionsoft.dereferencer;
 
-import java.net.URI;
-
 import com.fasterxml.jackson.databind.JsonNode;
 
-import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
+import java.net.URI;
 
-public interface Dereferencer {
-    public JsonNode dereference(URI uri) throws DereferenceException;
+public class Dereferencer {
+    public JsonNode dereference(URI uri){
+        // TODO
+        return null;
+    }
 
-    public JsonNode anonymousDereference(JsonNode node) throws DereferenceException;
+    public JsonNode anonymousDereference(JsonNode jsonNode){
+        // TODO
+        return null;
+    }
 }

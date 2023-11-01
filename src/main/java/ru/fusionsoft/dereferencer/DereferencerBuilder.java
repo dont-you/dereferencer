@@ -1,8 +1,9 @@
 package ru.fusionsoft.dereferencer;
 
 public class DereferencerBuilder {
+    private DereferencerBuilder(){
 
-    private DereferencerBuilder(){}
+    }
 
     public static DereferencerBuilder builder(){
         // TODO

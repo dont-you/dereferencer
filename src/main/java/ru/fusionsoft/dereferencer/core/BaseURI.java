@@ -1,4 +1,4 @@
 package ru.fusionsoft.dereferencer.core;
 
-public class JsonPointer {
+public class BaseURI {
 }

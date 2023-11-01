@@ -1,10 +1,10 @@
-package ru.fusionsoft.dereferencer.core.load;
-
-import java.net.URI;
+package ru.fusionsoft.dereferencer.core;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import java.net.URI;
+
 public interface SourceLoader {
-    public JsonNode loadSource(URI uri);
     public boolean canLoad(URI uri);
+    public JsonNode loadSource(URI uri);
 }
