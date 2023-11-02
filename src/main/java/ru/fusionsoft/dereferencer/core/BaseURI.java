@@ -17,7 +17,7 @@ public class BaseURI {
     public boolean equals(Object obj) {
         if(getClass() != obj.getClass())
             return false;
-        return duplicates.contains(obj);
+        return duplicates.contains(((BaseURI) obj).canonical);
     }
 
     public void updateCanonical(URI canonical){
