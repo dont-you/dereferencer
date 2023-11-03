@@ -31,6 +31,11 @@ public class BaseFile implements File {
         return null;
     }
 
+    @Override
+    public void dereference() {
+        // TODO
+    }
+
     protected void resolveNode(String path, JsonNode node){
         // TODO
     }

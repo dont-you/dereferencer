@@ -9,4 +9,5 @@ public interface File {
     public JsonNode getSourceNode();
     public Reference[] getReferences();
     public Map<String,JsonNode> getAnchors();
+    public void dereference();
 }
