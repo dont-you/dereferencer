@@ -11,6 +11,11 @@ public class BaseLoaderFactory implements LoaderFactory {
     private LocalLoader localLoader;
     private URLLoader urlLoader;
 
+    public BaseLoaderFactory(){
+        localLoader = new LocalLoader();
+        urlLoader = new URLLoader();
+    }
+
     @Override
     public SourceLoader getSourceLoader(URI uri) throws DereferenceException {
         if (localLoader.canLoad(uri))

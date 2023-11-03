@@ -16,9 +16,9 @@ public interface SourceLoader {
     public static final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
     public boolean canLoad(URI uri);
-    public JsonNode loadSource(URI uri);
+    public JsonNode loadSource(URI uri) throws DereferenceException;
 
-    private static JsonNode makeJsonFromInputStream(InputStream stream, SourceType sourceType) throws DereferenceException{
+    static JsonNode makeJsonFromInputStream(InputStream stream, SourceType sourceType) throws DereferenceException{
         try{
             if (sourceType.isYaml()) {
                 Object obj = yamlMapper.readValue(stream, Object.class);
