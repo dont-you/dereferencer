@@ -10,6 +10,7 @@ public class BaseURI {
 
     public BaseURI(URI defaultBaseURI, URI canonical){
         duplicates = new HashSet<>();
+        this.canonical = defaultBaseURI;
         updateCanonical(defaultBaseURI.relativize(canonical));
     }
 
