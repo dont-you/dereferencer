@@ -8,9 +8,9 @@ public class BaseURI {
     private URI canonical;
     private Set<URI> duplicates;
 
-    public BaseURI(URI canonical){
+    public BaseURI(URI defaultBaseURI, URI canonical){
         duplicates = new HashSet<>();
-        updateCanonical(canonical);
+        updateCanonical(defaultBaseURI.relativize(canonical));
     }
 
     @Override
@@ -21,8 +21,12 @@ public class BaseURI {
     }
 
     public void updateCanonical(URI canonical){
-        this.canonical = canonical;
-        duplicates.add(canonical);
+        this.canonical = this.canonical.relativize(canonical);
+        duplicates.add(this.canonical);
+    }
+
+    public void addDuplicates(Set<URI> duplicates){
+        this.duplicates.addAll(duplicates);
     }
 
     public URI getCanonical(){
