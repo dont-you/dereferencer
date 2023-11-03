@@ -1,11 +1,11 @@
-package ru.fusionsoft.dereferencer.core.impl.load;
+package ru.fusionsoft.dereferencer.git;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import ru.fusionsoft.dereferencer.core.SourceLoader;
 
 import java.net.URI;
 
-public class GitHubLoader implements SourceLoader {
+public class GitLabLoader implements SourceLoader {
     @Override
     public boolean canLoad(URI uri) {
         // TODO
