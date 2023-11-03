@@ -6,6 +6,7 @@ import ru.fusionsoft.dereferencer.core.FileFactory;
 import ru.fusionsoft.dereferencer.core.FileRegister;
 import ru.fusionsoft.dereferencer.core.LoaderFactory;
 import ru.fusionsoft.dereferencer.core.URNPool;
+import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 
 import java.net.URI;
 
@@ -16,11 +17,11 @@ public class Dereferencer {
         fileRegister = new FileRegister(urnPool, loaderFactory, fileFactory, defaultBaseURI);
     }
 
-    public JsonNode dereference(URI uri){
+    public JsonNode dereference(URI uri) throws DereferenceException{
         return fileRegister.get(uri).getDerefedJson();
     }
 
-    public JsonNode anonymousDereference(JsonNode jsonNode){
+    public JsonNode anonymousDereference(JsonNode jsonNode) throws DereferenceException{
         return fileRegister.get(jsonNode).getDerefedJson();
     }
 }
