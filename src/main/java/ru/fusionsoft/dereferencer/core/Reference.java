@@ -12,16 +12,16 @@ public class Reference {
     private Set<Anchor> anchors;
     private Set<File> requesters;
 
-    private Reference(File handler){
+    private Reference(File handler, JsonPointer jsonPointer){
         this.handler = handler;
-        jsonPointer = null;
+        this.jsonPointer = jsonPointer;
         fragment = null;
         anchors = new TreeSet<>();
         requesters = new TreeSet<>();
     }
 
-    public static ReferenceProxy getReferenceProxy(File handler){
-        return new ReferenceProxy(handler);
+    public static ReferenceProxy getReferenceProxy(File handler, JsonPointer jsonPointer){
+        return new ReferenceProxy(handler, jsonPointer);
     }
 
     public File getHandler() {
@@ -63,8 +63,8 @@ public class Reference {
     static public class ReferenceProxy{
         private Reference reference;
 
-        public ReferenceProxy(File handler){
-            reference = new Reference(handler);
+        public ReferenceProxy(File handler, JsonPointer jsonPointer){
+            reference = new Reference(handler, jsonPointer);
         }
 
         public void setJsonPointer(JsonPointer jsonPointer) {
