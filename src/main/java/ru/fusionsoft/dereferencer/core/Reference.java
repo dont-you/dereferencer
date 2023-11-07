@@ -32,10 +32,6 @@ public class Reference {
         return jsonPointer;
     }
 
-    private void setJsonPointer(JsonPointer jsonPointer) {
-        this.jsonPointer = jsonPointer;
-    }
-
     public JsonNode getFragment() {
         return fragment;
     }
@@ -60,6 +56,11 @@ public class Reference {
         requesters.add(requester);
     }
 
+    private void redirectReference(File handler, JsonPointer jsonPointer){
+        this.handler = handler;
+        this.jsonPointer = this.jsonPointer.makeRedirectedPointer(jsonPointer);
+    }
+
     static public class ReferenceProxy{
         private Reference reference;
 
@@ -67,8 +68,8 @@ public class Reference {
             reference = new Reference(handler, jsonPointer);
         }
 
-        public void setJsonPointer(JsonPointer jsonPointer) {
-            reference.setJsonPointer(jsonPointer);
+        public void redirectReference(File handler, JsonPointer pathToHandler){
+            reference.redirectReference(handler, pathToHandler);
         }
 
         public void setFragment(JsonNode fragment) {
