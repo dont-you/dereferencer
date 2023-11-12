@@ -3,6 +3,7 @@ package ru.fusionsoft.dereferencer.core.impl.file;
 import com.fasterxml.jackson.databind.JsonNode;
 import ru.fusionsoft.dereferencer.core.File;
 import ru.fusionsoft.dereferencer.core.FileRegister;
+import ru.fusionsoft.dereferencer.core.JsonPointer;
 import ru.fusionsoft.dereferencer.core.Reference;
 
 import java.net.URI;
@@ -33,14 +34,23 @@ public class BaseFile implements File {
     }
 
     @Override
-    public Map<String, JsonNode> getAnchors() {
+    public void dereference() {
         // TODO
+    }
+
+    @Override
+    public Reference getFragment(JsonPointer jsonPointer) {
         return null;
     }
 
     @Override
-    public void dereference() {
-        // TODO
+    public void redirectReference(Reference.ReferenceProxy referenceProxy) {
+
+    }
+
+    @Override
+    public void updateReferenceInfo(Reference reference) {
+
     }
 
     protected void resolveNode(String path, JsonNode node){

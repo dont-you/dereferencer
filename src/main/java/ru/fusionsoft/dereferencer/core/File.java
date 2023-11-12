@@ -8,6 +8,8 @@ public interface File {
     public JsonNode getDerefedJson();
     public JsonNode getSourceNode();
     public Reference[] getReferences();
-    public Map<String,JsonNode> getAnchors();
-    public void dereference();
+    void dereference();
+    Reference getFragment(JsonPointer jsonPointer);
+    void redirectReference(Reference.ReferenceProxy referenceProxy);
+    void updateReferenceInfo(Reference reference);
 }
