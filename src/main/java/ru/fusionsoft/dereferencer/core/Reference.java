@@ -1,6 +1,8 @@
 package ru.fusionsoft.dereferencer.core;
 
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -9,14 +11,14 @@ public class Reference {
     private File handler;
     private JsonPointer jsonPointer;
     private JsonNode fragment;
-    private Set<Anchor> anchors;
+    private Map<String,File> anchors;
     private Set<File> requesters;
 
     private Reference(File handler, JsonPointer jsonPointer){
         this.handler = handler;
         this.jsonPointer = jsonPointer;
         fragment = null;
-        anchors = new TreeSet<>();
+        anchors = new TreeMap<>();
         requesters = new TreeSet<>();
     }
 
@@ -40,12 +42,12 @@ public class Reference {
         this.fragment = fragment;
     }
 
-    public Set<Anchor> getAnchors() {
+    public Map<String, File> getAnchors() {
         return anchors;
     }
 
-    private void addAllAnchors(Set<Anchor> anchors){
-        this.anchors.addAll(anchors);
+    private void addAllAnchors(Map<String, File> anchors){
+        this.anchors.putAll(anchors);
     }
 
     public Set<File> getRequesters() {
@@ -76,7 +78,7 @@ public class Reference {
             reference.setFragment(fragment);
         }
 
-        public void addAllAnchors(Set<Anchor> anchors){
+        public void addAllAnchors(Map<String, File> anchors){
             reference.addAllAnchors(anchors);
         }
 
