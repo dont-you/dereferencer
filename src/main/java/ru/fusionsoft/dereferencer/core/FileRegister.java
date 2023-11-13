@@ -95,6 +95,7 @@ public class FileRegister {
         urnPool.updateCache(baseURI.getCanonical(), loaderFactory);
         File lookingFile = fileFactory.makeFile(this, baseURI.getCanonical(), sourceJson);
         cache.put(baseURI, lookingFile);
+        lookingFile.dereference();
 
         return lookingFile;
     }
