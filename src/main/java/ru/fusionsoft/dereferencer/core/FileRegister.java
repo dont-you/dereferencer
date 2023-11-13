@@ -91,11 +91,10 @@ public class FileRegister {
         return null;
     }
 
-    private File makeFile(BaseURI baseURI, JsonNode sourceJson) {
+    private File makeFile(BaseURI baseURI, JsonNode sourceJson) throws DereferenceException {
         urnPool.updateCache(baseURI.getCanonical(), loaderFactory);
-        File lookingFile = fileFactory.makeFile(baseURI.getCanonical(), sourceJson);
+        File lookingFile = fileFactory.makeFile(this, baseURI.getCanonical(), sourceJson);
         cache.put(baseURI, lookingFile);
-        lookingFile.dereference();
 
         return lookingFile;
     }
