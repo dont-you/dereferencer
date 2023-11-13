@@ -8,29 +8,38 @@ import ru.fusionsoft.dereferencer.core.Reference;
 
 import java.net.URI;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class BaseFile implements File {
+    private URI baseURI;
+    private FileRegister fileRegister;
+    private JsonNode source;
+    private JsonNode derefedSource;
+    private Map<Reference, JsonPointer> references;
+    private ResponseManager responseManager;
 
     public BaseFile(FileRegister fileRegister, URI baseURI, JsonNode source){
-        // TODO
+        this.baseURI = baseURI;
+        this.fileRegister = fileRegister;
+        this.source = source;
+        this.derefedSource = null;
+        this.references = new TreeMap<>();
+        this.responseManager = new ResponseManager();
     }
 
     @Override
     public JsonNode getDerefedJson() {
-        // TODO
-        return null;
+        return derefedSource;
     }
 
     @Override
     public JsonNode getSourceNode() {
-        // TODO
-        return null;
+        return source;
     }
 
     @Override
     public Reference[] getReferences() {
-        // TODO
-        return new Reference[0];
+        return (Reference[]) references.keySet().toArray();
     }
 
     @Override
@@ -55,5 +64,9 @@ public class BaseFile implements File {
 
     protected void resolveNode(String path, JsonNode node){
         // TODO
+    }
+
+    class ResponseManager{
+
     }
 }
