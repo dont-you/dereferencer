@@ -6,32 +6,33 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 
 public class Reference {
     private File handler;
-    private JsonPointer jsonPointer;
+    private JsonPtr jsonPtr;
     private JsonNode fragment;
     private Map<String,File> anchors;
     private Set<File> requesters;
 
-    private Reference(File handler, JsonPointer jsonPointer){
+    private Reference(File handler, JsonPtr jsonPtr){
         this.handler = handler;
-        this.jsonPointer = jsonPointer;
+        this.jsonPtr = jsonPtr;
         fragment = null;
         anchors = new TreeMap<>();
         requesters = new TreeSet<>();
     }
 
-    public static ReferenceProxy getReferenceProxy(File handler, JsonPointer jsonPointer){
-        return new ReferenceProxy(handler, jsonPointer);
+    public static ReferenceProxy getReferenceProxy(File handler, JsonPtr jsonPtr){
+        return new ReferenceProxy(handler, jsonPtr);
     }
 
     public File getHandler() {
         return handler;
     }
 
-    public JsonPointer getJsonPointer() {
-        return jsonPointer;
+    public JsonPtr getJsonPointer() {
+        return jsonPtr;
     }
 
     public JsonNode getFragment() {
@@ -40,6 +41,13 @@ public class Reference {
 
     private void setFragment(JsonNode fragment) {
         this.fragment = fragment;
+        requesters.forEach(file -> {
+            try {
+                file.responseToRequest(this,fragment);
+            } catch (DereferenceException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     public Map<String, File> getAnchors() {
@@ -48,6 +56,13 @@ public class Reference {
 
     private void addAllAnchors(Map<String, File> anchors){
         this.anchors.putAll(anchors);
+        requesters.forEach(file -> {
+            try {
+                file.updateAnchorsFromRequest(this,anchors);
+            } catch (DereferenceException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     public Set<File> getRequesters() {
@@ -58,19 +73,19 @@ public class Reference {
         requesters.add(requester);
     }
 
-    private void redirectReference(File handler, JsonPointer jsonPointer){
+    private void redirectReference(File handler, JsonPtr jsonPtr){
         this.handler = handler;
-        this.jsonPointer = this.jsonPointer.makeRedirectedPointer(jsonPointer);
+        this.jsonPtr = this.jsonPtr.makeRedirectedPointer(jsonPtr);
     }
 
     static public class ReferenceProxy{
         private Reference reference;
 
-        public ReferenceProxy(File handler, JsonPointer jsonPointer){
-            reference = new Reference(handler, jsonPointer);
+        public ReferenceProxy(File handler, JsonPtr jsonPtr){
+            reference = new Reference(handler, jsonPtr);
         }
 
-        public void redirectReference(File handler, JsonPointer pathToHandler){
+        public void redirectReference(File handler, JsonPtr pathToHandler){
             reference.redirectReference(handler, pathToHandler);
         }
 
