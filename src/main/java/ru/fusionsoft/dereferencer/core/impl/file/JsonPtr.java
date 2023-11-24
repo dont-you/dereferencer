@@ -1,4 +1,4 @@
-package ru.fusionsoft.dereferencer.core;
+package ru.fusionsoft.dereferencer.core.impl.file;
 
 import java.util.Objects;
 
