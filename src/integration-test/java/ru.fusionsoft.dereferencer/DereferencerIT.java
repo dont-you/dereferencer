@@ -1,11 +1,20 @@
 package ru.fusionsoft.dereferencer;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
+import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
+
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Paths;
+
+import static org.junit.Assert.assertEquals;
 
 public class DereferencerIT {
-//
-//    ObjectMapper jsonMapper = new ObjectMapper();
-//
+
+    ObjectMapper jsonMapper = new ObjectMapper();
+
 //    @Test
 //    public void Test_simple_scheme_With_url_reference() throws LoadException, IOException {
 //        Dereferencer dereferencer = new Dereferencer(DereferenceConfiguration.builder().build());
@@ -17,16 +26,16 @@ public class DereferencerIT {
 //
 //        assertEquals(expected, actual);
 //   }
-//   @Test
-//   public void Test_simple_scheme_With_local_And_remote_references()
-//           throws IOException, LoadException {
-//        Dereferencer dereferencer = new Dereferencer(DereferenceConfiguration.builder().build());
-//        JsonNode actual = dereferencer.dereference(URI.create("./src/integration-test/resources/test-schemes/schemes/simple_scheme.json"));
-//        JsonNode expected = jsonMapper.readTree(Paths
-//                .get("./src/integration-test/resources/test-schemes/expected-result/dereferenced_simple_scheme.json").toFile());
-//
-//        assertEquals(expected, actual);
-//    }
+   @Test
+   public void Test_simple_scheme_With_local_And_remote_references()
+           throws IOException, DereferenceException {
+        Dereferencer dereferencer = DereferencerBuilder.builder().build();
+        JsonNode actual = dereferencer.dereference(URI.create("./src/integration-test/resources/test-schemes/schemes/simple_scheme.json"));
+        JsonNode expected = jsonMapper.readTree(Paths
+                .get("./src/integration-test/resources/test-schemes/expected-result/dereferenced_simple_scheme.json").toFile());
+
+        assertEquals(expected, actual);
+    }
 //
 //    @Test
 //   public void Test_simple_scheme_With_plain_name_fragment_reference()
