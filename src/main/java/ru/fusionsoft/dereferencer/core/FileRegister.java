@@ -6,22 +6,22 @@ import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 public class FileRegister {
-    private URNPool urnPool;
-    private LoaderFactory loaderFactory;
-    private FileFactory fileFactory;
-    private URI defaultBaseURI;
-    private Map<BaseURI, File> cache;
+    private final URNPool urnPool;
+    private final LoaderFactory loaderFactory;
+    private final FileFactory fileFactory;
+    private final URI defaultBaseURI;
+    private final Map<BaseURI, File> cache;
 
     public FileRegister(URNPool urnPool, LoaderFactory loaderFactory, FileFactory fileFactory, URI defaultBaseURI) {
         this.urnPool = urnPool;
         this.loaderFactory = loaderFactory;
         this.fileFactory = fileFactory;
         this.defaultBaseURI = defaultBaseURI;
-        cache = new TreeMap<>();
+        cache = new HashMap<>();
     }
 
     public File get(URI uri) throws DereferenceException {
