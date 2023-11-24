@@ -69,6 +69,10 @@ public class Reference {
         return requesters;
     }
 
+    private JsonPtr getJsonPtr() {
+        return jsonPtr;
+    }
+
     private void addRequester(File requester) {
         requesters.add(requester);
     }
@@ -103,6 +107,10 @@ public class Reference {
 
         public Reference getReference(){
             return reference;
+        }
+
+        public JsonPtr getJsonPtr(){
+            return reference.getJsonPtr();
         }
     }
 }

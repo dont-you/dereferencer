@@ -43,6 +43,9 @@ public class JsonPtr {
     }
 
     public boolean isSupSetTo(JsonPtr subPointer){
+        if(pointer==null)
+            return false;
+
         return subPointer.getPointer().startsWith(pointer);
     }
 
@@ -85,5 +88,9 @@ public class JsonPtr {
         }
 
         return new JsonPtr(currentPath);
+    }
+
+    public boolean isAnchorPointer(){
+        return plainName != null;
     }
 }
