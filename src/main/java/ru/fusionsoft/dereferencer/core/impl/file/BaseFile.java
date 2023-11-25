@@ -70,10 +70,10 @@ public class BaseFile implements File, Comparable<BaseFile>{
             while(fields.hasNext()){
                 Entry<String, JsonNode> field = fields.next();
                 String fieldKey = field.getKey();
+                fieldKey = decodeFieldKey(fieldKey);
                 String fieldPath = currentPath + "/" + fieldKey;
                 JsonNode fieldValue = field.getValue();
 
-                fieldKey = decodeFieldKey(fieldKey);
                 resolveNode(currentPath, fieldKey, fieldValue);
 
                 if (fieldValue.isArray()) {
