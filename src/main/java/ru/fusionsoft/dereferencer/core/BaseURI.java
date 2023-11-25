@@ -4,7 +4,7 @@ import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
 
-public class BaseURI {
+public class BaseURI implements Comparable<BaseURI>{
     private URI canonical;
     private final Set<URI> duplicates;
 
@@ -14,13 +14,6 @@ public class BaseURI {
         updateCanonical(canonical);
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if(getClass() != obj.getClass())
-            return false;
-        return duplicates.contains(((BaseURI) obj).canonical);
-    }
-
     public void updateCanonical(URI canonical){
         this.canonical = this.canonical.resolve(canonical);
         duplicates.add(this.canonical);
@@ -28,5 +21,15 @@ public class BaseURI {
 
     public URI getCanonical(){
         return canonical;
+    }
+
+    @Override
+    public int compareTo(BaseURI arg0) {
+        if (duplicates.contains(arg0.canonical))
+            return 0;
+        else if(duplicates.size() >= arg0.duplicates.size())
+            return 1;
+        else
+            return -1;
     }
 }

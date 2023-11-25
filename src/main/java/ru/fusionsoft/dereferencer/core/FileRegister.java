@@ -6,8 +6,8 @@ import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class FileRegister {
     private final URNPool urnPool;
@@ -21,7 +21,7 @@ public class FileRegister {
         this.loaderFactory = loaderFactory;
         this.fileFactory = fileFactory;
         this.defaultBaseURI = defaultBaseURI;
-        cache = new HashMap<>();
+        cache = new TreeMap<>();
     }
 
     public File get(URI uri) throws DereferenceException {
