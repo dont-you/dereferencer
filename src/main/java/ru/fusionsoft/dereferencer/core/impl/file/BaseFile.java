@@ -11,6 +11,7 @@ import java.util.Stack;
 import java.util.Map.Entry;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import ru.fusionsoft.dereferencer.core.File;
@@ -128,7 +129,11 @@ public class BaseFile implements File, Comparable<BaseFile>{
     public void responseToRequest(Reference reference, JsonNode jsonNode) throws DereferenceException {
         JsonPtr ptrToRef = references.get(reference);
         ((ObjectNode) derefedSource.at(ptrToRef.getPointer())).removeAll();
-        ((ObjectNode) derefedSource.at(ptrToRef.getParentPtr().getPointer())).set(ptrToRef.getPropertyName(), jsonNode);
+        JsonNode parentNode = derefedSource.at(ptrToRef.getParentPtr().getPointer());
+        if(parentNode.isObject())
+            ((ObjectNode)parentNode).set(ptrToRef.getPropertyName(), jsonNode);
+        else if(parentNode.isArray())
+            ((ArrayNode)parentNode).set(Integer.parseInt(ptrToRef.getPropertyName()), jsonNode);
     }
 
     public Reference getFragment(JsonPtr requestedPtr) throws DereferenceException {
