@@ -112,14 +112,15 @@ public class BaseFile implements File, Comparable<BaseFile>{
         } else if(nodeKey.equals("$ref")){
             URI targetUri;
             try {
-                targetUri = baseURI.relativize(new URI(nodeValue.toString()));
+                targetUri = baseURI.resolve(new URI(nodeValue.asText()));
+                references.put(getFileFromFileReg(targetUri).getFragment(new JsonPtr(targetUri.getFragment())),
+                               new JsonPtr(pathToNode));
             } catch (URISyntaxException e) {
                 throw new DereferenceException("could not parse ref - " + nodeValue);
             }
-            references.put(getFileFromFileReg(targetUri).getFragment(new JsonPtr(targetUri.getFragment())),
-                    new JsonPtr(pathToNode));
         }
     }
+
     public void responseToRequest(Reference reference, JsonNode jsonNode) throws DereferenceException {
         JsonPtr ptrToRef = references.get(reference);
         ((ObjectNode) derefedSource.at(ptrToRef.getPointer())).removeAll();
