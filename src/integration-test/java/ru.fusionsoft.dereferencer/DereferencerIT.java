@@ -7,6 +7,7 @@ import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Paths;
 
 import static org.junit.Assert.assertEquals;
@@ -36,6 +37,11 @@ public class DereferencerIT {
 
         assertEquals(expected, actual);
     }
+
+   @Test
+   public void delme()
+           throws IOException, DereferenceException, URISyntaxException {
+    }
 //
 //    @Test
 //   public void Test_simple_scheme_With_plain_name_fragment_reference()
@@ -58,18 +64,18 @@ public class DereferencerIT {
 //        assertEquals(expected, actual);
 //    }
 //
-//    @Test
-//    public void delme() throws LoadException, IOException {
-//        Dereferencer dereferencer = new Dereferencer(DereferenceConfiguration.builder().setLoadingFlags(new LoadingFlag[]{LoadingFlag.MERGE_ALL_OF}).build());
-//        String HOME = System.getenv().get("HOME");
-//
-//        JsonNode json1 = dereferencer.dereference(URI.create(HOME+"/Temp/schemes/fipc.yaml").normalize());
-//        System.out.println(json1);
-//
-//        JsonNode json2 = dereferencer.dereference(URI.create(HOME+"/Temp/service/fipc-db-service.yaml").normalize());
-//        System.out.println(json2);
-//
-//    }
+    @Test
+    public void fuzTest() throws DereferenceException {
+        Dereferencer dereferencer = DereferencerBuilder.builder().build();
+        String HOME = System.getenv().get("HOME");
+
+        JsonNode json1 = dereferencer.dereference(URI.create(HOME+"/Temp/schemes/fipc.yaml").normalize());
+        System.out.println(json1);
+
+        JsonNode json2 = dereferencer.dereference(URI.create(HOME+"/Temp/service/fipc-db-service.yaml").normalize());
+        System.out.println(json2);
+
+    }
 //    @Test
 //    public void Test_simple_schema_With_urn_ref() throws URISyntaxException, LoadException, IOException {
 //        InputStream inputStream = Dereferencer.class.getClassLoader().getResourceAsStream("config.properties");

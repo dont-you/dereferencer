@@ -113,8 +113,12 @@ public class BaseFile implements File, Comparable<BaseFile>{
             URI targetUri;
             try {
                 targetUri = baseURI.resolve(new URI(nodeValue.asText()));
-                references.put(getFileFromFileReg(targetUri).getFragment(new JsonPtr(targetUri.getFragment())),
+                Reference reference = getFileFromFileReg(targetUri).getFragment(new JsonPtr(targetUri.getFragment()));
+                reference.subscribe(this);
+                references.put(reference,
                                new JsonPtr(pathToNode));
+                if(reference.getFragment()!=null)
+                    responseToRequest(reference, reference.getFragment());
             } catch (URISyntaxException e) {
                 throw new DereferenceException("could not parse ref - " + nodeValue);
             }

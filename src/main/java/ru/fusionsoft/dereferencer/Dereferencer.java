@@ -11,8 +11,7 @@ import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 import java.net.URI;
 
 public class Dereferencer {
-    private FileRegister fileRegister;
-
+    private final FileRegister fileRegister;
     public Dereferencer(URNPool urnPool, LoaderFactory loaderFactory, FileFactory fileFactory, URI defaultBaseURI){
         fileRegister = new FileRegister(urnPool, loaderFactory, fileFactory, defaultBaseURI);
     }

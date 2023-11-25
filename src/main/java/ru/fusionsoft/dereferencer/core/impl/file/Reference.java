@@ -43,6 +43,10 @@ public class Reference {
         }
     }
 
+    public void subscribe(BaseFile subscriber){
+        requesters.add(subscriber);
+    }
+
     public Map<String, BaseFile> getAnchors() {
         return anchors;
     }
