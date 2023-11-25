@@ -6,12 +6,12 @@ import java.util.Set;
 
 public class BaseURI {
     private URI canonical;
-    private Set<URI> duplicates;
+    private final Set<URI> duplicates;
 
     public BaseURI(URI defaultBaseURI, URI canonical){
         duplicates = new HashSet<>();
         this.canonical = defaultBaseURI;
-        updateCanonical(defaultBaseURI.relativize(canonical));
+        updateCanonical(canonical);
     }
 
     @Override
@@ -22,12 +22,8 @@ public class BaseURI {
     }
 
     public void updateCanonical(URI canonical){
-        this.canonical = this.canonical.relativize(canonical);
+        this.canonical = this.canonical.resolve(canonical);
         duplicates.add(this.canonical);
-    }
-
-    public void addDuplicates(Set<URI> duplicates){
-        this.duplicates.addAll(duplicates);
     }
 
     public URI getCanonical(){
