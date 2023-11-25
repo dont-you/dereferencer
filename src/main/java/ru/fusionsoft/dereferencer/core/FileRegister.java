@@ -31,8 +31,8 @@ public class FileRegister {
         if (lookingFile != null)
             return lookingFile;
 
-        if (uri.getScheme().equals("urn")) {
-            fileBaseURI.updateCanonical(urnPool.getLocator(uri));
+        if (fileBaseURI.getCanonical().getScheme().equals("urn")) {
+            fileBaseURI.updateCanonical(urnPool.getLocator(fileBaseURI.getCanonical()));
 
             lookingFile = cache.get(fileBaseURI);
 
