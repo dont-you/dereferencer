@@ -25,7 +25,13 @@ public class FileRegister {
     }
 
     public File get(URI uri) throws DereferenceException {
-        BaseURI fileBaseURI = new BaseURI(defaultBaseURI, uri);
+        URI absoluteURI;
+        try {
+            absoluteURI = new URI(uri.getScheme(),uri.getSchemeSpecificPart(),null);
+        } catch (URISyntaxException e1) {
+            throw new DereferenceException("could not get absolute from uri - " + uri);
+        }
+        BaseURI fileBaseURI = new BaseURI(defaultBaseURI, absoluteURI);
         File lookingFile = cache.get(fileBaseURI);
 
         if (lookingFile != null)
