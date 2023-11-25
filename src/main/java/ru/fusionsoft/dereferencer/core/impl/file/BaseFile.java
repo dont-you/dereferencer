@@ -161,7 +161,7 @@ public class BaseFile implements File, Comparable<BaseFile>{
 
     private void responseToPointerRef(ReferenceProxy refProxy) throws DereferenceException{
         JsonPtr ptrToFragment = refProxy.getJsonPtr();
-        JsonNode fragmentNode = derefedSource.get(ptrToFragment.getPointer());
+        JsonNode fragmentNode = derefedSource.at(ptrToFragment.getPointer());
         if(fragmentNode.isMissingNode()){
             for(Entry<Reference, JsonPtr> refEntry: references.entrySet()){
                 if(refEntry.getValue().isSupSetTo(ptrToFragment)){
