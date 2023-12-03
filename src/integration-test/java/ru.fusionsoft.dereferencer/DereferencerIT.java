@@ -11,6 +11,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Paths;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class DereferencerIT {
 
@@ -27,6 +28,14 @@ public class DereferencerIT {
 //
 //        assertEquals(expected, actual);
 //   }
+
+    @Test
+    public void Test_simple_scheme_With_cycle() throws IOException, DereferenceException {
+        Dereferencer dereferencer = DereferencerBuilder.builder().build();
+        JsonNode actual = dereferencer.dereference(URI.create("./src/integration-test/resources/test-schemes/schemes/cycle_schema_A.json"));
+
+        assertTrue(true);
+   }
    @Test
    public void Test_simple_scheme_With_local_And_remote_references()
            throws IOException, DereferenceException {
