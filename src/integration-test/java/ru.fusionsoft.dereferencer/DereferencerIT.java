@@ -79,10 +79,10 @@ public class DereferencerIT {
         String HOME = System.getenv().get("HOME");
 
         JsonNode json1 = dereferencer.dereference(URI.create(HOME+"/Temp/schemes/fipc.yaml").normalize());
-//        System.out.println(json1);
+        System.out.println(json1);
 
-        JsonNode json2 = dereferencer.dereference(URI.create(HOME+"/Temp/service/fipc-db-service.yaml").normalize());
-        System.out.println(json2);
+//        JsonNode json2 = dereferencer.dereference(URI.create(HOME+"/Temp/service/fipc-db-service.yaml").normalize());
+//        System.out.println(json2);
 
     }
 //    @Test

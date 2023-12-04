@@ -57,40 +57,44 @@ public class BaseFile implements File, Comparable<BaseFile>{
     }
 
     private void exploreSourceJson() throws DereferenceException{
-        JsonNode currentNode;
-        String currentPath;
         Stack<JsonNode> nodeStack = new Stack<>();
         Stack<String> pathStack = new Stack<>();
         nodeStack.push(source);
         pathStack.push("");
 
         while(!nodeStack.empty()){
-            currentNode = nodeStack.pop();
-            currentPath = pathStack.pop();
-            Iterator<Entry<String, JsonNode>> fields = currentNode.fields();
-            while(fields.hasNext()){
-                Entry<String, JsonNode> field = fields.next();
-                String fieldKey = field.getKey();
-                fieldKey = decodeFieldKey(fieldKey);
-                String fieldPath = currentPath + "/" + fieldKey;
-                JsonNode fieldValue = field.getValue();
-
-                resolveNode(currentPath, fieldKey, fieldValue);
-
-                if (fieldValue.isArray()) {
-                    Iterator<JsonNode> elements = field.getValue().elements();
-                    int i = 0;
-                    while (elements.hasNext()) {
-                        nodeStack.push(elements.next());
-                        pathStack.push(fieldPath + "/" + i++);
-                    }
-                } else {
-                    nodeStack.push(fieldValue);
-                    pathStack.push(fieldPath);
-                }
-
-            }
+            exploreJsonNodeFields(nodeStack.pop().fields(), pathStack.pop()).forEach((k,v) -> {
+                pathStack.push(k);
+                nodeStack.push(v);
+            });
         }
+    }
+
+    private Map<String, JsonNode> exploreJsonNodeFields(Iterator<Entry<String, JsonNode>> fields, String currentPath) throws DereferenceException {
+        Map<String, JsonNode> stackMap = new HashMap<>();
+        while(fields.hasNext()){
+            Entry<String, JsonNode> field = fields.next();
+            String fieldKey = decodeFieldKey(field.getKey());
+            String fieldPath = currentPath + "/" + fieldKey;
+            JsonNode fieldValue = field.getValue();
+            resolveNode(currentPath, fieldKey, fieldValue);
+            stackMap.putAll(getNextFields(fieldPath, fieldValue));
+        }
+        return stackMap;
+    }
+
+    private Map<String, JsonNode> getNextFields(String fieldPath, JsonNode fieldValue){
+        Map<String, JsonNode> stackMap = new HashMap<>();
+        if (fieldValue.isArray()) {
+            Iterator<JsonNode> elements = fieldValue.elements();
+            int i = 0;
+            while (elements.hasNext()) {
+                stackMap.put(fieldPath + "/" + i++,elements.next());
+            }
+        } else {
+            stackMap.put(fieldPath,fieldValue);
+        }
+        return stackMap;
     }
 
     private String decodeFieldKey(String fieldKey){
@@ -169,19 +173,6 @@ public class BaseFile implements File, Comparable<BaseFile>{
     }
 
     private void responseToPointerRef(ReferenceProxy refProxy) throws DereferenceException{
-//        JsonPtr ptrToFragment = refProxy.getJsonPtr();
-//        JsonNode fragmentNode = derefedSource.at(ptrToFragment.getPointer());
-//        if(fragmentNode.isMissingNode()){
-//            for(Entry<Reference, JsonPtr> refEntry: references.entrySet()){
-//                if(refEntry.getValue().isSupSetTo(ptrToFragment)){
-//                    redirectReference(refProxy, refEntry.getKey());
-//                    break;
-//                }
-//            }
-//        } else {
-//            resolveReference(refProxy, ptrToFragment, fragmentNode);
-//        }
-//
         JsonPtr ptrToFragment = refProxy.getJsonPtr();
         for(Entry<Reference, JsonPtr> refEntry: references.entrySet()){
             if(refEntry.getValue().isSupSetTo(ptrToFragment)){
