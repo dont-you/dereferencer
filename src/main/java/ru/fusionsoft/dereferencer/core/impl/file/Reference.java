@@ -85,11 +85,6 @@ public class Reference {
             }
             return notPresent;
         }
-
-        public void addRequester(BaseFile requester) {
-            reference.requesters.add(requester);
-        }
-
         public void setJsonPtr(JsonPtr jsonPtr) {
             reference.jsonPtr = jsonPtr;
         }

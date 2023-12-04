@@ -112,21 +112,28 @@ public class BaseFile implements File, Comparable<BaseFile>{
 
     protected void resolveNode(String pathToNode, String nodeKey, JsonNode nodeValue) throws DereferenceException{
         if(nodeKey.equals("$anchor")){
-            String plainName = nodeValue.asText();
-            anchors.put(plainName, new JsonPtr(pathToNode, plainName));
+            resolveAnchorNode(pathToNode, nodeValue);
         } else if(nodeKey.equals("$ref")){
-            URI targetUri;
-            try {
-                targetUri = baseURI.resolve(new URI(nodeValue.asText()));
-                Reference reference = getFileFromFileReg(targetUri).getFragment(new JsonPtr(targetUri.getFragment()));
-                reference.subscribe(this);
-                references.put(reference,
-                               new JsonPtr(pathToNode));
-                if(reference.getFragment()!=null)
-                    responseToRequest(reference, reference.getFragment());
-            } catch (URISyntaxException e) {
-                throw new DereferenceException("could not parse ref - " + nodeValue);
-            }
+            resolveRefNode(pathToNode, nodeValue);
+        }
+    }
+
+    private void resolveAnchorNode(String pathToNode, JsonNode nodeValue){
+        String plainName = nodeValue.asText();
+        anchors.put(plainName, new JsonPtr(pathToNode, plainName));
+    }
+
+    private void resolveRefNode(String pathToNode, JsonNode nodeValue) throws DereferenceException {
+        try {
+            URI targetUri = baseURI.resolve(new URI(nodeValue.asText()));
+            Reference reference = getFileFromFileReg(targetUri).getFragment(new JsonPtr(targetUri.getFragment()));
+            reference.subscribe(this);
+            references.put(reference, new JsonPtr(pathToNode));
+
+            if(reference.getFragment()!=null)
+                responseToRequest(reference, reference.getFragment());
+        } catch (URISyntaxException e) {
+            throw new DereferenceException("could not parse ref - " + nodeValue);
         }
     }
 
