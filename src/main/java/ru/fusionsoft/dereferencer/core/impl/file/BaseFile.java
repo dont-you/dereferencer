@@ -127,17 +127,14 @@ public class BaseFile implements File, Comparable<BaseFile>{
         try {
             URI targetUri = baseURI.resolve(new URI(nodeValue.asText()));
             Reference reference = getFileFromFileReg(targetUri).getFragment(new JsonPtr(targetUri.getFragment()));
-            reference.subscribe(this);
             references.put(reference, new JsonPtr(pathToNode));
-
-            if(reference.getFragment()!=null)
-                responseToRequest(reference, reference.getFragment());
+            reference.subscribe(this);
         } catch (URISyntaxException e) {
             throw new DereferenceException("could not parse ref - " + nodeValue);
         }
     }
 
-    public void responseToRequest(Reference reference, JsonNode jsonNode) throws DereferenceException {
+    public void update(Reference reference, JsonNode jsonNode) throws DereferenceException {
         JsonPtr ptrToRef = references.get(reference);
         ((ObjectNode) derefedSource.at(ptrToRef.getPointer())).removeAll();
         JsonNode parentNode = derefedSource.at(ptrToRef.getParentPtr().getPointer());
@@ -231,7 +228,7 @@ public class BaseFile implements File, Comparable<BaseFile>{
         return !targetPtr.isAnchorPointer() && gatewayPtr.isAnchorPointer() && gatewayPtr.getPointer() == null;
     }
 
-    public void updateAnchorsFromRequest(Reference reference, Map<String, BaseFile> updatedAnchors) throws DereferenceException {
+    public void update(Reference reference, Map<String, BaseFile> updatedAnchors) throws DereferenceException {
         if(references.containsKey(reference)){
             List<ReferenceProxy> notResolvedAnchorReqs =  requests.entrySet().stream()
                 .filter(reqEntry -> !reqEntry.getValue() && reqEntry.getKey().getJsonPtr().isAnchorPointer())

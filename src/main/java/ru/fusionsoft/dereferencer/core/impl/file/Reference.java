@@ -32,8 +32,12 @@ public class Reference {
         return fragment;
     }
 
-    public void subscribe(BaseFile subscriber){
+    public void subscribe(BaseFile subscriber) throws DereferenceException {
         requesters.add(subscriber);
+        if(fragment!=null)
+            subscriber.update(this, fragment);
+        if(!anchors.isEmpty())
+            subscriber.update(this,anchors);
     }
 
     public Map<String, BaseFile> getAnchors() {
@@ -62,7 +66,7 @@ public class Reference {
         public void setFragment(JsonNode fragment) throws DereferenceException {
             reference.fragment = fragment;
             for(BaseFile requester: reference.requesters){
-                requester.responseToRequest(reference, fragment);
+                requester.update(reference, fragment);
             }
         }
 
@@ -71,7 +75,7 @@ public class Reference {
             if(!notPresent.isEmpty()){
                 reference.anchors.putAll(notPresent);
                 for(BaseFile requester: reference.requesters){
-                    requester.updateAnchorsFromRequest(reference, anchors);
+                    requester.update(reference, anchors);
                 }
             }
         }
