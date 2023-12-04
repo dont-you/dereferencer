@@ -1,5 +1,6 @@
 package ru.fusionsoft.dereferencer.core.impl.file;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 public class JsonPtr {
@@ -8,31 +9,36 @@ public class JsonPtr {
     private String propertyName;
     private JsonPtr parentPtr;
 
-    public JsonPtr(String fragment){
-        if (fragment.startsWith("/") || fragment.equals(""))
+    public JsonPtr(String fragment) {
+        if(fragment==null || fragment.equals(""))
+            pointer = "";
+        else if (fragment.startsWith("/"))
             pointer = fragment;
         else
             plainName = fragment;
     }
 
-    public JsonPtr(String pointer, String plainName){
+    public JsonPtr(String pointer, String plainName) {
         this.pointer = pointer;
         this.plainName = plainName;
     }
 
-    public JsonPtr makeRedirectedPointer(JsonPtr gateway){
-        return new JsonPtr(pointer.replaceFirst(gateway.pointer, ""));
+    public static JsonPtr makeRedirectedPointer(JsonPtr targetPtr, JsonPtr ptrToGateWay, JsonPtr gatewayPtr) {
+        String targetPath = targetPtr.pointer, pathToGateWay = ptrToGateWay.pointer, gatewayPath = gatewayPtr.pointer;
+        String newPath = targetPath.replaceFirst(pathToGateWay, "");
+        return new JsonPtr(
+                gatewayPath + (newPath.isEmpty() ? "" : "/" + newPath));
     }
 
-    public String getPointer(){
+    public String getPointer() {
         return pointer;
     }
 
-    public String getPlainName(){
+    public String getPlainName() {
         return plainName;
     }
 
-    public String getPropertyName(){
+    public String getPropertyName() {
         return Objects.requireNonNullElseGet(propertyName,
                 () -> propertyName = pointer.substring(pointer.lastIndexOf("/") + 1));
     }
@@ -42,30 +48,27 @@ public class JsonPtr {
                 () -> parentPtr = new JsonPtr(pointer.substring(0, pointer.lastIndexOf("/"))));
     }
 
-    public boolean isSupSetTo(JsonPtr subPointer){
-        if(pointer==null)
-            return false;
-
-        return subPointer.getPointer().startsWith(pointer);
+    public boolean isSupSetTo(JsonPtr subPointer) {
+        return pointer!=null && subPointer.pointer.concat("/").startsWith(this.pointer.concat("/"));
     }
 
     @Override
-    public boolean equals(Object obj){
-        if(getClass() != obj.getClass())
+    public boolean equals(Object obj) {
+        if (getClass() != obj.getClass())
             return false;
 
         JsonPtr checkPtr = (JsonPtr) obj;
 
-        if(plainName!= null && checkPtr.getPlainName()!=null)
+        if (plainName != null && checkPtr.getPlainName() != null)
             return plainName.equals(checkPtr.plainName);
 
-        if(pointer!= null && checkPtr.getPointer()!=null)
+        if (pointer != null && checkPtr.getPointer() != null)
             return pointer.equals(checkPtr.pointer);
 
         return false;
     }
 
-    public static boolean isRelativePointer(String pointer){
+    public static boolean isRelativePointer(String pointer) {
         if (pointer.length() == 0)
             return false;
 
@@ -73,13 +76,13 @@ public class JsonPtr {
         return c >= '0' && c <= '9';
     }
 
-    public static JsonPtr resolveRelativePtr(String pathToRef, String pointer){
+    public static JsonPtr resolveRelativePtr(String pathToRef, String pointer) {
         String currentPath = pathToRef;
         String[] pointerParts = pointer.split("/");
-        for(String key: pointerParts){
-            try{
+        for (String key : pointerParts) {
+            try {
                 int upLevelTo = Integer.parseInt(key);
-                for(int i=0 ; i < upLevelTo ; i++){
+                for (int i = 0; i < upLevelTo; i++) {
                     currentPath = currentPath.substring(0, currentPath.lastIndexOf("/"));
                 }
             } catch (NumberFormatException e) {
@@ -90,7 +93,7 @@ public class JsonPtr {
         return new JsonPtr(currentPath);
     }
 
-    public boolean isAnchorPointer(){
+    public boolean isAnchorPointer() {
         return plainName != null;
     }
 }

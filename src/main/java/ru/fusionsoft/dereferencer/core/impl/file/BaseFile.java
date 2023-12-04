@@ -37,7 +37,7 @@ public class BaseFile implements File, Comparable<BaseFile>{
         this.references = new HashMap<>();
         this.anchors = new HashMap<>();
         this.requests = new HashMap<>();
-        this.canResponse = true;
+        this.canResponse = false;
     }
 
     @Override
@@ -169,27 +169,37 @@ public class BaseFile implements File, Comparable<BaseFile>{
     }
 
     private void responseToPointerRef(ReferenceProxy refProxy) throws DereferenceException{
+//        JsonPtr ptrToFragment = refProxy.getJsonPtr();
+//        JsonNode fragmentNode = derefedSource.at(ptrToFragment.getPointer());
+//        if(fragmentNode.isMissingNode()){
+//            for(Entry<Reference, JsonPtr> refEntry: references.entrySet()){
+//                if(refEntry.getValue().isSupSetTo(ptrToFragment)){
+//                    redirectReference(refProxy, refEntry.getKey());
+//                    break;
+//                }
+//            }
+//        } else {
+//            resolveReference(refProxy, ptrToFragment, fragmentNode);
+//        }
+//
         JsonPtr ptrToFragment = refProxy.getJsonPtr();
-        JsonNode fragmentNode = derefedSource.at(ptrToFragment.getPointer());
-        if(fragmentNode.isMissingNode()){
-            for(Entry<Reference, JsonPtr> refEntry: references.entrySet()){
-                if(refEntry.getValue().isSupSetTo(ptrToFragment)){
-                    delegateReference(refEntry.getKey().getHandler(), refProxy, refEntry.getValue());
-                    break;
-                }
+        for(Entry<Reference, JsonPtr> refEntry: references.entrySet()){
+            if(refEntry.getValue().isSupSetTo(ptrToFragment)){
+                redirectReference(refProxy, refEntry.getKey());
+                return;
             }
-        } else {
-            resolveReference(refProxy, ptrToFragment, fragmentNode);
         }
+
+        JsonNode fragmentNode = derefedSource.at(ptrToFragment.getPointer());
+        resolveReference(refProxy, ptrToFragment, fragmentNode);
     }
 
     private void responseToAnchorRef(ReferenceProxy refProxy) throws DereferenceException{
         JsonPtr ptrToAnchor = anchors.get(refProxy.getJsonPtr().getPlainName());
         if(ptrToAnchor==null){
-            for(Reference ref: references.keySet()){
-                BaseFile anchorHost = ref.getAnchors().get(refProxy.getJsonPtr().getPlainName());
-                if(anchorHost!=null){
-                    delegateReference(anchorHost, refProxy, null);
+            for(Reference supposedGatewayRef: references.keySet()){
+                if(supposedGatewayRef.getAnchors().containsKey(refProxy.getJsonPtr().getPlainName())){
+                    redirectReference(refProxy, supposedGatewayRef);
                     break;
                 }
             }
@@ -203,16 +213,24 @@ public class BaseFile implements File, Comparable<BaseFile>{
         refProxy.addAllAnchors(getAssociatedAnchors(ptrToFragment));
         refProxy.setFragment(fragmentNode);
     }
+    private void redirectReference(ReferenceProxy targetRef, Reference gatewayRef) throws DereferenceException{
+        BaseFile gatewayHost=gatewayRef.getHandler();
+        JsonPtr targetPtr=targetRef.getJsonPtr(), gatewayPtr=gatewayRef.getJsonPtr();
 
-    private void delegateReference(BaseFile delegate, ReferenceProxy refProxy, JsonPtr pointerToGateWay) throws DereferenceException{
-        requests.replace(refProxy, true);
-        refProxy.redirectReference(delegate, pointerToGateWay);
-        delegate.redirectReference(refProxy);
+        if(isCantRedirectNow(targetPtr, gatewayPtr))
+            return;
+
+        if(!targetPtr.isAnchorPointer())
+            targetPtr = JsonPtr.makeRedirectedPointer(targetPtr, references.get(gatewayRef), gatewayPtr);
+
+        targetRef.setHandler(gatewayHost);
+        targetRef.setJsonPtr(targetPtr);
+        gatewayHost.requests.put(targetRef, false);
+        gatewayHost.responseTo(targetRef);
     }
 
-    public void redirectReference(ReferenceProxy referenceProxy) throws DereferenceException {
-        requests.put(referenceProxy, false);
-        responseTo(referenceProxy);
+    private boolean isCantRedirectNow(JsonPtr targetPtr, JsonPtr gatewayPtr){
+        return !targetPtr.isAnchorPointer() && gatewayPtr.isAnchorPointer() && gatewayPtr.getPointer() == null;
     }
 
     public void updateAnchorsFromRequest(Reference reference, Map<String, BaseFile> updatedAnchors) throws DereferenceException {
@@ -223,15 +241,14 @@ public class BaseFile implements File, Comparable<BaseFile>{
                 .toList();
 
             for(ReferenceProxy reqRefProxy: notResolvedAnchorReqs){
-                BaseFile delegate = updatedAnchors.get(reqRefProxy.getJsonPtr().getPlainName());
-                if(delegate!=null){
-                    delegateReference(delegate, reqRefProxy, null);
+                if(updatedAnchors.containsKey(reqRefProxy.getJsonPtr().getPlainName())){
+                    redirectReference(reqRefProxy, reference);
                     requests.replace(reqRefProxy, true);
                 }
             }
 
             List<ReferenceProxy> associatedReqs = requests.keySet().stream()
-                .filter(reqRefProxy -> reqRefProxy.getJsonPtr().isSupSetTo(reference.getJsonPointer()))
+                .filter(reqRefProxy -> reqRefProxy.getJsonPtr().isSupSetTo(reference.getJsonPtr()))
                 .toList();
 
             for(ReferenceProxy reqRefProxy: associatedReqs){

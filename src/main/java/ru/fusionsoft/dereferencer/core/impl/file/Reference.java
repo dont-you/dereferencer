@@ -28,19 +28,8 @@ public class Reference {
         return handler;
     }
 
-    public JsonPtr getJsonPointer() {
-        return jsonPtr;
-    }
-
     public JsonNode getFragment() {
         return fragment;
-    }
-
-    private void setFragment(JsonNode fragment) throws DereferenceException {
-        this.fragment = fragment;
-        for(BaseFile requester: requesters){
-            requester.responseToRequest(this, fragment);
-        }
     }
 
     public void subscribe(BaseFile subscriber){
@@ -51,29 +40,12 @@ public class Reference {
         return anchors;
     }
 
-    private void addAllAnchors(Map<String, BaseFile> anchors) throws DereferenceException{
-        this.anchors.putAll(anchors);
-        for(BaseFile requester: requesters){
-            requester.updateAnchorsFromRequest(this, anchors);
-        }
-    }
-
     public Set<BaseFile> getRequesters() {
         return requesters;
     }
 
-    private JsonPtr getJsonPtr() {
+    public JsonPtr getJsonPtr() {
         return jsonPtr;
-    }
-
-    private void addRequester(BaseFile requester) {
-        requesters.add(requester);
-    }
-
-    private void redirectReference(BaseFile handler, JsonPtr jsonPtr){
-        this.handler = handler;
-        if(!this.jsonPtr.isAnchorPointer())
-            this.jsonPtr = this.jsonPtr.makeRedirectedPointer(jsonPtr);
     }
 
     static public class ReferenceProxy{
@@ -83,20 +55,43 @@ public class Reference {
             reference = new Reference(handler, jsonPtr);
         }
 
-        public void redirectReference(BaseFile handler, JsonPtr pathToHandler) throws DereferenceException{
-            reference.redirectReference(handler, pathToHandler);
+        public void setHandler(BaseFile handler){
+            reference.handler = handler;
         }
 
         public void setFragment(JsonNode fragment) throws DereferenceException {
-            reference.setFragment(fragment);
+            reference.fragment = fragment;
+            for(BaseFile requester: reference.requesters){
+                requester.responseToRequest(reference, fragment);
+            }
         }
 
         public void addAllAnchors(Map<String, BaseFile> anchors) throws DereferenceException{
-            reference.addAllAnchors(anchors);
+            Map<String, BaseFile> notPresent = getNotPresentAnchors(anchors);
+            if(!notPresent.isEmpty()){
+                reference.anchors.putAll(notPresent);
+                for(BaseFile requester: reference.requesters){
+                    requester.updateAnchorsFromRequest(reference, anchors);
+                }
+            }
+        }
+
+        private Map<String, BaseFile> getNotPresentAnchors(Map<String, BaseFile> anchors){
+            Map<String, BaseFile> notPresent = new HashMap<>();
+            for(Map.Entry<String, BaseFile> anchor: anchors.entrySet()){
+                if(!reference.anchors.containsKey(anchor.getKey())){
+                    notPresent.put(anchor.getKey(), anchor.getValue());
+                }
+            }
+            return notPresent;
         }
 
         public void addRequester(BaseFile requester) {
-            reference.addRequester(requester);
+            reference.requesters.add(requester);
+        }
+
+        public void setJsonPtr(JsonPtr jsonPtr) {
+            reference.jsonPtr = jsonPtr;
         }
 
         public Reference getReference(){
