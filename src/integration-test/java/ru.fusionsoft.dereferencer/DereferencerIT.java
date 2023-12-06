@@ -17,18 +17,6 @@ public class DereferencerIT {
 
     ObjectMapper jsonMapper = new ObjectMapper();
 
-//    @Test
-//    public void Test_simple_scheme_With_url_reference() throws LoadException, IOException {
-//        Dereferencer dereferencer = new Dereferencer(DereferenceConfiguration.builder().build());
-//        JsonNode actual = dereferencer
-//            .dereference(URI.create("./src/integration-test/resources/test-schemes/schemes/simple_scheme_with_url_ref.json"));
-//        JsonNode expected = jsonMapper.readTree(Paths
-//                                            .get("./src/integration-test/resources/test-schemes/expected-result/dereferenced_simple_scheme_with_url_ref.json")
-//                                            .toFile());
-//
-//        assertEquals(expected, actual);
-//   }
-
     @Test
     public void Test_simple_scheme_With_cycle() throws IOException, DereferenceException {
         Dereferencer dereferencer = DereferencerBuilder.builder().build();
@@ -37,52 +25,31 @@ public class DereferencerIT {
         assertTrue(true);
    }
    @Test
-   public void Test_simple_scheme_With_local_And_remote_references()
+   public void delme()
+           throws IOException, DereferenceException, URISyntaxException {
+    }
+
+    @Test
+   public void Test_simple_scheme_With_plain_name_fragment_reference()
            throws IOException, DereferenceException {
         Dereferencer dereferencer = DereferencerBuilder.builder().build();
-        JsonNode actual = dereferencer.dereference(URI.create("./src/integration-test/resources/test-schemes/schemes/simple_scheme.json"));
+        JsonNode actual = dereferencer.dereference(URI.create("./src/integration-test/resources/test-schemes/schemes/simple_anchor_schema.json"));
         JsonNode expected = jsonMapper.readTree(Paths
-                .get("./src/integration-test/resources/test-schemes/expected-result/dereferenced_simple_scheme.json").toFile());
+                .get("./src/integration-test/resources/test-schemes/expected-result/dereferenced_simple_anchor_schema.json").toFile());
 
         assertEquals(expected, actual);
     }
 
-   @Test
-   public void delme()
-           throws IOException, DereferenceException, URISyntaxException {
-    }
-//
-//    @Test
-//   public void Test_simple_scheme_With_plain_name_fragment_reference()
-//           throws IOException, LoadException {
-//        Dereferencer dereferencer = new Dereferencer(DereferenceConfiguration.builder().build());
-//        JsonNode actual = dereferencer.dereference(URI.create("./src/integration-test/resources/test-schemes/schemes/simple_scheme.json"));
-//        JsonNode expected = jsonMapper.readTree(Paths
-//                .get("./src/integration-test/resources/test-schemes/expected-result/dereferenced_simple_scheme.json").toFile());
-//
-//        assertEquals(expected, actual);
-//    }
-//
-//    @Test
-//    public void Test_schema_With_ref_To_schema_With_Anchor() throws LoadException, IOException {
-//        Dereferencer dereferencer = new Dereferencer(DereferenceConfiguration.builder().build());
-//        JsonNode actual = dereferencer.dereference(URI.create("./src/integration-test/resources/test-schemes/schemes/schema_with_ref_to_schema_with_anchor.json"));
-//        JsonNode expected = jsonMapper.readTree(Paths
-//                .get("./src/integration-test/resources/test-schemes/expected-result/dereferenced_schema_with_ref_to_schema_with_anchor.json").toFile());
-//
-//        assertEquals(expected, actual);
-//    }
-//
     @Test
     public void fuzTest() throws DereferenceException {
         Dereferencer dereferencer = DereferencerBuilder.builder().build();
         String HOME = System.getenv().get("HOME");
 
         JsonNode json1 = dereferencer.dereference(URI.create(HOME+"/Temp/schemes/fipc.yaml").normalize());
-        System.out.println(json1);
+//        System.out.println(json1);
 
-//        JsonNode json2 = dereferencer.dereference(URI.create(HOME+"/Temp/service/fipc-db-service.yaml").normalize());
-//        System.out.println(json2);
+        JsonNode json2 = dereferencer.dereference(URI.create(HOME+"/Temp/service/fipc-db-service.yaml").normalize());
+        System.out.println(json2);
 
     }
 //    @Test
@@ -125,38 +92,37 @@ public class DereferencerIT {
 //        assertEquals(expected, actual);
 //    }
 //
-//    @Test
-//    public void test()
-//            throws StreamReadException, DatabindException, IOException, URISyntaxException, LoadException, ExecutionException {
-//        Dereferencer dereferencer = new Dereferencer(DereferenceConfiguration.builder().setLoadingFlags(new LoadingFlag[]{LoadingFlag.MERGE_ALL_OF}).build());
-//        JsonNode node = jsonMapper.readTree("{" +
-//                "\"$id\":\"https://example.com\","+
-//                "\"type\":\"object\"," +
-//                "\"properties\":{" +
-//                "\"first_email\":{" +
-//                "\"type\":\"string\"," +
-//                "\"format\":\"email\"" +
-//                "}," +
-//                "\"second_email\":{" +
-//                "\"$ref\":\"1/first_email\"" +
-//                "}}}");
-//
-//        JsonNode actual = dereferencer.anonymousDereference(node);
-//        JsonNode expected = jsonMapper.readTree(
-//                "{" +
-//                    "\"$id\":\"https://example.com\"," +
-//                    "\"type\":\"object\"," +
-//                    "\"properties\":{" +
-//                        "\"first_email\":{" +
-//                            "\"type\":\"string\"," +
-//                            "\"format\":\"email\"" +
-//                        "}," +
-//                        "\"second_email\":{" +
-//                            "\"type\":\"string\"," +
-//                            "\"format\":\"email\"" +
-//                "}}}");
-//
-//        assertEquals(expected,actual);
-//    }
+    @Test
+    public void test()
+            throws IOException, URISyntaxException, DereferenceException{
+        Dereferencer dereferencer = DereferencerBuilder.builder().build();
+        JsonNode node = jsonMapper.readTree("{" +
+                "\"$id\":\"https://example.com\","+
+                "\"type\":\"object\"," +
+                "\"properties\":{" +
+                "\"first_email\":{" +
+                "\"type\":\"string\"," +
+                "\"format\":\"email\"" +
+                "}," +
+                "\"second_email\":{" +
+                "\"$ref\":\"1/first_email\"" +
+                "}}}");
 
+        JsonNode actual = dereferencer.anonymousDereference(node);
+        JsonNode expected = jsonMapper.readTree(
+                "{" +
+                    "\"$id\":\"https://example.com\"," +
+                    "\"type\":\"object\"," +
+                    "\"properties\":{" +
+                        "\"first_email\":{" +
+                            "\"type\":\"string\"," +
+                            "\"format\":\"email\"" +
+                        "}," +
+                        "\"second_email\":{" +
+                            "\"type\":\"string\"," +
+                            "\"format\":\"email\"" +
+                "}}}");
+
+        assertEquals(expected,actual);
+    }
 }

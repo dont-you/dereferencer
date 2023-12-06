@@ -1,15 +1,14 @@
 package ru.fusionsoft.dereferencer.core.impl.file;
 
-import java.util.Arrays;
 import java.util.Objects;
 
-public class JsonPtr {
+public class FragmentIdentifier {
     private String pointer;
     private String plainName;
     private String propertyName;
-    private JsonPtr parentPtr;
+    private FragmentIdentifier parentPtr;
 
-    public JsonPtr(String fragment) {
+    public FragmentIdentifier(String fragment) {
         if(fragment==null || fragment.equals(""))
             pointer = "";
         else if (fragment.startsWith("/"))
@@ -18,15 +17,15 @@ public class JsonPtr {
             plainName = fragment;
     }
 
-    public JsonPtr(String pointer, String plainName) {
+    public FragmentIdentifier(String pointer, String plainName) {
         this.pointer = pointer;
         this.plainName = plainName;
     }
 
-    public static JsonPtr makeRedirectedPointer(JsonPtr targetPtr, JsonPtr ptrToGateWay, JsonPtr gatewayPtr) {
+    public static FragmentIdentifier makeRedirectedPointer(FragmentIdentifier targetPtr, FragmentIdentifier ptrToGateWay, FragmentIdentifier gatewayPtr) {
         String targetPath = targetPtr.pointer, pathToGateWay = ptrToGateWay.pointer, gatewayPath = gatewayPtr.pointer;
         String newPath = targetPath.replaceFirst(pathToGateWay, "");
-        return new JsonPtr(
+        return new FragmentIdentifier(
                 gatewayPath + (newPath.isEmpty() ? "" : "/" + newPath));
     }
 
@@ -43,12 +42,12 @@ public class JsonPtr {
                 () -> propertyName = pointer.substring(pointer.lastIndexOf("/") + 1));
     }
 
-    public JsonPtr getParentPtr() {
+    public FragmentIdentifier getParentPtr() {
         return Objects.requireNonNullElseGet(parentPtr,
-                () -> parentPtr = new JsonPtr(pointer.substring(0, pointer.lastIndexOf("/"))));
+                () -> parentPtr = new FragmentIdentifier(pointer.substring(0, pointer.lastIndexOf("/"))));
     }
 
-    public boolean isSupSetTo(JsonPtr subPointer) {
+    public boolean isSupSetTo(FragmentIdentifier subPointer) {
         return pointer!=null && subPointer.pointer.concat("/").startsWith(this.pointer.concat("/"));
     }
 
@@ -57,7 +56,7 @@ public class JsonPtr {
         if (getClass() != obj.getClass())
             return false;
 
-        JsonPtr checkPtr = (JsonPtr) obj;
+        FragmentIdentifier checkPtr = (FragmentIdentifier) obj;
 
         if (plainName != null && checkPtr.getPlainName() != null)
             return plainName.equals(checkPtr.plainName);
@@ -76,7 +75,7 @@ public class JsonPtr {
         return c >= '0' && c <= '9';
     }
 
-    public static JsonPtr resolveRelativePtr(String pathToRef, String pointer) {
+    public static FragmentIdentifier resolveRelativePtr(String pathToRef, String pointer) {
         String currentPath = pathToRef;
         String[] pointerParts = pointer.split("/");
         for (String key : pointerParts) {
@@ -90,7 +89,7 @@ public class JsonPtr {
             }
         }
 
-        return new JsonPtr(currentPath);
+        return new FragmentIdentifier(currentPath);
     }
 
     public boolean isAnchorPointer() {

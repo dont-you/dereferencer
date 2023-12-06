@@ -46,14 +46,12 @@ public interface SourceLoader {
         }
 
         public static SourceType resolveSourceTypeByMimeType(String extension) {
-            if (extension.contains("application/json"))
+            if (extension.contains("json") || extension.contains("schema+json") || extension.contains("schema-instance+json"))
                 return JSON;
-            else if (extension.contains("application/x-yaml") || extension.contains("application/yaml")
-                     || extension.contains("text/x-yaml"))
+            else if (extension.contains("x-yaml") || extension.contains("yaml"))
                 return YAML;
             else
                 return NOT_IMPLEMENTED;
         }
-
     }
 }
