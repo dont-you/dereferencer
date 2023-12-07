@@ -11,6 +11,6 @@ import java.net.URI;
 public class AllOfFileFactory implements FileFactory {
     @Override
     public File makeFile(FileRegister fileRegister, URI baseURI, JsonNode source) throws DereferenceException{
-        return null;
+        return new AllOfFile(fileRegister, baseURI, source);
     }
 }
