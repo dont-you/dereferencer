@@ -25,13 +25,7 @@ public class FileRegister {
     }
 
     public File get(URI uri) throws DereferenceException {
-        URI absoluteURI;
-        try {
-            absoluteURI = new URI(uri.getScheme(),uri.getSchemeSpecificPart(),null);
-        } catch (URISyntaxException e1) {
-            throw new DereferenceException("could not get absolute from uri - " + uri);
-        }
-        BaseURI fileBaseURI = new BaseURI(defaultBaseURI, absoluteURI);
+        BaseURI fileBaseURI = new BaseURI(defaultBaseURI, uri);
         File lookingFile = cache.get(fileBaseURI);
 
         if (lookingFile != null)
@@ -91,7 +85,7 @@ public class FileRegister {
 
     private URI getIdField(JsonNode source) throws URISyntaxException {
         if (source.has("$id")) {
-            return new URI(source.get("$id").toString());
+            return new URI(source.get("$id").asText());
         }
 
         return null;

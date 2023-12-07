@@ -6,12 +6,11 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.*;
 
+import org.apache.commons.lang3.StringUtils;
 import ru.fusionsoft.dereferencer.core.File;
 import ru.fusionsoft.dereferencer.core.FileRegister;
-import ru.fusionsoft.dereferencer.core.impl.file.Reference.ReferenceProxy;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 
 public class BaseFile implements File, Comparable<BaseFile>{
@@ -19,10 +18,10 @@ public class BaseFile implements File, Comparable<BaseFile>{
     private final FileRegister fileRegister;
     private final JsonNode source;
     private final JsonNode derefedSource;
-    private final Map<FragmentIdentifier, Reference> references;
-    private final Map<String, FragmentIdentifier> anchors;
-    private final Map<FragmentIdentifier, ReferenceProxy> requests;
-    private boolean canResponse;
+    private final Map<FragmentIdentifier, String> references;
+    private final Map<String, JsonNode> anchors;
+    private final Map<FragmentIdentifier, Reference> requests;
+    //
 
     public BaseFile(FileRegister fileRegister, URI baseURI, JsonNode source){
         this.baseURI = baseURI;
@@ -32,7 +31,6 @@ public class BaseFile implements File, Comparable<BaseFile>{
         this.references = new HashMap<>();
         this.anchors = new HashMap<>();
         this.requests = new HashMap<>();
-        this.canResponse = false;
     }
 
     @Override
@@ -47,7 +45,7 @@ public class BaseFile implements File, Comparable<BaseFile>{
     @Override
     public void dereference() throws DereferenceException {
         exploreSourceJson();
-        setCanResponseTrue();
+        resolveReferences();
     }
 
     private void exploreSourceJson() throws DereferenceException{
@@ -100,77 +98,80 @@ public class BaseFile implements File, Comparable<BaseFile>{
             return fieldKey;
     }
 
-    private BaseFile getFileFromFileReg(URI targetUri) throws DereferenceException{
-        return (BaseFile) fileRegister.get(targetUri);
+    protected BaseFile getFileFromFileReg(URI targetUri) throws DereferenceException{
+        if(targetUri.equals(baseURI))
+            return this;
+        else
+            return (BaseFile) fileRegister.get(targetUri);
     }
 
     protected void resolveNode(String pathToNode, String nodeKey, JsonNode nodeValue) throws DereferenceException{
         if(nodeKey.equals("$anchor")){
-            resolveAnchorNode(pathToNode, nodeValue);
+            anchors.put(nodeValue.asText(),derefedSource.at(pathToNode));
         } else if(nodeKey.equals("$ref")){
-            resolveRefNode(pathToNode, nodeValue);
+            references.put(new FragmentIdentifier(pathToNode), nodeValue.asText());
         }
     }
 
-    private void resolveAnchorNode(String pathToNode, JsonNode nodeValue){
-        String plainName = nodeValue.asText();
-        anchors.put(plainName, new FragmentIdentifier(pathToNode, plainName));
-    }
+    private void resolveReferences() throws DereferenceException {
+        for(Entry<FragmentIdentifier, String> refEntry: references.entrySet()) {
+            JsonNode dereferencedValue = MissingNode.getInstance();
+            if(FragmentIdentifier.isRelativePointer(refEntry.getValue())){
+                FragmentIdentifier resolvedRelative = FragmentIdentifier.resolveRelativePtr(refEntry.getKey().getPointer(), refEntry.getValue());
+                if(resolvedRelative.endsWithHash()){
+                    String propName = resolvedRelative.getPropertyName();
+                    dereferencedValue =  StringUtils.isNumeric(propName)? IntNode.valueOf(Integer.parseInt(propName)): TextNode.valueOf(propName);
+                } else {
+                    Reference reference = getFragment(resolvedRelative);
+                    dereferencedValue = reference.getFragment();
+                }
+            } else {
+                try {
+                    URI targetUri = baseURI.resolve(new URI(refEntry.getValue()));
+                    URI absoluteUri = makeAbsoluteURI(targetUri);
+                    Reference reference = getFileFromFileReg(absoluteUri).getFragment(new FragmentIdentifier(targetUri.getFragment()));
+                    dereferencedValue = reference.getFragment();
+                } catch (URISyntaxException e) {
+                    throw new DereferenceException("ref have errors - " + refEntry.getValue());
+                }
 
-    private void resolveRefNode(String pathToNode, JsonNode nodeValue) throws DereferenceException {
-        try {
-            URI targetUri = baseURI.resolve(new URI(nodeValue.asText()));
-            Reference reference = getFileFromFileReg(targetUri).getFragment(new FragmentIdentifier(targetUri.getFragment()));
-            references.put(new FragmentIdentifier(pathToNode),reference);
-            reference.subscribe(this);
-        } catch (URISyntaxException e) {
-            throw new DereferenceException("could not parse ref - " + nodeValue);
-        }
-    }
-
-    public void update(Reference reference, JsonNode jsonNode){
-        for(Entry<FragmentIdentifier, Reference> refEntry: references.entrySet()){
-            if(refEntry.getValue().equals(reference)){
-                FragmentIdentifier ptrToRef = refEntry.getKey();
-                ((ObjectNode) derefedSource.at(ptrToRef.getPointer())).removeAll();
-                JsonNode parentNode = derefedSource.at(ptrToRef.getParentPtr().getPointer());
-
-                if(parentNode.isObject())
-                    ((ObjectNode)parentNode).set(ptrToRef.getPropertyName(), jsonNode);
-                else if(parentNode.isArray())
-                    ((ArrayNode)parentNode).set(Integer.parseInt(ptrToRef.getPropertyName()), jsonNode);
-                else
-                    System.out.println("error");
             }
+            dereferenceRef(refEntry.getKey(), dereferencedValue);
         }
+    }
+
+    private void dereferenceRef(FragmentIdentifier ptrToRef, JsonNode dereferencedValue){
+        ((ObjectNode) derefedSource.at(ptrToRef.getPointer())).removeAll();
+        JsonNode parentNode = derefedSource.at(ptrToRef.getParentPtr().getPointer());
+
+        if(parentNode.isObject())
+            ((ObjectNode)parentNode).set(ptrToRef.getPropertyName(), dereferencedValue);
+        else if(parentNode.isArray())
+            ((ArrayNode)parentNode).set(Integer.parseInt(ptrToRef.getPropertyName()), dereferencedValue);
+    }
+
+    private URI makeAbsoluteURI(URI uri) throws URISyntaxException {
+        return new URI(uri.getScheme(),uri.getSchemeSpecificPart(),null);
     }
 
     public Reference getFragment(FragmentIdentifier requestedPtr){
-        ReferenceProxy targetRefProxy = requests.get(requestedPtr);
+        Reference targetReference = requests.get(requestedPtr);
 
-        if(targetRefProxy==null){
-            targetRefProxy = Reference.getReferenceProxy(requestedPtr);
-            requests.put(requestedPtr, targetRefProxy);
-            responseTo(targetRefProxy);
+        if(targetReference==null){
+            targetReference = new Reference(requestedPtr);
+            requests.put(requestedPtr, targetReference);
+            targetReference.setFragment(getJsonNodeByFragmentIdentifier(requestedPtr));
         }
 
-        return targetRefProxy.getReference();
+        return targetReference;
     }
 
-    private void setCanResponseTrue(){
-        canResponse = true;
-        requests.values().forEach(this::responseTo);
-    }
-
-    private void responseTo(ReferenceProxy refProxy){
-        if(!canResponse)
-            return;
-
-        FragmentIdentifier ptrToFragment = refProxy.getFragmentIdentifier().isAnchorPointer()?
-                anchors.get(refProxy.getFragmentIdentifier().getPlainName()):
-                refProxy.getFragmentIdentifier();
-
-        refProxy.setFragment(derefedSource.at(ptrToFragment.getPointer()));
+    private JsonNode getJsonNodeByFragmentIdentifier(FragmentIdentifier ptrToFragment){
+        if(ptrToFragment.isAnchorPointer()){
+            return anchors.get(ptrToFragment.getPlainName());
+        } else {
+            return derefedSource.at(ptrToFragment.getPointer());
+        }
     }
 
     @Override

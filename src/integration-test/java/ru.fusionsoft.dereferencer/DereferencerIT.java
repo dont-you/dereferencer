@@ -27,6 +27,8 @@ public class DereferencerIT {
    @Test
    public void delme()
            throws IOException, DereferenceException, URISyntaxException {
+       JsonNode expected = jsonMapper.readTree("{\"some\":1}");
+       System.out.println(expected.at(""));
     }
 
     @Test
@@ -36,6 +38,17 @@ public class DereferencerIT {
         JsonNode actual = dereferencer.dereference(URI.create("./src/integration-test/resources/test-schemes/schemes/simple_anchor_schema.json"));
         JsonNode expected = jsonMapper.readTree(Paths
                 .get("./src/integration-test/resources/test-schemes/expected-result/dereferenced_simple_anchor_schema.json").toFile());
+
+        assertEquals(expected, actual);
+    }
+
+   @Test
+   public void Test_schema_With_relative_json_pointers()
+           throws IOException, DereferenceException {
+        Dereferencer dereferencer = DereferencerBuilder.builder().build();
+        JsonNode actual = dereferencer.dereference(URI.create("./src/integration-test/resources/test-schemes/schemes/relative_json_pointers.json"));
+        JsonNode expected = jsonMapper.readTree(Paths
+                .get("./src/integration-test/resources/test-schemes/expected-result/dereferenced_relative_json_pointers.json").toFile());
 
         assertEquals(expected, actual);
     }

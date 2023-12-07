@@ -1,0 +1,23 @@
+{
+  "foo": ["bar", "baz"],
+  "highly": {
+    "nested": {
+      "objects": true,
+      "relative-1": {
+        "$ref": "1/objects"
+      },
+      "relative-2": {
+        "$ref": "2/nested/objects"
+      },
+      "relative-3": {
+        "$ref": "3/foo/0"
+      },
+      "relative-4": {
+        "$ref": "1#"
+      },
+      "relative-5": {
+        "$ref": "2#"
+      }
+    }
+  }
+}

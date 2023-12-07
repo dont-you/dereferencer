@@ -1,5 +1,7 @@
 package ru.fusionsoft.dereferencer.core.impl.file;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Objects;
 
 public class FragmentIdentifier {
@@ -7,6 +9,7 @@ public class FragmentIdentifier {
     private String plainName;
     private String propertyName;
     private FragmentIdentifier parentPtr;
+    private boolean endsWithHash;
 
     public FragmentIdentifier(String fragment) {
         if(fragment==null || fragment.equals(""))
@@ -17,16 +20,10 @@ public class FragmentIdentifier {
             plainName = fragment;
     }
 
-    public FragmentIdentifier(String pointer, String plainName) {
+    private FragmentIdentifier(String pointer, String plainName, boolean endsWithHash) {
         this.pointer = pointer;
         this.plainName = plainName;
-    }
-
-    public static FragmentIdentifier makeRedirectedPointer(FragmentIdentifier targetPtr, FragmentIdentifier ptrToGateWay, FragmentIdentifier gatewayPtr) {
-        String targetPath = targetPtr.pointer, pathToGateWay = ptrToGateWay.pointer, gatewayPath = gatewayPtr.pointer;
-        String newPath = targetPath.replaceFirst(pathToGateWay, "");
-        return new FragmentIdentifier(
-                gatewayPath + (newPath.isEmpty() ? "" : "/" + newPath));
+        this.endsWithHash = endsWithHash;
     }
 
     public String getPointer() {
@@ -45,10 +42,6 @@ public class FragmentIdentifier {
     public FragmentIdentifier getParentPtr() {
         return Objects.requireNonNullElseGet(parentPtr,
                 () -> parentPtr = new FragmentIdentifier(pointer.substring(0, pointer.lastIndexOf("/"))));
-    }
-
-    public boolean isSupSetTo(FragmentIdentifier subPointer) {
-        return pointer!=null && subPointer.pointer.concat("/").startsWith(this.pointer.concat("/"));
     }
 
     @Override
@@ -77,22 +70,36 @@ public class FragmentIdentifier {
 
     public static FragmentIdentifier resolveRelativePtr(String pathToRef, String pointer) {
         String currentPath = pathToRef;
+        boolean endsWithHash;
+
+        if(pointer.endsWith("#")){
+            pointer = pointer.substring(0, pointer.length()-1);
+            endsWithHash = true;
+        } else {
+            endsWithHash = false;
+        }
+
         String[] pointerParts = pointer.split("/");
+        boolean isJsonPointer = false;
+
         for (String key : pointerParts) {
-            try {
+            if(StringUtils.isNumeric(key) && !isJsonPointer){
                 int upLevelTo = Integer.parseInt(key);
                 for (int i = 0; i < upLevelTo; i++) {
                     currentPath = currentPath.substring(0, currentPath.lastIndexOf("/"));
                 }
-            } catch (NumberFormatException e) {
+            } else {
                 currentPath += "/" + key;
+                isJsonPointer = true;
             }
         }
 
-        return new FragmentIdentifier(currentPath);
+        return new FragmentIdentifier(currentPath, null, endsWithHash);
     }
 
     public boolean isAnchorPointer() {
         return plainName != null;
     }
+
+    public boolean endsWithHash(){return endsWithHash;}
 }
