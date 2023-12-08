@@ -17,7 +17,7 @@ public class BaseFile implements File, Comparable<BaseFile>{
     private final URI baseURI;
     private final FileRegister fileRegister;
     private final JsonNode source;
-    private final JsonNode derefedSource;
+    protected final JsonNode derefedSource;
     private final Map<FragmentIdentifier, String> references;
     private final Map<String, JsonNode> anchors;
     private final Map<FragmentIdentifier, Reference> requests;
@@ -48,7 +48,7 @@ public class BaseFile implements File, Comparable<BaseFile>{
         resolveReferences();
     }
 
-    private void exploreSourceJson() throws DereferenceException{
+    protected void exploreSourceJson() throws DereferenceException{
         Stack<JsonNode> nodeStack = new Stack<>();
         Stack<String> pathStack = new Stack<>();
         nodeStack.push(source);
@@ -105,12 +105,17 @@ public class BaseFile implements File, Comparable<BaseFile>{
             return (BaseFile) fileRegister.get(targetUri);
     }
 
-    protected void resolveNode(String pathToNode, String nodeKey, JsonNode nodeValue) throws DereferenceException{
+    protected boolean resolveNode(String pathToNode, String nodeKey, JsonNode nodeValue) throws DereferenceException{
+        boolean isPayLoadNode = false;
         if(nodeKey.equals("$anchor")){
             anchors.put(nodeValue.asText(),derefedSource.at(pathToNode));
+            isPayLoadNode = true;
         } else if(nodeKey.equals("$ref")){
             references.put(new FragmentIdentifier(pathToNode), nodeValue.asText());
+            isPayLoadNode = true;
         }
+
+        return isPayLoadNode;
     }
 
     private void resolveReferences() throws DereferenceException {
