@@ -36,12 +36,20 @@ public class FragmentIdentifier {
 
     public String getPropertyName() {
         return Objects.requireNonNullElseGet(propertyName,
-                () -> propertyName = pointer.substring(pointer.lastIndexOf("/") + 1));
+                () -> propertyName = getPropertyName(pointer));
+    }
+
+    public static String getPropertyName(String pointer) {
+        return pointer.substring(pointer.lastIndexOf("/") + 1);
     }
 
     public FragmentIdentifier getParentPtr() {
         return Objects.requireNonNullElseGet(parentPtr,
-                () -> parentPtr = new FragmentIdentifier(pointer.substring(0, pointer.lastIndexOf("/"))));
+                () -> parentPtr = new FragmentIdentifier(getParentPointer(pointer)));
+    }
+
+    public static String getParentPointer(String pointer) {
+        return pointer.substring(0, pointer.lastIndexOf("/"));
     }
 
     @Override
