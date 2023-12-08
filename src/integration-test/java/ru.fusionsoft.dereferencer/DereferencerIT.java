@@ -3,6 +3,7 @@ package ru.fusionsoft.dereferencer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
+import ru.fusionsoft.dereferencer.allOf.AllOfFileFactory;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 
 import java.io.IOException;
@@ -55,7 +56,7 @@ public class DereferencerIT {
 
     @Test
     public void fuzTest() throws DereferenceException {
-        Dereferencer dereferencer = DereferencerBuilder.builder().build();
+        Dereferencer dereferencer = DereferencerBuilder.builder().setFileFactory(new AllOfFileFactory()).build();
         String HOME = System.getenv().get("HOME");
 
         JsonNode json1 = dereferencer.dereference(URI.create(HOME+"/Temp/schemes/fipc.yaml").normalize());
@@ -79,32 +80,19 @@ public class DereferencerIT {
 //    }
 //
 //
-//    @Test
-//    public void Test_simple_merge_scheme()
-//            throws StreamReadException, DatabindException, IOException, URISyntaxException, LoadException {
-//        Dereferencer dereferencer = new Dereferencer(DereferenceConfiguration.builder().setLoadingFlags(new LoadingFlag[]{LoadingFlag.MERGE_ALL_OF}).build());
-//        JsonNode actual = dereferencer
-//                .dereference(URI.create("./src/integration-test/resources/test-schemes/schemes/simple_merge_scheme.json"));
-//        JsonNode expected = jsonMapper.readTree(
-//                Paths.get("./src/integration-test/resources/test-schemes/expected-result/dereferenced_simple_merge_scheme.json")
-//                        .toFile());
-//
-//        assertEquals(expected, actual);
-//    }
-//
-//    @Test
-//    public void Test_simple_merge_scheme_With_refs_And_nesting()
-//            throws StreamReadException, DatabindException, IOException, URISyntaxException, LoadException {
-//
-//        Dereferencer dereferencer = new Dereferencer(DereferenceConfiguration.builder().setLoadingFlags(new LoadingFlag[]{LoadingFlag.MERGE_ALL_OF}).build());
-//        JsonNode actual = dereferencer.dereference(
-//                URI.create("./src/integration-test/resources/test-schemes/schemes/simple_merge_scheme_with_refs_and_nesting.json"));
-//        JsonNode expected = jsonMapper.readTree(Paths.get(
-//                "./src/integration-test/resources/test-schemes/expected-result/dereferenced_simple_merge_scheme_with_refs_and_nesting.json")
-//                .toFile());
-//        assertEquals(expected, actual);
-//    }
-//
+    @Test
+    public void Test_simple_merge_scheme()
+            throws DereferenceException, IOException {
+        Dereferencer dereferencer = DereferencerBuilder.builder().setFileFactory(new AllOfFileFactory()).build();
+        JsonNode actual = dereferencer
+                .dereference(URI.create("./src/integration-test/resources/test-schemes/schemes/simple_merge_scheme.json"));
+        JsonNode expected = jsonMapper.readTree(
+                Paths.get("./src/integration-test/resources/test-schemes/expected-result/dereferenced_simple_merge_scheme.json")
+                        .toFile());
+
+        assertEquals(expected, actual);
+    }
+
     @Test
     public void test()
             throws IOException, URISyntaxException, DereferenceException{
