@@ -9,7 +9,7 @@ import ru.fusionsoft.dereferencer.core.LoaderFactory;
 import ru.fusionsoft.dereferencer.core.URNPool;
 import ru.fusionsoft.dereferencer.core.impl.file.BaseFileFactory;
 import ru.fusionsoft.dereferencer.core.impl.load.BaseLoaderFactory;
-import ru.fusionsoft.dereferencer.core.impl.urn.BaseUrnPool;
+import ru.fusionsoft.dereferencer.core.impl.urn.TagURIPool;
 
 public class DereferencerBuilder {
     private URNPool urnPool;
@@ -18,7 +18,7 @@ public class DereferencerBuilder {
     private URI defaultBaseURI;
 
     private DereferencerBuilder(){
-        setUrnPool(new BaseUrnPool()).setLoaderFactory(new BaseLoaderFactory()).setFileFactory(new BaseFileFactory())
+        setUrnPool(new TagURIPool()).setLoaderFactory(new BaseLoaderFactory()).setFileFactory(new BaseFileFactory())
                 .setDefaultBaseURI(Paths.get(".").toAbsolutePath().normalize().toUri());
     }
 
