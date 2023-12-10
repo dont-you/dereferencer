@@ -9,30 +9,13 @@ import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URL;
 
 public interface SourceLoader {
-
-    public static final ObjectMapper jsonMapper = new ObjectMapper();
-    public static final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
-
-    public boolean canLoad(URI uri);
-    public JsonNode loadSource(URI uri) throws DereferenceException;
-
-    static JsonNode makeJsonFromInputStream(InputStream stream, SourceType sourceType) throws DereferenceException{
-        try{
-            if (sourceType.isYaml()) {
-                Object obj = yamlMapper.readValue(stream, Object.class);
-                return jsonMapper.readTree(jsonMapper.writeValueAsString(obj));
-            } else if (sourceType.isJson()) {
-                return jsonMapper.readTree(stream);
-            }
-            throw new DereferenceException("");
-        } catch (IOException e) {
-            throw new DereferenceException("");
-        }
-    }
-
-    public static enum SourceType{
+    boolean canLoad(URL url);
+    InputStream loadSource(URL url) throws DereferenceException;
+    SourceType getSourceType(URL url) throws DereferenceException;
+    enum SourceType{
         JSON,
         YAML,
         NOT_IMPLEMENTED;

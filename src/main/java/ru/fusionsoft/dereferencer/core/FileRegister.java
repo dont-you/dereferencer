@@ -2,14 +2,22 @@ package ru.fusionsoft.dereferencer.core;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Map;
 import java.util.TreeMap;
 
 public class FileRegister {
+    public static ObjectMapper jsonMapper = new ObjectMapper();
+    public static  ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
     private final URNPool urnPool;
     private final LoaderFactory loaderFactory;
     private final FileFactory fileFactory;
@@ -32,7 +40,8 @@ public class FileRegister {
             return lookingFile;
 
         if (fileBaseURI.getCanonical().getScheme().equals("urn")) {
-            fileBaseURI.updateCanonical(urnPool.getLocator(fileBaseURI.getCanonical()));
+// TODO
+//            fileBaseURI.updateCanonical(urnPool.getLocator(fileBaseURI.getCanonical()));
 
             lookingFile = cache.get(fileBaseURI);
 
@@ -40,10 +49,8 @@ public class FileRegister {
                 return lookingFile;
         }
 
-        JsonNode sourceJson = loaderFactory.getSourceLoader(fileBaseURI.getCanonical())
-                .loadSource(fileBaseURI.getCanonical());
-
         try {
+            JsonNode sourceJson = loadSource(fileBaseURI.getCanonical().toURL());
             URI idFieldURI = getIdField(sourceJson);
 
             if (idFieldURI != null)
@@ -54,12 +61,14 @@ public class FileRegister {
             if (lookingFile != null)
                 return lookingFile;
 
+            return makeFile(fileBaseURI, sourceJson);
         } catch (URISyntaxException e) {
             throw new DereferenceException(
                     "could not parse id field from file with uri: " + fileBaseURI.getCanonical());
+        } catch (MalformedURLException e) {
+            throw new DereferenceException("could not parse url from uri " + fileBaseURI.getCanonical());
         }
 
-        return makeFile(fileBaseURI, sourceJson);
     }
 
     public File get(JsonNode sourceJson) throws DereferenceException{
@@ -92,11 +101,31 @@ public class FileRegister {
     }
 
     private File makeFile(BaseURI baseURI, JsonNode sourceJson) throws DereferenceException {
-        urnPool.updateCache(baseURI.getCanonical(), loaderFactory);
+// TODO
+//        urnPool.updateCache(baseURI.getCanonical(), loaderFactory);
         File lookingFile = fileFactory.makeFile(this, baseURI.getCanonical(), sourceJson);
         cache.put(baseURI, lookingFile);
         lookingFile.dereference();
 
         return lookingFile;
     }
+
+    private JsonNode loadSource(URL url) throws DereferenceException {
+        SourceLoader sourceLoader = loaderFactory.getSourceLoader(url);
+        return makeJsonFromInputStream(sourceLoader.loadSource(url), sourceLoader.getSourceType(url));
+    }
+    private JsonNode makeJsonFromInputStream(InputStream stream, SourceLoader.SourceType sourceType) throws DereferenceException{
+        try{
+            if (sourceType.isYaml()) {
+                Object obj = yamlMapper.readValue(stream, Object.class);
+                return jsonMapper.readTree(jsonMapper.writeValueAsString(obj));
+            } else if (sourceType.isJson()) {
+                return jsonMapper.readTree(stream);
+            }
+            throw new DereferenceException("");
+        } catch (IOException e) {
+            throw new DereferenceException("");
+        }
+    }
+
 }

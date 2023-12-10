@@ -4,25 +4,25 @@ import ru.fusionsoft.dereferencer.core.LoaderFactory;
 import ru.fusionsoft.dereferencer.core.SourceLoader;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 
-import java.net.URI;
+import java.net.URL;
 
 public class BaseLoaderFactory implements LoaderFactory {
 
-    private LocalLoader localLoader;
-    private URLLoader urlLoader;
+    private final FileLoader fileLoader;
+    private final HTTPLoader HTTPLoader;
 
     public BaseLoaderFactory(){
-        localLoader = new LocalLoader();
-        urlLoader = new URLLoader();
+        fileLoader = new FileLoader();
+        HTTPLoader = new HTTPLoader();
     }
 
     @Override
-    public SourceLoader getSourceLoader(URI uri) throws DereferenceException {
-        if (localLoader.canLoad(uri))
-            return localLoader;
-        else if (urlLoader.canLoad(uri))
-            return urlLoader;
+    public SourceLoader getSourceLoader(URL url) throws DereferenceException {
+        if (fileLoader.canLoad(url))
+            return fileLoader;
+        else if (HTTPLoader.canLoad(url))
+            return HTTPLoader;
         else
-            throw new DereferenceException("source loader for resource with uri " + uri + " is not implemented");
+            throw new DereferenceException("source loader for resource with url " + url + " is not implemented");
     }
 }
