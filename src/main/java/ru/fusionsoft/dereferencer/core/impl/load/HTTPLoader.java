@@ -1,7 +1,6 @@
 package ru.fusionsoft.dereferencer.core.impl.load;
 
 import ru.fusionsoft.dereferencer.core.SourceLoader;
-import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,22 +17,14 @@ public class HTTPLoader implements SourceLoader {
     }
 
     @Override
-    public InputStream loadSource(URL url) throws DereferenceException {
-        try{
-            return url.openStream();
-        } catch (IOException e) {
-            throw new DereferenceException("could not load source from " + url);
-        }
+    public InputStream loadSource(URL url) throws IOException {
+        return url.openStream();
     }
 
     @Override
-    public SourceType getSourceType(URL url) throws DereferenceException {
-        try {
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("HEAD");
-            return SourceType.resolveSourceTypeByMimeType(connection.getContentType());
-        } catch (IOException e) {
-            throw new DereferenceException("could not determine source type by url " + url);
-        }
+    public SourceType getSourceType(URL url) throws IOException {
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("HEAD");
+        return SourceType.resolveSourceTypeByMimeType(connection.getContentType());
     }
 }

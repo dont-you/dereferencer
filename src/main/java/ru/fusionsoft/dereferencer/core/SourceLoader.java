@@ -1,20 +1,14 @@
 package ru.fusionsoft.dereferencer.core;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-
-import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
-
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 public interface SourceLoader {
     boolean canLoad(URL url);
-    InputStream loadSource(URL url) throws DereferenceException;
-    SourceType getSourceType(URL url) throws DereferenceException;
+    InputStream loadSource(URL url) throws URISyntaxException, IOException;
+    SourceType getSourceType(URL url) throws URISyntaxException, IOException;
     enum SourceType{
         JSON,
         YAML,

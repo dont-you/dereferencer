@@ -26,24 +26,14 @@ public class FileLoader implements SourceLoader {
     }
 
     @Override
-    public InputStream loadSource(URL url) throws DereferenceException {
-        try{
-            File file = Paths.get(url.toURI()).toFile();
-            SourceType sourceType = getSourceType(file);
-
-            return new FileInputStream(file);
-        } catch (IOException | URISyntaxException e) {
-            throw new DereferenceException("could not load source from " + url);
-        }
+    public InputStream loadSource(URL url) throws URISyntaxException, IOException{
+        File file = Paths.get(url.toURI()).toFile();
+        return new FileInputStream(file);
     }
 
     @Override
-    public SourceType getSourceType(URL url) throws DereferenceException {
-        try {
-            return getSourceType(Paths.get(url.toURI()).toFile());
-        } catch (URISyntaxException | IOException e) {
-            throw new DereferenceException("could not determine source type by url " + url);
-        }
+    public SourceType getSourceType(URL url) throws IOException, URISyntaxException{
+        return getSourceType(Paths.get(url.toURI()).toFile());
     }
 
 
