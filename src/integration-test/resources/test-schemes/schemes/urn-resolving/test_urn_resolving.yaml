@@ -1,0 +1,16 @@
+location1:
+  schedule-model:
+    $ref: "urn:tag:location1,2023:schemas.models.schedule-model"
+
+  user-model:
+    $ref: "urn:tag:location1,2023:schemas.models.user-model"
+
+  resources:
+    $ref: "urn:tag:location1,2023:schemas.resources"
+
+location2:
+  interaction-history-model:
+    $ref: "urn:tag:location2,2023:schemas.models.interaction-history-model"
+
+  resources:
+    $ref: "urn:tag:location2,2023:schemas.resources"

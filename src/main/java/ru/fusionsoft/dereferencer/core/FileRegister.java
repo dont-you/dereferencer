@@ -40,8 +40,7 @@ public class FileRegister {
             return lookingFile;
 
         if (fileBaseURI.getCanonical().getScheme().equals("urn")) {
-// TODO
-//            fileBaseURI.updateCanonical(urnPool.getLocator(fileBaseURI.getCanonical()));
+            fileBaseURI.updateCanonical(urnPool.getLocator(fileBaseURI.getCanonical()));
 
             lookingFile = cache.get(fileBaseURI);
 
@@ -78,7 +77,7 @@ public class FileRegister {
             if (idFieldURI == null)
                 throw new DereferenceException("anonymous schema should have field '$id'");
 
-            BaseURI fileBaseURI = new BaseURI(idFieldURI, idFieldURI);
+            BaseURI fileBaseURI = new BaseURI(defaultBaseURI, idFieldURI);
             File lookingFile = cache.get(fileBaseURI);
 
             if (lookingFile != null)
@@ -101,8 +100,11 @@ public class FileRegister {
     }
 
     private File makeFile(BaseURI baseURI, JsonNode sourceJson) throws DereferenceException {
-// TODO
-//        urnPool.updateCache(baseURI.getCanonical(), loaderFactory);
+        try {
+            urnPool.updateCache(baseURI.getCanonical(), loaderFactory.getSourceLoader(baseURI.getCanonical().toURL()));
+        } catch (MalformedURLException e) {
+            // TODO
+        }
         File lookingFile = fileFactory.makeFile(this, baseURI.getCanonical(), sourceJson);
         cache.put(baseURI, lookingFile);
         lookingFile.dereference();

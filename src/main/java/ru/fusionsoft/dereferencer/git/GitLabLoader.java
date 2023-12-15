@@ -15,12 +15,12 @@ public class GitLabLoader implements SourceLoader {
     }
 
     @Override
-    public InputStream loadSource(URL url) throws DereferenceException {
+    public InputStream loadSource(URL url) {
         return null;
     }
 
     @Override
-    public SourceType getSourceType(URL url) throws DereferenceException {
+    public SourceType getSourceType(URL url) {
         return null;
     }
 }

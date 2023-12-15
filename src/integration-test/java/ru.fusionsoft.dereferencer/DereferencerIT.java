@@ -28,11 +28,11 @@ public class DereferencerIT {
    @Test
    public void delme()
            throws IOException, DereferenceException, URISyntaxException {
-       JsonNode expected = jsonMapper.readTree("{\"some\":1}");
-       System.out.println(expected.at(""));
-    }
+        URI uri = new URI("file:/home/who/Work/Projects");
+        System.out.println(new URI("Work/Projects/src").relativize(uri));
+   }
 
-    @Test
+   @Test
    public void Test_simple_scheme_With_plain_name_fragment_reference()
            throws IOException, DereferenceException {
         Dereferencer dereferencer = DereferencerBuilder.builder().build();
@@ -51,6 +51,16 @@ public class DereferencerIT {
         JsonNode expected = jsonMapper.readTree(Paths
                 .get("./src/integration-test/resources/test-schemes/expected-result/dereferenced_relative_json_pointers.json").toFile());
 
+        assertEquals(expected, actual);
+    }
+
+   @Test
+   public void Test_schema_With_urn_references()
+           throws IOException, DereferenceException {
+        Dereferencer dereferencer = DereferencerBuilder.builder().build();
+        JsonNode actual = dereferencer.dereference(URI.create("./src/integration-test/resources/test-schemes/schemes/urn-resolving/test_urn_resolving.yaml"));
+        JsonNode expected = jsonMapper.readTree(Paths
+                .get("./src/integration-test/resources/test-schemes/expected-result/dereferenced_test_urn_resolving.json").toFile());
         assertEquals(expected, actual);
     }
 
@@ -98,7 +108,7 @@ public class DereferencerIT {
             throws IOException, URISyntaxException, DereferenceException{
         Dereferencer dereferencer = DereferencerBuilder.builder().build();
         JsonNode node = jsonMapper.readTree("{" +
-                "\"$id\":\"https://example.com\","+
+                "\"$id\":\"anon_test.json\","+
                 "\"type\":\"object\"," +
                 "\"properties\":{" +
                 "\"first_email\":{" +
@@ -112,7 +122,7 @@ public class DereferencerIT {
         JsonNode actual = dereferencer.anonymousDereference(node);
         JsonNode expected = jsonMapper.readTree(
                 "{" +
-                    "\"$id\":\"https://example.com\"," +
+                    "\"$id\":\"anon_test.json\"," +
                     "\"type\":\"object\"," +
                     "\"properties\":{" +
                         "\"first_email\":{" +

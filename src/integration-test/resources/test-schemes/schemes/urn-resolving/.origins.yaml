@@ -1,3 +1,8 @@
-somelocation.ru,2026:
-  tag.*: "https://github.com/dont-you/dereferencer/blob/master/src/integration-test/resources/test-schemes/schemes/urn-resolving/file1.json"
-  tag.with.maxprefix*: "https://github.com/dont-you/dereferencer/blob/feature-urn-tag-resolving/src/integration-test/resources/test-schemes/schemes/urn-resolving/target.json"
+location1,2023:
+  schemas.*: "./location1/schemas/"
+  schemas.models.*: "./location1/schemas/models/"
+  schemas.models.schedule: "./location1/schemas/models/schedule-model.yaml/"
+
+location2,2023:
+  schemas.*: "./location2/schemas/"
+  schemas.models.*: "./location2/schemas/models/"
