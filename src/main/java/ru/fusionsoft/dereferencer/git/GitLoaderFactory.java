@@ -5,6 +5,7 @@ import ru.fusionsoft.dereferencer.core.SourceLoader;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 import ru.fusionsoft.dereferencer.core.impl.load.BaseLoaderFactory;
 
+import java.io.IOException;
 import java.net.URL;
 
 public class GitLoaderFactory implements LoaderFactory {
@@ -12,9 +13,13 @@ public class GitLoaderFactory implements LoaderFactory {
     private final GitHubLoader gitHubLoader;
     private final GitLabLoader gitLabLoader;
 
-    public GitLoaderFactory(){
+    public GitLoaderFactory() throws DereferenceException {
         this.baseLoaderFactory = new BaseLoaderFactory();
-        this.gitHubLoader = new GitHubLoader();
+        try {
+            this.gitHubLoader = new GitHubLoader();
+        } catch (IOException e) {
+            throw new DereferenceException("error while configuring githubloader", e) ;
+        }
         this.gitLabLoader = new GitLabLoader();
     }
 
