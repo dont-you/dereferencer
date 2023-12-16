@@ -39,7 +39,7 @@ public class GitLabLoader implements SourceLoader {
 
     @Override
     public SourceType getSourceType(URL url) {
-        return null;
+        return SourceType.resolveSourceTypeByPath(url.getPath());
     }
 
     public void configureGitLabLoader(String token, String host){
