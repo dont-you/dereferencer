@@ -25,12 +25,12 @@ public class GitLabLoader implements SourceLoader {
 
     @Override
     public InputStream loadSource(URL url) throws IOException {
-        String[] segments = url.getPath().split("/", 6);
-        String projectPath=segments[0] + "/" + segments[1];
-        String ref=segments[4];
-        String filePath=segments[5];
+        String[] segments = url.getPath().split("/", 7);
+        String projectPath=segments[1] + "/" + segments[2];
+        String ref=segments[5];
+        String filePath=segments[6];
         try {
-            return new ByteArrayInputStream(gitLabApi.getRepositoryFileApi().getFile(projectPath, ref, filePath).getDecodedContentAsBytes());
+            return new ByteArrayInputStream(gitLabApi.getRepositoryFileApi().getFile(projectPath, filePath, ref).getDecodedContentAsBytes());
         } catch (GitLabApiException e) {
             throw new IOException(String.format("error while getting file from gitlab with: \n\tmessage - %s\n\thttp code - %s",
                             e.getMessage(), e.getHttpStatus()));
