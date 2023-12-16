@@ -113,11 +113,11 @@ public class FileRegister {
     }
 
     private JsonNode loadSource(URL url) throws DereferenceException {
-        SourceLoader sourceLoader = loaderFactory.getSourceLoader(url);
         try {
+            SourceLoader sourceLoader = loaderFactory.getSourceLoader(url);
             return makeJsonFromInputStream(sourceLoader.loadSource(url), sourceLoader.getSourceType(url));
         } catch (URISyntaxException | IOException e) {
-            throw new DereferenceException("cant load source from url " + url);
+            throw new DereferenceException(e);
         }
     }
     private JsonNode makeJsonFromInputStream(InputStream stream, SourceLoader.SourceType sourceType) throws DereferenceException{
