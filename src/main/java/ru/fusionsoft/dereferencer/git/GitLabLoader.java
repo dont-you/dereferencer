@@ -1,26 +1,48 @@
 package ru.fusionsoft.dereferencer.git;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import ru.fusionsoft.dereferencer.core.SourceLoader;
-import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URL;
 
+import org.gitlab4j.api.GitLabApi;
+import org.gitlab4j.api.GitLabApiException;
+
 public class GitLabLoader implements SourceLoader {
-    @Override
-    public boolean canLoad(URL url) {
-        return false;
+
+    private GitLabApi gitLabApi;
+
+    GitLabLoader(){
+        configureGitLabLoader("", "https://gitlab.com");
     }
 
     @Override
-    public InputStream loadSource(URL url) {
-        return null;
+    public boolean canLoad(URL url) {
+        return url.getProtocol().concat("://").concat(url.getHost()).equals(gitLabApi.getGitLabServerUrl());
+    }
+
+    @Override
+    public InputStream loadSource(URL url) throws IOException {
+        String[] segments = url.getPath().split("/", 6);
+        String projectPath=segments[0] + "/" + segments[1];
+        String ref=segments[4];
+        String filePath=segments[5];
+        try {
+            return new ByteArrayInputStream(gitLabApi.getRepositoryFileApi().getFile(projectPath, ref, filePath).getDecodedContentAsBytes());
+        } catch (GitLabApiException e) {
+            throw new IOException(String.format("error while getting file from gitlab with: \n\tmessage - %s\n\thttp code - %s",
+                            e.getMessage(), e.getHttpStatus()));
+        }
     }
 
     @Override
     public SourceType getSourceType(URL url) {
         return null;
+    }
+
+    public void configureGitLabLoader(String token, String host){
+        gitLabApi = new GitLabApi(host, token);
     }
 }
