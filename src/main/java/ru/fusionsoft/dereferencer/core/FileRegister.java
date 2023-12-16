@@ -117,7 +117,7 @@ public class FileRegister {
             SourceLoader sourceLoader = loaderFactory.getSourceLoader(url);
             return makeJsonFromInputStream(sourceLoader.loadSource(url), sourceLoader.getSourceType(url));
         } catch (URISyntaxException | IOException e) {
-            throw new DereferenceException(e);
+            throw new DereferenceException("exception while getting file from url - " + url,e);
         }
     }
     private JsonNode makeJsonFromInputStream(InputStream stream, SourceLoader.SourceType sourceType) throws DereferenceException{

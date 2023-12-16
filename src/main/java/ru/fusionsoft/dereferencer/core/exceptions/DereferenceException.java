@@ -5,7 +5,7 @@ public class DereferenceException extends Exception {
         super(msg);
     }
 
-    public DereferenceException(Throwable t) {
-        super(t);
+    public DereferenceException(String msg,Throwable t) {
+        super(msg,t);
     }
 }
