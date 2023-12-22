@@ -120,7 +120,7 @@ public class BaseFile implements File, Comparable<BaseFile>{
 
     private void resolveReferences() throws DereferenceException {
         for(Entry<FragmentIdentifier, String> refEntry: references.entrySet()) {
-            JsonNode dereferencedValue = MissingNode.getInstance();
+            JsonNode dereferencedValue;
             if(FragmentIdentifier.isRelativePointer(refEntry.getValue())){
                 FragmentIdentifier resolvedRelative = FragmentIdentifier.resolveRelativePtr(refEntry.getKey().getPointer(), refEntry.getValue());
                 if(resolvedRelative.endsWithHash()){
