@@ -41,27 +41,27 @@ public class TagURIPool implements URNPool {
         try {
             return TagURI.resolve(processedTag, locator);
         } catch (URISyntaxException e) {
-            throw new DereferenceException("could not parse taguri " + urn);
+            throw new DereferenceException("could not parse TagUri " + urn);
         }
     }
 
     @Override
-    public void updateCache(URI uri, SourceLoader sourceLoader) throws DereferenceException {
+    public void updateCache(URI uri, SourceLoader sourceLoader) {
         try {
             URI uriToOrigins = uri.resolve(".origins.yaml");
             JsonNode jsonNode = yamlMapper.readTree(sourceLoader.loadSource(uriToOrigins.toURL()));
             tags.putAll(parseOrigins(uriToOrigins,jsonNode));
         } catch (IOException | URISyntaxException e) {
-            System.err.println("error, while proccessing .origins.yaml from " + uri);
+            System.err.println("error, while processing .origins.yaml from " + uri);
         }
     }
 
     private Map<TagURI, URI> parseOrigins(URI baseURI, JsonNode jsonNode){
         Map<TagURI, URI> parsedTags = new TreeMap<>();
-        Iterator<Entry<String, JsonNode>> taggingEntityes = jsonNode.fields();
+        Iterator<Entry<String, JsonNode>> taggingEntities = jsonNode.fields();
 
-        while(taggingEntityes.hasNext()){
-            Entry<String, JsonNode> tagEntity = taggingEntityes.next();
+        while(taggingEntities.hasNext()){
+            Entry<String, JsonNode> tagEntity = taggingEntities.next();
             Iterator<Entry<String, JsonNode>> originTags = tagEntity.getValue().fields();
 
             while(originTags.hasNext()){

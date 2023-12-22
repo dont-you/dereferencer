@@ -2,7 +2,6 @@ package ru.fusionsoft.dereferencer.core.impl.urn;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 public class TagURI implements Comparable<TagURI>{

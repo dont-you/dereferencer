@@ -18,7 +18,7 @@ public class GitLoaderFactory implements LoaderFactory {
         try {
             this.gitHubLoader = new GitHubLoader();
         } catch (IOException e) {
-            throw new DereferenceException("error while configuring githubloader", e) ;
+            throw new DereferenceException("error while configuring github loader", e) ;
         }
         this.gitLabLoader = new GitLabLoader();
     }
