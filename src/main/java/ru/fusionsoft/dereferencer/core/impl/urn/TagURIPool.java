@@ -20,7 +20,7 @@ public class TagURIPool implements URNPool {
     private static final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
     private final Map<TagURI, URI> tags;
 
-    public TagURIPool(){
+    public TagURIPool() {
         tags = new TreeMap<>();
     }
 
@@ -30,9 +30,9 @@ public class TagURIPool implements URNPool {
         URI locator = null;
         int prefixSizeOfBaseTag = -1;
 
-        for(Entry<TagURI, URI> tagEntry: tags.entrySet()){
+        for (Entry<TagURI, URI> tagEntry : tags.entrySet()) {
             int currentPrefixSize = tagEntry.getKey().getPrefixSize();
-            if(TagURI.isSub(processedTag ,tagEntry.getKey()) && prefixSizeOfBaseTag < currentPrefixSize){
+            if (TagURI.isSub(processedTag, tagEntry.getKey()) && prefixSizeOfBaseTag < currentPrefixSize) {
                 locator = tagEntry.getValue();
                 prefixSizeOfBaseTag = currentPrefixSize;
             }
@@ -50,21 +50,21 @@ public class TagURIPool implements URNPool {
         try {
             URI uriToOrigins = uri.resolve(".origins.yaml");
             JsonNode jsonNode = yamlMapper.readTree(sourceLoader.loadSource(uriToOrigins.toURL()));
-            tags.putAll(parseOrigins(uriToOrigins,jsonNode));
+            tags.putAll(parseOrigins(uriToOrigins, jsonNode));
         } catch (IOException | URISyntaxException e) {
             System.err.println("error, while processing .origins.yaml from " + uri);
         }
     }
 
-    private Map<TagURI, URI> parseOrigins(URI baseURI, JsonNode jsonNode){
+    private Map<TagURI, URI> parseOrigins(URI baseURI, JsonNode jsonNode) {
         Map<TagURI, URI> parsedTags = new TreeMap<>();
         Iterator<Entry<String, JsonNode>> taggingEntities = jsonNode.fields();
 
-        while(taggingEntities.hasNext()){
+        while (taggingEntities.hasNext()) {
             Entry<String, JsonNode> tagEntity = taggingEntities.next();
             Iterator<Entry<String, JsonNode>> originTags = tagEntity.getValue().fields();
 
-            while(originTags.hasNext()){
+            while (originTags.hasNext()) {
                 Entry<String, JsonNode> tag = originTags.next();
                 parsedTags.put(new TagURI(tagEntity.getKey(), tag.getKey()), baseURI.resolve(tag.getValue().asText()));
             }

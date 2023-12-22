@@ -17,7 +17,7 @@ public class FileLoader implements SourceLoader {
     }
 
     @Override
-    public InputStream loadSource(URL url) throws URISyntaxException, IOException{
+    public InputStream loadSource(URL url) throws URISyntaxException, IOException {
         File file = Paths.get(url.toURI()).toFile();
         return new FileInputStream(file);
     }

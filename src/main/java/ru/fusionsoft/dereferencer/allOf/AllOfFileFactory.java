@@ -9,7 +9,7 @@ import java.net.URI;
 
 public class AllOfFileFactory implements FileFactory {
     @Override
-    public File makeFile(FileRegister fileRegister, URI baseURI, JsonNode source){
+    public File makeFile(FileRegister fileRegister, URI baseURI, JsonNode source) {
         return new AllOfFile(fileRegister, baseURI, source);
     }
 }

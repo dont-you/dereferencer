@@ -11,7 +11,7 @@ public class BaseLoaderFactory implements LoaderFactory {
     private final FileLoader fileLoader;
     private final HTTPLoader HTTPLoader;
 
-    public BaseLoaderFactory(){
+    public BaseLoaderFactory() {
         fileLoader = new FileLoader();
         HTTPLoader = new HTTPLoader();
     }

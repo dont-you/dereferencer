@@ -13,7 +13,7 @@ public class GitHubLoader implements SourceLoader {
 
     private GitHub gitHub;
 
-    GitHubLoader() throws IOException{
+    GitHubLoader() throws IOException {
         gitHub = new GitHubBuilder().build();
     }
 
@@ -25,9 +25,9 @@ public class GitHubLoader implements SourceLoader {
     @Override
     public InputStream loadSource(URL url) throws IOException {
         String[] segments = url.getPath().split("/", 6);
-        String projectPath=segments[1] + "/" + segments[2];
-        String ref=segments[4];
-        String filePath=segments[5];
+        String projectPath = segments[1] + "/" + segments[2];
+        String ref = segments[4];
+        String filePath = segments[5];
         return gitHub.getRepository(projectPath).getFileContent(filePath, ref).read();
     }
 

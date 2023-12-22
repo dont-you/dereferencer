@@ -12,7 +12,7 @@ public class FragmentIdentifier {
     private boolean endsWithHash;
 
     public FragmentIdentifier(String fragment) {
-        if(fragment==null || fragment.equals(""))
+        if (fragment == null || fragment.equals(""))
             pointer = "";
         else if (fragment.startsWith("/"))
             pointer = fragment;
@@ -80,8 +80,8 @@ public class FragmentIdentifier {
         StringBuilder currentPath = new StringBuilder(pathToRef);
         boolean endsWithHash;
 
-        if(pointer.endsWith("#")){
-            pointer = pointer.substring(0, pointer.length()-1);
+        if (pointer.endsWith("#")) {
+            pointer = pointer.substring(0, pointer.length() - 1);
             endsWithHash = true;
         } else {
             endsWithHash = false;
@@ -91,7 +91,7 @@ public class FragmentIdentifier {
         boolean isJsonPointer = false;
 
         for (String key : pointerParts) {
-            if(StringUtils.isNumeric(key) && !isJsonPointer){
+            if (StringUtils.isNumeric(key) && !isJsonPointer) {
                 int upLevelTo = Integer.parseInt(key);
                 for (int i = 0; i < upLevelTo; i++) {
                     currentPath = new StringBuilder(currentPath.substring(0, currentPath.lastIndexOf("/")));
@@ -109,5 +109,7 @@ public class FragmentIdentifier {
         return plainName != null;
     }
 
-    public boolean endsWithHash(){return endsWithHash;}
+    public boolean endsWithHash() {
+        return endsWithHash;
+    }
 }

@@ -18,7 +18,7 @@ public class GitLoaderFactory implements LoaderFactory {
         try {
             this.gitHubLoader = new GitHubLoader();
         } catch (IOException e) {
-            throw new DereferenceException("error while configuring github loader", e) ;
+            throw new DereferenceException("error while configuring github loader", e);
         }
         this.gitLabLoader = new GitLabLoader();
     }
@@ -33,9 +33,9 @@ public class GitLoaderFactory implements LoaderFactory {
 
     @Override
     public SourceLoader getSourceLoader(URL url) throws DereferenceException {
-        if(gitHubLoader.canLoad(url))
+        if (gitHubLoader.canLoad(url))
             return gitHubLoader;
-        else if(gitLabLoader.canLoad(url))
+        else if (gitLabLoader.canLoad(url))
             return gitLabLoader;
         else
             return baseLoaderFactory.getSourceLoader(url);

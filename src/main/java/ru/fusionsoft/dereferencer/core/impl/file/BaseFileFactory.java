@@ -10,6 +10,6 @@ import java.net.URI;
 public class BaseFileFactory implements FileFactory {
     @Override
     public File makeFile(FileRegister fileRegister, URI baseURI, JsonNode source) {
-        return new BaseFile(fileRegister,baseURI,source);
+        return new BaseFile(fileRegister, baseURI, source);
     }
 }

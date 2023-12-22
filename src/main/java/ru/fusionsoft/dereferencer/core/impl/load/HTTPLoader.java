@@ -8,7 +8,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class HTTPLoader implements SourceLoader {
-    HTTPLoader(){
+    HTTPLoader() {
     }
 
     @Override

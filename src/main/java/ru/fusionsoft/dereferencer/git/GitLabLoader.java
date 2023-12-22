@@ -14,7 +14,7 @@ public class GitLabLoader implements SourceLoader {
 
     private GitLabApi gitLabApi;
 
-    GitLabLoader(){
+    GitLabLoader() {
         configureGitLabLoader("", "https://gitlab.com");
     }
 
@@ -26,13 +26,15 @@ public class GitLabLoader implements SourceLoader {
     @Override
     public InputStream loadSource(URL url) throws IOException {
         String[] segments = url.getPath().split("/", 7);
-        String projectPath=segments[1] + "/" + segments[2];
-        String ref=segments[5];
-        String filePath=segments[6];
+        String projectPath = segments[1] + "/" + segments[2];
+        String ref = segments[5];
+        String filePath = segments[6];
         try {
-            return new ByteArrayInputStream(gitLabApi.getRepositoryFileApi().getFile(projectPath, filePath, ref).getDecodedContentAsBytes());
+            return new ByteArrayInputStream(
+                    gitLabApi.getRepositoryFileApi().getFile(projectPath, filePath, ref).getDecodedContentAsBytes());
         } catch (GitLabApiException e) {
-            throw new IOException(String.format("error while getting file from gitlab with: \n\tmessage - %s\n\thttp code - %s",
+            throw new IOException(
+                    String.format("error while getting file from gitlab with: \n\tmessage - %s\n\thttp code - %s",
                             e.getMessage(), e.getHttpStatus()));
         }
     }
@@ -42,7 +44,7 @@ public class GitLabLoader implements SourceLoader {
         return SourceType.resolveSourceTypeByPath(url.getPath());
     }
 
-    public void configureGitLabLoader(String token, String host){
+    public void configureGitLabLoader(String token, String host) {
         gitLabApi = new GitLabApi(host, token);
     }
 }
