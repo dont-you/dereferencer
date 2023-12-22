@@ -23,7 +23,7 @@ public class FileLoader implements SourceLoader {
     }
 
     @Override
-    public SourceType getSourceType(URL url) throws IOException, URISyntaxException{
+    public SourceType getSourceType(URL url) {
         return SourceType.resolveSourceTypeByPath(url.getPath());
     }
 }
