@@ -17,7 +17,7 @@ import java.util.TreeMap;
 
 public class FileRegister {
     public static ObjectMapper jsonMapper = new ObjectMapper();
-    public static  ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+    public static ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
     private final URNPool urnPool;
     private final LoaderFactory loaderFactory;
     private final FileFactory fileFactory;
@@ -70,7 +70,7 @@ public class FileRegister {
 
     }
 
-    public File get(JsonNode sourceJson) throws DereferenceException{
+    public File get(JsonNode sourceJson) throws DereferenceException {
         try {
             URI idFieldURI = getIdField(sourceJson);
 
@@ -117,11 +117,13 @@ public class FileRegister {
             SourceLoader sourceLoader = loaderFactory.getSourceLoader(url);
             return makeJsonFromInputStream(sourceLoader.loadSource(url), sourceLoader.getSourceType(url));
         } catch (URISyntaxException | IOException e) {
-            throw new DereferenceException("exception while getting file from url - " + url,e);
+            throw new DereferenceException("exception while getting file from url - " + url, e);
         }
     }
-    private JsonNode makeJsonFromInputStream(InputStream stream, SourceLoader.SourceType sourceType) throws DereferenceException{
-        try{
+
+    private JsonNode makeJsonFromInputStream(InputStream stream, SourceLoader.SourceType sourceType)
+            throws DereferenceException {
+        try {
             if (sourceType.isYaml()) {
                 Object obj = yamlMapper.readValue(stream, Object.class);
                 return jsonMapper.readTree(jsonMapper.writeValueAsString(obj));
