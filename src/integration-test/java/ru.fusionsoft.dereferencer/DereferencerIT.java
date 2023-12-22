@@ -66,7 +66,7 @@ public class DereferencerIT {
 
     @Test
     public void fuzTest() throws DereferenceException {
-        Dereferencer dereferencer = DereferencerBuilder.builder().setFileFactory(new AllOfFileFactory()).build();
+        Dereferencer dereferencer = DereferencerBuilder.builder().enableAllOfMerge().build();
         String HOME = System.getenv().get("HOME");
 
         JsonNode json1 = dereferencer.dereference(URI.create(HOME+"/Temp/schemes/fipc.yaml").normalize());
@@ -93,7 +93,7 @@ public class DereferencerIT {
     @Test
     public void Test_simple_merge_scheme()
             throws DereferenceException, IOException {
-        Dereferencer dereferencer = DereferencerBuilder.builder().setFileFactory(new AllOfFileFactory()).build();
+        Dereferencer dereferencer = DereferencerBuilder.builder().enableAllOfMerge().build();
         JsonNode actual = dereferencer
                 .dereference(URI.create("./src/integration-test/resources/test-schemes/schemes/simple_merge_scheme.json"));
         JsonNode expected = jsonMapper.readTree(
