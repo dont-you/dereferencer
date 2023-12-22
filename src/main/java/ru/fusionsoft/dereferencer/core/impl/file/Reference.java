@@ -1,7 +1,5 @@
 package ru.fusionsoft.dereferencer.core.impl.file;
 
-import java.util.*;
-
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class Reference{
