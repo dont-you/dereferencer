@@ -2,11 +2,11 @@ package ru.fusionsoft.dereferencer.core.impl.file;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class Reference{
+public class Reference {
     private final FragmentIdentifier fragmentIdentifier;
     private JsonNode fragment;
 
-    public Reference(FragmentIdentifier fragmentIdentifier){
+    public Reference(FragmentIdentifier fragmentIdentifier) {
         this.fragmentIdentifier = fragmentIdentifier;
         fragment = null;
     }

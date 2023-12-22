@@ -77,7 +77,7 @@ public class FragmentIdentifier {
     }
 
     public static FragmentIdentifier resolveRelativePtr(String pathToRef, String pointer) {
-        String currentPath = pathToRef;
+        StringBuilder currentPath = new StringBuilder(pathToRef);
         boolean endsWithHash;
 
         if(pointer.endsWith("#")){
@@ -94,15 +94,15 @@ public class FragmentIdentifier {
             if(StringUtils.isNumeric(key) && !isJsonPointer){
                 int upLevelTo = Integer.parseInt(key);
                 for (int i = 0; i < upLevelTo; i++) {
-                    currentPath = currentPath.substring(0, currentPath.lastIndexOf("/"));
+                    currentPath = new StringBuilder(currentPath.substring(0, currentPath.lastIndexOf("/")));
                 }
             } else {
-                currentPath += "/" + key;
+                currentPath.append("/").append(key);
                 isJsonPointer = true;
             }
         }
 
-        return new FragmentIdentifier(currentPath, null, endsWithHash);
+        return new FragmentIdentifier(currentPath.toString(), null, endsWithHash);
     }
 
     public boolean isAnchorPointer() {
