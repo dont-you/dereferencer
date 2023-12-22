@@ -91,15 +91,6 @@ public class AllOfFile extends BaseFile{
         return left;
     }
 
-    private boolean isUnique(ArrayNode array, JsonNode nodeValue){
-        for (int i = 0; i < array.size(); i++) {
-            if (array.get(i).equals(nodeValue))
-                return false;
-        }
-
-        return true;
-    }
-
     @Override
     protected boolean resolveNode(String pathToNode, String nodeKey, JsonNode nodeValue) throws DereferenceException{
         if(!super.resolveNode(pathToNode, nodeKey, nodeValue) && nodeKey.equals("allOf")){
