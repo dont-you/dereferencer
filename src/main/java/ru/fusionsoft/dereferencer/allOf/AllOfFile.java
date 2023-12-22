@@ -9,8 +9,6 @@ import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 import ru.fusionsoft.dereferencer.core.impl.file.BaseFile;
 import ru.fusionsoft.dereferencer.core.impl.file.FragmentIdentifier;
 
-import java.awt.*;
-import java.awt.List;
 import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
