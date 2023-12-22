@@ -12,15 +12,16 @@ import java.net.URI;
 
 public class Dereferencer {
     private final FileRegister fileRegister;
-    public Dereferencer(URNPool urnPool, LoaderFactory loaderFactory, FileFactory fileFactory, URI defaultBaseURI){
+
+    public Dereferencer(URNPool urnPool, LoaderFactory loaderFactory, FileFactory fileFactory, URI defaultBaseURI) {
         fileRegister = new FileRegister(urnPool, loaderFactory, fileFactory, defaultBaseURI);
     }
 
-    public JsonNode dereference(URI uri) throws DereferenceException{
+    public JsonNode dereference(URI uri) throws DereferenceException {
         return fileRegister.get(uri).getDerefedJson();
     }
 
-    public JsonNode anonymousDereference(JsonNode jsonNode) throws DereferenceException{
+    public JsonNode anonymousDereference(JsonNode jsonNode) throws DereferenceException {
         return fileRegister.get(jsonNode).getDerefedJson();
     }
 }
