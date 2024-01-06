@@ -1,5 +1,0 @@
-{
-  "from-github": {"$ref": "https://github.com/dont-you/dereferencer/blob/master/src/test/resources/test-schemes/schemes/git-references/some_github_document.json"},
-  "from-github-api": {"$ref": "https://api.github.com/repos/dont-you/dereferencer/contents/src/test/resources/test-schemes/schemes/git-references/some_github_document.json?ref=master"},
-  "test-remote-github": {"$ref": "./fragments/some_fragment.json"}
-}
