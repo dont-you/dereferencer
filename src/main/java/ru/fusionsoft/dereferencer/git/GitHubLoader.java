@@ -9,6 +9,7 @@ import java.net.URL;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 
+
 public class GitHubLoader implements SourceLoader {
 
     private GitHub gitHub;
@@ -38,5 +39,9 @@ public class GitHubLoader implements SourceLoader {
 
     public void configureGitHubLoader(String token) throws IOException {
         gitHub = new GitHubBuilder().withOAuthToken(token).build();
+    }
+
+    public void configureGitHubLoader(GitHub gitHub) throws IOException {
+        this.gitHub = gitHub;
     }
 }
