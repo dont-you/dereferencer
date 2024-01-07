@@ -47,4 +47,8 @@ public class GitLabLoader implements SourceLoader {
     public void configureGitLabLoader(String token, String host) {
         gitLabApi = new GitLabApi(host, token);
     }
+
+    public void configureGitLabLoader(GitLabApi gitLabApi) {
+        this.gitLabApi = gitLabApi;
+    }
 }
