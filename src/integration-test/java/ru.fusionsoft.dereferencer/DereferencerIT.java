@@ -89,7 +89,7 @@ public class DereferencerIT {
 
     @Test
     public void test()
-            throws IOException, URISyntaxException, DereferenceException{
+            throws IOException, DereferenceException{
         Dereferencer dereferencer = DereferencerBuilder.builder().build();
         JsonNode node = jsonMapper.readTree("{" +
                 "\"$id\":\"anon_test.json\","+
