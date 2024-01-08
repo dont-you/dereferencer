@@ -1,14 +1,13 @@
 package ru.fusionsoft.dereferencer.core.impl.file;
 
 import org.apache.commons.lang3.StringUtils;
+import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 
 import java.util.Objects;
 
 public class FragmentIdentifier {
     private String pointer;
     private String plainName;
-    private String propertyName;
-    private FragmentIdentifier parentPtr;
     private boolean endsWithHash;
 
     public FragmentIdentifier(String fragment) {
@@ -34,21 +33,25 @@ public class FragmentIdentifier {
         return plainName;
     }
 
-    public String getPropertyName() {
-        return Objects.requireNonNullElseGet(propertyName,
-                () -> propertyName = getPropertyName(pointer));
+    public String getPropertyName() throws DereferenceException{
+        return getPropertyName(pointer);
     }
 
-    public static String getPropertyName(String pointer) {
+    public static String getPropertyName(String pointer) throws DereferenceException{
+        if(pointer.equals(""))
+            throw new DereferenceException("pointer '' no have property name");
+
         return pointer.substring(pointer.lastIndexOf("/") + 1);
     }
 
-    public FragmentIdentifier getParentPtr() {
-        return Objects.requireNonNullElseGet(parentPtr,
-                () -> parentPtr = new FragmentIdentifier(getParentPointer(pointer)));
+    public FragmentIdentifier getParentPtr() throws DereferenceException{
+        return new FragmentIdentifier(getParentPointer(pointer));
     }
 
-    public static String getParentPointer(String pointer) {
+    public static String getParentPointer(String pointer) throws DereferenceException{
+        if(pointer.equals(""))
+            throw new DereferenceException("pointer '' no have parent pointer");
+
         return pointer.substring(0, pointer.lastIndexOf("/"));
     }
 

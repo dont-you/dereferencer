@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import ru.fusionsoft.dereferencer.core.FileRegister;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
+import ru.fusionsoft.dereferencer.core.exceptions.DereferenceRuntimeException;
 import ru.fusionsoft.dereferencer.core.impl.file.BaseFile;
 import ru.fusionsoft.dereferencer.core.impl.file.FragmentIdentifier;
 
@@ -38,10 +39,17 @@ public class AllOfFile extends BaseFile {
     private void mergeAllOfArrays() {
         for (String pathToAllOf : pathsToNotMergedAllOfs) {
             JsonNode merged = mergeAllOfArray((ArrayNode) derefedSource.at(pathToAllOf + "/" + "allOf"));
-            ((ObjectNode) derefedSource.at(pathToAllOf)).remove("allOf");
-            ((ObjectNode) derefedSource.at(pathToAllOf)).replace("allOf", merged);
-            ((ObjectNode) derefedSource.at(FragmentIdentifier.getParentPointer(pathToAllOf)))
-                    .set(FragmentIdentifier.getPropertyName(pathToAllOf), merged);
+            ((ObjectNode) derefedSource.at(pathToAllOf))
+                    .remove("allOf");
+            ((ObjectNode) derefedSource.at(pathToAllOf))
+                    .replace("allOf", merged);
+
+            try{
+                ((ObjectNode) derefedSource.at(FragmentIdentifier.getParentPointer(pathToAllOf)))
+                        .set(FragmentIdentifier.getPropertyName(pathToAllOf), merged);
+            } catch (DereferenceException e) {
+                throw new DereferenceRuntimeException("file with base uri - " + getBaseURI() + " have reference at root level");
+            }
         }
     }
 

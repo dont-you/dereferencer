@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import ru.fusionsoft.dereferencer.core.File;
 import ru.fusionsoft.dereferencer.core.FileRegister;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
+import ru.fusionsoft.dereferencer.core.exceptions.DereferenceRuntimeException;
 
 public class BaseFile implements File, Comparable<BaseFile> {
     private final URI baseURI;
@@ -151,13 +152,18 @@ public class BaseFile implements File, Comparable<BaseFile> {
     }
 
     private void dereferenceRef(FragmentIdentifier ptrToRef, JsonNode dereferencedValue) {
-        ((ObjectNode) derefedSource.at(ptrToRef.getPointer())).removeAll();
-        JsonNode parentNode = derefedSource.at(ptrToRef.getParentPtr().getPointer());
+        try{
+            ((ObjectNode) derefedSource.at(ptrToRef.getPointer())).removeAll();
+            JsonNode parentNode = derefedSource.at(ptrToRef.getParentPtr().getPointer());
 
-        if (parentNode.isObject())
-            ((ObjectNode) parentNode).set(ptrToRef.getPropertyName(), dereferencedValue);
-        else if (parentNode.isArray())
-            ((ArrayNode) parentNode).set(Integer.parseInt(ptrToRef.getPropertyName()), dereferencedValue);
+            if (parentNode.isObject())
+                ((ObjectNode) parentNode).set(ptrToRef.getPropertyName(), dereferencedValue);
+            else if (parentNode.isArray())
+                ((ArrayNode) parentNode).set(Integer.parseInt(ptrToRef.getPropertyName()), dereferencedValue);
+
+        } catch (DereferenceException e) {
+            throw new DereferenceRuntimeException("file with base uri - " + baseURI + " have reference at root level");
+        }
     }
 
     private URI makeAbsoluteURI(URI uri) throws URISyntaxException {
@@ -182,6 +188,10 @@ public class BaseFile implements File, Comparable<BaseFile> {
         } else {
             return derefedSource.at(ptrToFragment.getPointer());
         }
+    }
+
+    public URI getBaseURI() {
+        return baseURI;
     }
 
     @Override
