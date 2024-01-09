@@ -118,25 +118,19 @@ public class FileRegister {
     private JsonNode loadSource(URL url) throws DereferenceException {
         try {
             SourceLoader sourceLoader = loaderFactory.getSourceLoader(url);
-            return makeJsonFromInputStream(sourceLoader.loadSource(url), sourceLoader.getSourceType(url));
-        } catch (URISyntaxException | IOException e) {
-            throw new DereferenceException("exception while getting file from url - " + url, e);
-        }
-    }
+            SourceLoader.SourceType sourceType = sourceLoader.getSourceType(url);
+            InputStream stream = sourceLoader.loadSource(url);
 
-    private JsonNode makeJsonFromInputStream(InputStream stream, SourceLoader.SourceType sourceType)
-            throws DereferenceException {
-        try {
             if (sourceType.isYaml()) {
                 Object obj = yamlMapper.readValue(stream, Object.class);
                 return jsonMapper.readTree(jsonMapper.writeValueAsString(obj));
             } else if (sourceType.isJson()) {
                 return jsonMapper.readTree(stream);
+            } else {
+                throw new DereferenceException("source type of file with url - " + url + " is not implemented");
             }
-            throw new DereferenceException("");
-        } catch (IOException e) {
-            throw new DereferenceException("");
+        } catch (URISyntaxException | IOException e) {
+            throw new DereferenceException("exception while getting file from url - " + url, e);
         }
     }
-
 }
