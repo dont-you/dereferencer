@@ -13,7 +13,10 @@ import java.net.URI;
 public class Dereferencer {
     private final FileRegister fileRegister;
 
-    public Dereferencer(URNPool urnPool, LoaderFactory loaderFactory, FileFactory fileFactory, URI defaultBaseURI) {
+    public Dereferencer(URNPool urnPool, LoaderFactory loaderFactory, FileFactory fileFactory, URI defaultBaseURI) throws DereferenceException {
+        if (urnPool==null && loaderFactory==null && fileFactory==null && defaultBaseURI==null)
+            throw new DereferenceException("all constructor arguments must not be null");
+
         fileRegister = new FileRegister(urnPool, loaderFactory, fileFactory, defaultBaseURI);
     }
 
