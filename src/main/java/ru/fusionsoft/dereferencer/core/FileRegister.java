@@ -43,8 +43,12 @@ public class FileRegister {
             return lookingFile;
 
         if (fileBaseURI.getCanonical().getScheme().equals("urn")) {
-            fileBaseURI.updateCanonical(urnPool.getLocator(fileBaseURI.getCanonical()));
+            URL url = urnPool.getLocator(fileBaseURI.getCanonical());
 
+            if(url==null)
+                throw new DereferenceException("could not resolve urn: " + fileBaseURI.getCanonical());
+
+            fileBaseURI.updateCanonical(url);
             lookingFile = cache.get(fileBaseURI);
 
             if (lookingFile != null)

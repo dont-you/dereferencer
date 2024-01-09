@@ -7,6 +7,7 @@ import ru.fusionsoft.dereferencer.core.URNPool;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -28,7 +29,7 @@ public class TagURIPool implements URNPool {
     }
 
     @Override
-    public URI getLocator(URI urn) throws DereferenceException {
+    public @Nullable URL getLocator(URI urn) {
         TagURI processedTag = TagURI.parse(URI.create(urn.getSchemeSpecificPart()));
         URI locator = null;
         int prefixSizeOfBaseTag = -1;
@@ -42,9 +43,9 @@ public class TagURIPool implements URNPool {
         }
 
         try {
-            return TagURI.resolve(processedTag, locator);
-        } catch (URISyntaxException e) {
-            throw new DereferenceException("could not parse TagUri " + urn);
+            return TagURI.resolve(processedTag, locator).toURL();
+        } catch (URISyntaxException | MalformedURLException e) {
+            return null;
         }
     }
 

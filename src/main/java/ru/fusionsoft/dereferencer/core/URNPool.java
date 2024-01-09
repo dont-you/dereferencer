@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 
 public interface URNPool {
-    URI getLocator(URI urn) throws DereferenceException;
+    @Nullable URL getLocator(URI urn);
 
     @Nullable URL updateCache(URI uri, LoaderFactory loaderFactory) throws DereferenceException;
 }
