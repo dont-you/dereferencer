@@ -1,6 +1,5 @@
 package ru.fusionsoft.dereferencer.core;
 
-import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceRuntimeException;
 
 import java.net.URI;

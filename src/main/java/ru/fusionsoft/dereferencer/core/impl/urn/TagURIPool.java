@@ -2,11 +2,8 @@ package ru.fusionsoft.dereferencer.core.impl.urn;
 
 import org.jetbrains.annotations.Nullable;
 import ru.fusionsoft.dereferencer.core.LoaderFactory;
-import ru.fusionsoft.dereferencer.core.SourceLoader;
 import ru.fusionsoft.dereferencer.core.URNPool;
-import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
