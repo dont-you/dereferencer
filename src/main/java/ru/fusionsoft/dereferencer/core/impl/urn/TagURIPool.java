@@ -1,5 +1,7 @@
 package ru.fusionsoft.dereferencer.core.impl.urn;
 
+import org.jetbrains.annotations.Nullable;
+import ru.fusionsoft.dereferencer.core.LoaderFactory;
 import ru.fusionsoft.dereferencer.core.SourceLoader;
 import ru.fusionsoft.dereferencer.core.URNPool;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
@@ -7,6 +9,7 @@ import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
@@ -46,13 +49,14 @@ public class TagURIPool implements URNPool {
     }
 
     @Override
-    public void updateCache(URI uri, SourceLoader sourceLoader) {
+    public @Nullable URL updateCache(URI uri, LoaderFactory loaderFactory) {
         try {
-            URI uriToOrigins = uri.resolve(".origins.yaml");
-            JsonNode jsonNode = yamlMapper.readTree(sourceLoader.loadSource(uriToOrigins.toURL()));
-            tags.putAll(parseOrigins(uriToOrigins, jsonNode));
-        } catch (IOException | URISyntaxException e) {
-            System.err.println("error, while processing .origins.yaml from " + uri);
+            URL urlToOrigins = uri.resolve(".origins.yaml").toURL();
+            JsonNode jsonNode = yamlMapper.readTree(loaderFactory.getSourceLoader(urlToOrigins).loadSource(urlToOrigins));
+            tags.putAll(parseOrigins(urlToOrigins.toURI(), jsonNode));
+            return urlToOrigins;
+        } catch (Exception e) {
+            return null;
         }
     }
 

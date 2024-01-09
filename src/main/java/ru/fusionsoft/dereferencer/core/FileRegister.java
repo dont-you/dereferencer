@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import org.jetbrains.annotations.NotNull;
+
+import org.jetbrains.annotations.Nullable;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 
 import java.io.IOException;
@@ -32,7 +35,7 @@ public class FileRegister {
         cache = new TreeMap<>();
     }
 
-    public File get(URI uri) throws DereferenceException {
+    public File get(@NotNull URI uri) throws DereferenceException {
         BaseURI fileBaseURI = new BaseURI(defaultBaseURI, uri);
         File lookingFile = cache.get(fileBaseURI);
 
@@ -70,7 +73,7 @@ public class FileRegister {
 
     }
 
-    public File get(JsonNode sourceJson) throws DereferenceException {
+    public File get(@NotNull JsonNode sourceJson) throws DereferenceException {
         try {
             URI idFieldURI = getIdField(sourceJson);
 
@@ -91,7 +94,7 @@ public class FileRegister {
         }
     }
 
-    private URI getIdField(JsonNode source) throws URISyntaxException {
+    private @Nullable URI getIdField(JsonNode source) throws URISyntaxException {
         if (source.has("$id")) {
             return new URI(source.get("$id").asText());
         }
@@ -100,11 +103,11 @@ public class FileRegister {
     }
 
     private File makeFile(BaseURI baseURI, JsonNode sourceJson) throws DereferenceException {
-        try {
-            urnPool.updateCache(baseURI.getCanonical(), loaderFactory.getSourceLoader(baseURI.getCanonical().toURL()));
-        } catch (MalformedURLException e) {
-            // TODO
-        }
+        URL updateURNCacheURl = urnPool.updateCache(baseURI.getCanonical(), loaderFactory);
+        if(updateURNCacheURl!=null)
+            // TODO add logger
+            System.out.println("urn pool cache updated by " + updateURNCacheURl);
+
         File lookingFile = fileFactory.makeFile(this, baseURI.getCanonical(), sourceJson);
         cache.put(baseURI, lookingFile);
         lookingFile.dereference();
