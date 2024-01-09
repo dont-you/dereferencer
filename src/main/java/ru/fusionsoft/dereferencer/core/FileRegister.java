@@ -128,11 +128,10 @@ public class FileRegister {
             if (sourceType.isYaml()) {
                 Object obj = yamlMapper.readValue(stream, Object.class);
                 return jsonMapper.readTree(jsonMapper.writeValueAsString(obj));
-            } else if (sourceType.isJson()) {
-                return jsonMapper.readTree(stream);
             } else {
-                throw new DereferenceException("source type of file with url - " + url + " is not implemented");
+                return jsonMapper.readTree(stream);
             }
+
         } catch (URISyntaxException | IOException e) {
             throw new DereferenceException("exception while getting file from url - " + url, e);
         }
