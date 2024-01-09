@@ -30,7 +30,7 @@ public class AllOfFile extends BaseFile {
     }
 
     @Override
-    public void dereference() throws DereferenceException {
+    public void dereference(){
         super.dereference();
         if (!pathsToNotMergedAllOfs.empty())
             mergeAllOfArrays();
@@ -102,7 +102,7 @@ public class AllOfFile extends BaseFile {
     }
 
     @Override
-    protected boolean resolveNode(String pathToNode, String nodeKey, JsonNode nodeValue) throws DereferenceException {
+    protected boolean resolveNode(String pathToNode, String nodeKey, JsonNode nodeValue){
         if (!super.resolveNode(pathToNode, nodeKey, nodeValue) && nodeKey.equals("allOf")) {
             pathsToNotMergedAllOfs.push(pathToNode);
             return true;

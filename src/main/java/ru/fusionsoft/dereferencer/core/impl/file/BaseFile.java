@@ -45,12 +45,12 @@ public class BaseFile implements File, Comparable<BaseFile> {
     }
 
     @Override
-    public void dereference() throws DereferenceException {
+    public void dereference(){
         exploreSourceJson();
         resolveReferences();
     }
 
-    protected void exploreSourceJson() throws DereferenceException {
+    protected void exploreSourceJson(){
         Stack<JsonNode> nodeStack = new Stack<>();
         Stack<String> pathStack = new Stack<>();
         nodeStack.push(source);
@@ -65,7 +65,7 @@ public class BaseFile implements File, Comparable<BaseFile> {
     }
 
     private Map<String, JsonNode> exploreJsonNodeFields(Iterator<Entry<String, JsonNode>> fields, String currentPath)
-            throws DereferenceException {
+            {
         Map<String, JsonNode> stackMap = new HashMap<>();
         while (fields.hasNext()) {
             Entry<String, JsonNode> field = fields.next();
@@ -108,7 +108,7 @@ public class BaseFile implements File, Comparable<BaseFile> {
             return (BaseFile) fileRegister.get(targetUri);
     }
 
-    protected boolean resolveNode(String pathToNode, String nodeKey, JsonNode nodeValue) throws DereferenceException {
+    protected boolean resolveNode(String pathToNode, String nodeKey, JsonNode nodeValue){
         boolean isPayLoadNode = false;
         if (nodeKey.equals("$anchor")) {
             anchors.put(nodeValue.asText(), derefedSource.at(pathToNode));
@@ -121,31 +121,35 @@ public class BaseFile implements File, Comparable<BaseFile> {
         return isPayLoadNode;
     }
 
-    private void resolveReferences() throws DereferenceException {
+    private void resolveReferences(){
         for (Entry<FragmentIdentifier, String> refEntry : references.entrySet()) {
             JsonNode dereferencedValue;
-            if (FragmentIdentifier.isRelativePointer(refEntry.getValue())) {
-                FragmentIdentifier resolvedRelative = FragmentIdentifier
+            try{
+                if (FragmentIdentifier.isRelativePointer(refEntry.getValue())) {
+                    FragmentIdentifier resolvedRelative = FragmentIdentifier
                         .resolveRelativePtr(refEntry.getKey().getPointer(), refEntry.getValue());
-                if (resolvedRelative.endsWithHash()) {
-                    String propName = resolvedRelative.getPropertyName();
-                    dereferencedValue = StringUtils.isNumeric(propName) ? IntNode.valueOf(Integer.parseInt(propName))
+                    if (resolvedRelative.endsWithHash()) {
+                        String propName = resolvedRelative.getPropertyName();
+                        dereferencedValue = StringUtils.isNumeric(propName) ? IntNode.valueOf(Integer.parseInt(propName))
                             : TextNode.valueOf(propName);
+                    } else {
+                        Reference reference = getFragment(resolvedRelative);
+                        dereferencedValue = reference.getFragment();
+                    }
                 } else {
-                    Reference reference = getFragment(resolvedRelative);
-                    dereferencedValue = reference.getFragment();
-                }
-            } else {
-                try {
                     URI targetUri = baseURI.resolve(new URI(refEntry.getValue()));
                     URI absoluteUri = makeAbsoluteURI(targetUri);
                     Reference reference = getFileFromFileReg(absoluteUri)
                             .getFragment(new FragmentIdentifier(targetUri.getFragment()));
                     dereferencedValue = reference.getFragment();
-                } catch (URISyntaxException e) {
-                    throw new DereferenceException("ref have errors - " + refEntry.getValue());
                 }
-
+            } catch (Exception e){
+                // TODO add log
+                System.err.println("could not resolve reference with - " + refEntry.getKey()
+                        + " \nin a file - " + baseURI
+                        + " \nwith msg - " + e.getMessage()
+                );
+                continue;
             }
             dereferenceRef(refEntry.getKey(), dereferencedValue);
         }

@@ -5,9 +5,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 
 public interface File {
-    JsonNode getDerefedJson() throws DereferenceException;
+    JsonNode getDerefedJson();
 
-    JsonNode getSourceNode() throws DereferenceException;
+    JsonNode getSourceNode();
 
-    void dereference() throws DereferenceException;
+    void dereference();
 }
