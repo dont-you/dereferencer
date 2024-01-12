@@ -114,7 +114,7 @@ public class FileRegister {
 
         File lookingFile = fileFactory.makeFile(this, baseURI.getCanonical(), sourceJson);
         cache.put(baseURI, lookingFile);
-        lookingFile.dereference();
+        lookingFile.resolve();
 
         return lookingFile;
     }
