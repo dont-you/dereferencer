@@ -31,6 +31,18 @@ public class DereferencerIT {
    }
 
    @Test
+   public void debug_cases(){
+        try{
+            URI uriToDebugCase = URI.create(System.getenv().get("HOME")+"/Temp/debug.yaml");
+            Dereferencer dereferencer = DereferencerBuilder.builder().build();
+            JsonNode node = dereferencer.dereference(uriToDebugCase);
+            System.out.println(node);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+   }
+
+   @Test
    public void Test_simple_schema_With_plain_name_fragment_reference()
            throws IOException, DereferenceException {
         Dereferencer dereferencer = DereferencerBuilder.builder().build();
@@ -64,14 +76,23 @@ public class DereferencerIT {
 
     @Test
     public void fuzTest() throws DereferenceException {
-        Dereferencer dereferencer = DereferencerBuilder.builder().enableAllOfMerge().build();
-        String HOME = System.getenv().get("HOME");
+        try{
+            Dereferencer dereferencer = DereferencerBuilder.builder().enableAllOfMerge().build();
+//            Dereferencer dereferencer = DereferencerBuilder.builder().build();
+            String HOME = System.getenv().get("HOME");
 
-        JsonNode json1 = dereferencer.dereference(URI.create(HOME+"/Temp/schemes/fipc.yaml").normalize());
-        System.out.println(json1);
+            JsonNode json1 = dereferencer.dereference(URI.create(HOME+"/Temp/schemes/fipc.yaml").normalize());
+//            System.out.println(json1);
 
-        JsonNode json2 = dereferencer.dereference(URI.create(HOME+"/Temp/service/fipc-db-service.yaml").normalize());
-        System.out.println(json2);
+            JsonNode json2 = dereferencer.dereference(URI.create(HOME+"/Temp/service/fipc-db-service.yaml").normalize());
+//            System.out.println(json2);
+
+            assertEquals(jsonMapper.readTree(Paths.get(URI.create("file://" + HOME + "/Temp/fipc-it-with-merge.json").normalize()).toFile()), json2);
+//            assertEquals(jsonMapper.readTree(Paths.get(URI.create("file://" + HOME + "/Temp/fipc-it.json").normalize()).toFile()), json2);
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
 
     }
     @Test
