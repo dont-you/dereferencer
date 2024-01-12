@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.IntStream;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.*;
@@ -15,14 +16,13 @@ import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceRuntimeException;
 
 public class BaseFile implements File, Comparable<BaseFile> {
-    private final URI baseURI;
-    private final FileRegister fileRegister;
-    private final JsonNode source;
+    protected final URI baseURI;
+    protected final FileRegister fileRegister;
+    protected final JsonNode source;
     protected final JsonNode derefedSource;
-    private final Map<FragmentIdentifier, String> references;
-    private final Map<String, JsonNode> anchors;
-    private final Map<FragmentIdentifier, Reference> requests;
-    //
+    protected final Map<FragmentIdentifier, String> references;
+    protected final Map<String, JsonNode> anchors;
+    protected final Map<FragmentIdentifier, Reference> requests;
 
     public BaseFile(FileRegister fileRegister, URI baseURI, JsonNode source) {
         this.baseURI = baseURI;
@@ -45,51 +45,17 @@ public class BaseFile implements File, Comparable<BaseFile> {
     }
 
     @Override
-    public void dereference(){
-        exploreSourceJson();
-        resolveReferences();
+    final public void resolve(){
+        beforeResolvingHook();
+        exploreSource("", source);
+        dereference();
+        afterResolvingHook();
     }
 
-    protected void exploreSourceJson(){
-        Stack<JsonNode> nodeStack = new Stack<>();
-        Stack<String> pathStack = new Stack<>();
-        nodeStack.push(source);
-        pathStack.push("");
+    protected void beforeResolvingHook(){}
 
-        while (!nodeStack.empty()) {
-            exploreJsonNodeFields(nodeStack.pop().fields(), pathStack.pop()).forEach((k, v) -> {
-                pathStack.push(k);
-                nodeStack.push(v);
-            });
-        }
-    }
-
-    private Map<String, JsonNode> exploreJsonNodeFields(Iterator<Entry<String, JsonNode>> fields, String currentPath)
-            {
-        Map<String, JsonNode> stackMap = new HashMap<>();
-        while (fields.hasNext()) {
-            Entry<String, JsonNode> field = fields.next();
-            String fieldKey = decodeFieldKey(field.getKey());
-            String fieldPath = currentPath + "/" + fieldKey;
-            JsonNode fieldValue = field.getValue();
-            resolveNode(currentPath, fieldKey, fieldValue);
-            stackMap.putAll(getNextFields(fieldPath, fieldValue));
-        }
-        return stackMap;
-    }
-
-    private Map<String, JsonNode> getNextFields(String fieldPath, JsonNode fieldValue) {
-        Map<String, JsonNode> stackMap = new HashMap<>();
-        if (fieldValue.isArray()) {
-            Iterator<JsonNode> elements = fieldValue.elements();
-            int i = 0;
-            while (elements.hasNext()) {
-                stackMap.put(fieldPath + "/" + i++, elements.next());
-            }
-        } else {
-            stackMap.put(fieldPath, fieldValue);
-        }
-        return stackMap;
+    final protected void exploreSource(String pathToSource, JsonNode source){
+        source.fields().forEachRemaining(field -> resolveNode(pathToSource, decodeFieldKey(field.getKey()),field.getValue()));
     }
 
     private String decodeFieldKey(String fieldKey) {
@@ -100,25 +66,32 @@ public class BaseFile implements File, Comparable<BaseFile> {
         else
             return fieldKey;
     }
+    protected void resolveNode(String pathToNode, String nodeKey, JsonNode nodeValue){
+        if (nodeKey.equals("$anchor")) {
+            anchors.put(nodeValue.asText(), derefedSource.at(pathToNode));
+        } else if (nodeKey.equals("$ref")) {
+            references.put(new FragmentIdentifier(pathToNode), nodeValue.asText());
+        } else if(nodeValue.isArray()) {
+            String currentPath = pathToNode.concat("/").concat(nodeKey);
+            IntStream.range(0,nodeValue.size())
+                    .forEach(i -> exploreSource(currentPath.concat("/").concat(String.valueOf(i)),nodeValue.get(i)));
+        } else if(nodeValue.isObject()){
+            exploreSource(pathToNode.concat("/").concat(nodeKey), nodeValue);
+        }
+    }
+
+    final protected void dereference(){
+        // TODO refactor
+        resolveReferences();
+    }
+
+    protected void afterResolvingHook(){}
 
     protected BaseFile getFileFromFileReg(URI targetUri) throws DereferenceException {
         if (targetUri.equals(baseURI))
             return this;
         else
             return (BaseFile) fileRegister.get(targetUri);
-    }
-
-    protected boolean resolveNode(String pathToNode, String nodeKey, JsonNode nodeValue){
-        boolean isPayLoadNode = false;
-        if (nodeKey.equals("$anchor")) {
-            anchors.put(nodeValue.asText(), derefedSource.at(pathToNode));
-            isPayLoadNode = true;
-        } else if (nodeKey.equals("$ref")) {
-            references.put(new FragmentIdentifier(pathToNode), nodeValue.asText());
-            isPayLoadNode = true;
-        }
-
-        return isPayLoadNode;
     }
 
     private void resolveReferences(){

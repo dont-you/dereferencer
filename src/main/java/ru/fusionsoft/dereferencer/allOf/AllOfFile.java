@@ -13,12 +13,14 @@ import ru.fusionsoft.dereferencer.core.impl.file.FragmentIdentifier;
 import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.IntStream;
 
 public class AllOfFile extends BaseFile {
     Stack<String> pathsToNotMergedAllOfs;
     JsonNode mergedJson;
 
     public AllOfFile(FileRegister fileRegister, URI baseURI, JsonNode source) {
+        // TODO refactor
         super(fileRegister, baseURI, source);
         pathsToNotMergedAllOfs = new Stack<>();
         mergedJson = derefedSource;
@@ -30,9 +32,8 @@ public class AllOfFile extends BaseFile {
     }
 
     @Override
-    public void dereference(){
-        super.dereference();
-        if (!pathsToNotMergedAllOfs.empty())
+    protected final void afterResolvingHook(){
+         if (!pathsToNotMergedAllOfs.empty())
             mergeAllOfArrays();
     }
 
@@ -102,12 +103,14 @@ public class AllOfFile extends BaseFile {
     }
 
     @Override
-    protected boolean resolveNode(String pathToNode, String nodeKey, JsonNode nodeValue){
-        if (!super.resolveNode(pathToNode, nodeKey, nodeValue) && nodeKey.equals("allOf")) {
+    protected void resolveNode(String pathToNode, String nodeKey, JsonNode nodeValue){
+        if (nodeKey.equals("allOf")) {
             pathsToNotMergedAllOfs.push(pathToNode);
-            return true;
+            String currentPath = pathToNode.concat("/").concat(nodeKey);
+            IntStream.range(0,nodeValue.size())
+                    .forEach(i -> exploreSource(currentPath.concat("/").concat(String.valueOf(i)),nodeValue.get(i)));
+        } else {
+            super.resolveNode(pathToNode, nodeKey, nodeValue);
         }
-
-        return false;
     }
 }
