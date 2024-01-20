@@ -3,26 +3,26 @@ package ru.fusionsoft.dereferencer.core.impl.file;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.stream.IntStream;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.*;
 
-import org.apache.commons.lang3.StringUtils;
 import ru.fusionsoft.dereferencer.core.File;
 import ru.fusionsoft.dereferencer.core.FileRegister;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceRuntimeException;
+import static ru.fusionsoft.dereferencer.core.impl.file.FragmentIdentifier.IdentifierType.*;
 
-public class BaseFile implements File, Comparable<BaseFile> {
+public class BaseFile implements File, Comparable<BaseFile>, ReferenceListener{
     protected final URI baseURI;
     protected final FileRegister fileRegister;
     protected final JsonNode source;
     protected final JsonNode derefedSource;
-    protected final Map<FragmentIdentifier, String> references;
+    protected final Map<Reference, String> references;
     protected final Map<String, JsonNode> anchors;
     protected final Map<FragmentIdentifier, Reference> requests;
+    private boolean canResponse;
 
     public BaseFile(FileRegister fileRegister, URI baseURI, JsonNode source) {
         this.baseURI = baseURI;
@@ -32,6 +32,7 @@ public class BaseFile implements File, Comparable<BaseFile> {
         this.references = new HashMap<>();
         this.anchors = new HashMap<>();
         this.requests = new HashMap<>();
+        this.canResponse = false;
     }
 
     @Override
@@ -48,7 +49,7 @@ public class BaseFile implements File, Comparable<BaseFile> {
     final public void resolve(){
         beforeResolvingHook();
         exploreSource("", source);
-        dereference();
+        setCanResponseToTrue();
         afterResolvingHook();
     }
 
@@ -70,7 +71,7 @@ public class BaseFile implements File, Comparable<BaseFile> {
         if (nodeKey.equals("$anchor")) {
             anchors.put(nodeValue.asText(), derefedSource.at(pathToNode));
         } else if (nodeKey.equals("$ref")) {
-            references.put(new FragmentIdentifier(pathToNode), nodeValue.asText());
+            processReference(pathToNode, nodeValue.asText());
         } else if(nodeValue.isArray()) {
             String currentPath = pathToNode.concat("/").concat(nodeKey);
             IntStream.range(0,nodeValue.size())
@@ -80,9 +81,42 @@ public class BaseFile implements File, Comparable<BaseFile> {
         }
     }
 
-    final protected void dereference(){
-        // TODO refactor
-        resolveReferences();
+    private void processReference(String pathToReference, String referenceValue){
+        try {
+            Reference targetReference = Character.isDigit(referenceValue.charAt(0)) ?
+                    processRelJsonPtrReference(pathToReference, referenceValue) :
+                    processURIReference(referenceValue);
+
+            references.put(targetReference,pathToReference);
+            targetReference.subscribe(this);
+        } catch (URISyntaxException | DereferenceException e) {
+            System.err.println("could not resolve reference with value- " + referenceValue
+                    + " \nin a file - " + baseURI
+                    + " \nwith msg - " + e.getMessage()
+            );
+        }
+    }
+
+    private Reference processRelJsonPtrReference(String pathToReferencedValue, String referencedValue) throws DereferenceException {
+        FragmentIdentifier relativePointer = new FragmentIdentifier(referencedValue);
+        Reference reference = new Reference(relativePointer);
+        reference.setFragment(FragmentIdentifier.evaluateRelativeJsonPointer(derefedSource, pathToReferencedValue, relativePointer.getIdentifier()));
+        return reference;
+    }
+
+    private Reference processURIReference(String referenceValue) throws URISyntaxException, DereferenceException {
+        URI targetURI = baseURI.resolve(new URI(referenceValue));
+        URI absoluteURI = makeAbsoluteURI(targetURI);
+        FragmentIdentifier fragmentIdentifier = new FragmentIdentifier(targetURI.getFragment());
+        return getFileFromFileReg(absoluteURI).getFragment(fragmentIdentifier);
+    }
+
+    private void setCanResponseToTrue(){
+        canResponse = true;
+        requests.values().forEach(ref -> {
+            if(!ref.isResolved())
+                ref.setFragment(resolveFragment(ref.getFragmentIdentifier()));
+        });
     }
 
     protected void afterResolvingHook(){}
@@ -92,55 +126,6 @@ public class BaseFile implements File, Comparable<BaseFile> {
             return this;
         else
             return (BaseFile) fileRegister.get(targetUri);
-    }
-
-    private void resolveReferences(){
-        for (Entry<FragmentIdentifier, String> refEntry : references.entrySet()) {
-            JsonNode dereferencedValue;
-            try{
-                if (FragmentIdentifier.isRelativePointer(refEntry.getValue())) {
-                    FragmentIdentifier resolvedRelative = FragmentIdentifier
-                        .resolveRelativePtr(refEntry.getKey().getPointer(), refEntry.getValue());
-                    if (resolvedRelative.endsWithHash()) {
-                        String propName = resolvedRelative.getPropertyName();
-                        dereferencedValue = StringUtils.isNumeric(propName) ? IntNode.valueOf(Integer.parseInt(propName))
-                            : TextNode.valueOf(propName);
-                    } else {
-                        Reference reference = getFragment(resolvedRelative);
-                        dereferencedValue = reference.getFragment();
-                    }
-                } else {
-                    URI targetUri = baseURI.resolve(new URI(refEntry.getValue()));
-                    URI absoluteUri = makeAbsoluteURI(targetUri);
-                    Reference reference = getFileFromFileReg(absoluteUri)
-                            .getFragment(new FragmentIdentifier(targetUri.getFragment()));
-                    dereferencedValue = reference.getFragment();
-                }
-            } catch (Exception e){
-                // TODO add log
-                System.err.println("could not resolve reference with - " + refEntry.getKey()
-                        + " \nin a file - " + baseURI
-                        + " \nwith msg - " + e.getMessage()
-                );
-                continue;
-            }
-            dereferenceRef(refEntry.getKey(), dereferencedValue);
-        }
-    }
-
-    private void dereferenceRef(FragmentIdentifier ptrToRef, JsonNode dereferencedValue) {
-        try{
-            ((ObjectNode) derefedSource.at(ptrToRef.getPointer())).removeAll();
-            JsonNode parentNode = derefedSource.at(ptrToRef.getParentPtr().getPointer());
-
-            if (parentNode.isObject())
-                ((ObjectNode) parentNode).set(ptrToRef.getPropertyName(), dereferencedValue);
-            else if (parentNode.isArray())
-                ((ArrayNode) parentNode).set(Integer.parseInt(ptrToRef.getPropertyName()), dereferencedValue);
-
-        } catch (DereferenceException e) {
-            throw new DereferenceRuntimeException("file with base uri - " + baseURI + " have reference at root level");
-        }
     }
 
     private URI makeAbsoluteURI(URI uri) throws URISyntaxException {
@@ -153,26 +138,40 @@ public class BaseFile implements File, Comparable<BaseFile> {
         if (targetReference == null) {
             targetReference = new Reference(requestedPtr);
             requests.put(requestedPtr, targetReference);
-            targetReference.setFragment(getJsonNodeByFragmentIdentifier(requestedPtr));
+            if(canResponse)
+                targetReference.setFragment(resolveFragment(requestedPtr));
         }
 
         return targetReference;
     }
 
-    private JsonNode getJsonNodeByFragmentIdentifier(FragmentIdentifier ptrToFragment) {
-        if (ptrToFragment.isAnchorPointer()) {
-            return anchors.get(ptrToFragment.getPlainName());
+    private JsonNode resolveFragment(FragmentIdentifier ptrToFragment) {
+        if (ptrToFragment.getType() == JSON_POINTER) {
+            return derefedSource.at(ptrToFragment.getIdentifier());
+        } else if (ptrToFragment.getType() == PLAIN_NAME){
+            return anchors.get(ptrToFragment.getIdentifier());
         } else {
-            return derefedSource.at(ptrToFragment.getPointer());
+            throw new DereferenceRuntimeException("some unexpected error while resolving fragment: relative json pointer not evaluated");
         }
-    }
-
-    public URI getBaseURI() {
-        return baseURI;
     }
 
     @Override
     public int compareTo(BaseFile baseFile) {
         return baseURI.compareTo(baseFile.baseURI);
+    }
+
+    @Override
+    public void update(Reference reference) {
+        setDereferencedValue(new FragmentIdentifier(references.get(reference)), reference.getFragment());
+    }
+
+    private void setDereferencedValue(FragmentIdentifier ptrToRef, JsonNode dereferencedValue){
+        ((ObjectNode) derefedSource.at(ptrToRef.getIdentifier())).removeAll();
+        JsonNode parentNode = derefedSource.at(FragmentIdentifier.getParentPointer(ptrToRef));
+
+        if (parentNode.isObject())
+            ((ObjectNode) parentNode).set(FragmentIdentifier.getPropertyName(ptrToRef), dereferencedValue);
+        else if (parentNode.isArray())
+            ((ArrayNode) parentNode).set(Integer.parseInt(FragmentIdentifier.getPropertyName(ptrToRef)), dereferencedValue);
     }
 }

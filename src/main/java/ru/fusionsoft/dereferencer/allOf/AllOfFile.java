@@ -44,13 +44,8 @@ public class AllOfFile extends BaseFile {
                     .remove("allOf");
             ((ObjectNode) derefedSource.at(pathToAllOf))
                     .replace("allOf", merged);
-
-            try{
-                ((ObjectNode) derefedSource.at(FragmentIdentifier.getParentPointer(pathToAllOf)))
-                        .set(FragmentIdentifier.getPropertyName(pathToAllOf), merged);
-            } catch (DereferenceException e) {
-                throw new DereferenceRuntimeException("file with base uri - " + getBaseURI() + " have reference at root level");
-            }
+            ((ObjectNode) derefedSource.at(FragmentIdentifier.getParentPointer(pathToAllOf)))
+                    .set(FragmentIdentifier.getPropertyName(pathToAllOf), merged);
         }
     }
 
