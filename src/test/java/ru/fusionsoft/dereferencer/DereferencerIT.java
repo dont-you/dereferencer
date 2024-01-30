@@ -20,7 +20,7 @@ public class DereferencerIT {
     @Test
     public void Test_simple_schema_With_cycle() throws DereferenceException {
         Dereferencer dereferencer = DereferencerBuilder.builder().build();
-        dereferencer.dereference(URI.create("./src/integration-test/resources/test-schemas/schemas/cycle-schema/cycle_schema_A.json"));
+        dereferencer.dereference(URI.create("./src/test/resources/test-schemas/schemas/cycle-schema/cycle_schema_A.json"));
         assertTrue(true);
    }
    @Test
@@ -46,9 +46,9 @@ public class DereferencerIT {
    public void Test_simple_schema_With_plain_name_fragment_reference()
            throws IOException, DereferenceException {
         Dereferencer dereferencer = DereferencerBuilder.builder().build();
-        JsonNode actual = dereferencer.dereference(URI.create("./src/integration-test/resources/test-schemas/schemas/basic-schemas/simple_anchor_schema.json"));
+        JsonNode actual = dereferencer.dereference(URI.create("./src/test/resources/test-schemas/schemas/basic-schemas/simple_anchor_schema.json"));
         JsonNode expected = jsonMapper.readTree(Paths
-                .get("./src/integration-test/resources/test-schemas/expected-result/dereferenced_simple_anchor_schema.json").toFile());
+                .get("./src/test/resources/test-schemas/expected-result/dereferenced_simple_anchor_schema.json").toFile());
 
         assertEquals(expected, actual);
     }
@@ -57,9 +57,9 @@ public class DereferencerIT {
    public void Test_schema_With_relative_json_pointers()
            throws IOException, DereferenceException {
         Dereferencer dereferencer = DereferencerBuilder.builder().build();
-        JsonNode actual = dereferencer.dereference(URI.create("./src/integration-test/resources/test-schemas/schemas/basic-schemas/relative_json_pointers.json"));
+        JsonNode actual = dereferencer.dereference(URI.create("./src/test/resources/test-schemas/schemas/basic-schemas/relative_json_pointers.json"));
         JsonNode expected = jsonMapper.readTree(Paths
-                .get("./src/integration-test/resources/test-schemas/expected-result/dereferenced_relative_json_pointers.json").toFile());
+                .get("./src/test/resources/test-schemas/expected-result/dereferenced_relative_json_pointers.json").toFile());
 
         assertEquals(expected, actual);
     }
@@ -68,41 +68,36 @@ public class DereferencerIT {
    public void Test_schema_With_urn_references()
            throws IOException, DereferenceException {
         Dereferencer dereferencer = DereferencerBuilder.builder().build();
-        JsonNode actual = dereferencer.dereference(URI.create("./src/integration-test/resources/test-schemas/schemas/urn-resolving/test_urn_resolving.yaml"));
+        JsonNode actual = dereferencer.dereference(URI.create("./src/test/resources/test-schemas/schemas/urn-resolving/test_urn_resolving.yaml"));
         JsonNode expected = jsonMapper.readTree(Paths
-                .get("./src/integration-test/resources/test-schemas/expected-result/dereferenced_test_urn_resolving.json").toFile());
+                .get("./src/test/resources/test-schemas/expected-result/dereferenced_test_urn_resolving.json").toFile());
         assertEquals(expected, actual);
     }
 
     @Test
-    public void fuzTest() throws DereferenceException {
-        try{
-            Dereferencer dereferencer = DereferencerBuilder.builder().enableAllOfMerge().build();
-//            Dereferencer dereferencer = DereferencerBuilder.builder().build();
-            String HOME = System.getenv().get("HOME");
+    public void fuzTest() throws DereferenceException, IOException {
+        Dereferencer dereferencer = DereferencerBuilder.builder().enableAllOfMerge().build();
+//        Dereferencer dereferencer = DereferencerBuilder.builder().build();
+        String HOME = System.getenv().get("HOME");
 
-            JsonNode json1 = dereferencer.dereference(URI.create(HOME+"/Temp/schemes/fipc.yaml").normalize());
-//            System.out.println(json1);
+        JsonNode json1 = dereferencer.dereference(URI.create(HOME+"/Work/schemes/fipc.yaml").normalize());
+//        System.out.println(json1);
 
-            JsonNode json2 = dereferencer.dereference(URI.create(HOME+"/Temp/service/fipc-db-service.yaml").normalize());
-//            System.out.println(json2);
+        JsonNode json2 = dereferencer.dereference(URI.create(HOME+"/Work/service/fipc-db-service.yaml").normalize());
+        System.out.println(json2);
 
-            assertEquals(jsonMapper.readTree(Paths.get(URI.create("file://" + HOME + "/Temp/fipc-it-with-merge.json").normalize()).toFile()), json2);
-//            assertEquals(jsonMapper.readTree(Paths.get(URI.create("file://" + HOME + "/Temp/fipc-it.json").normalize()).toFile()), json2);
-
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-
+        assertEquals(jsonMapper.readTree(Paths.get(URI.create("file://" + HOME + "/Work/fipc-it-with-merge.json").normalize()).toFile()), json2);
+//        assertEquals(jsonMapper.readTree(Paths.get(URI.create("file://" + HOME + "/Work/fipc-it.json").normalize()).toFile()), json2);
     }
+
     @Test
     public void Test_simple_merge_schema()
             throws DereferenceException, IOException {
         Dereferencer dereferencer = DereferencerBuilder.builder().enableAllOfMerge().build();
         JsonNode actual = dereferencer
-                .dereference(URI.create("./src/integration-test/resources/test-schemas/schemas/basic-schemas/simple_merge_schema.json"));
+                .dereference(URI.create("./src/test/resources/test-schemas/schemas/basic-schemas/simple_merge_schema.json"));
         JsonNode expected = jsonMapper.readTree(
-                Paths.get("./src/integration-test/resources/test-schemas/expected-result/dereferenced_simple_merge_schema.json")
+                Paths.get("./src/test/resources/test-schemas/expected-result/dereferenced_simple_merge_schema.json")
                         .toFile());
 
         assertEquals(expected, actual);
