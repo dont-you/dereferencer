@@ -9,6 +9,7 @@ import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceRuntimeException;
 
 import java.util.Objects;
+import java.util.stream.IntStream;
 
 public class FragmentIdentifier {
     private final String identifier;
@@ -69,43 +70,40 @@ public class FragmentIdentifier {
 
     private static String calculateReferencedValue(String prefix, String pathToReferencedValue) throws DereferenceException{
         int integerPrefix = 0;
-        StringBuilder indexManipulation = new StringBuilder();
-        boolean isIndexManipulation = false;
+        String indexManipulation = "";
 
-        for(char c: prefix.toCharArray()){
-            if(c == '-' || c == '+')
-                isIndexManipulation = true;
-
-            if(isIndexManipulation)
-                indexManipulation.append(c);
-            else
-                integerPrefix+=Character.getNumericValue(c);
+        for(int i = 0; i < prefix.length() ; i++){
+            if(prefix.charAt(i) == '-' || prefix.charAt(i) == '+'){
+                indexManipulation = pathToReferencedValue.substring(i,prefix.length());
+                break;
+            } else {
+                integerPrefix+=Character.getNumericValue(prefix.charAt(i));
+            }
         }
 
-        while(integerPrefix>0){
-            pathToReferencedValue=getParentPointer(pathToReferencedValue);
-            integerPrefix--;
-        }
+        StringBuilder pathBuilder = new StringBuilder(pathToReferencedValue);
+        IntStream.range(0, integerPrefix).forEach(i -> pathBuilder.delete(pathBuilder.lastIndexOf("/"),pathBuilder.length()));
 
-        return updateReferencedValueIndex(pathToReferencedValue, indexManipulation.toString());
+        return indexManipulation.isEmpty() ? pathBuilder.toString() :  performIndexManipulation(pathBuilder, indexManipulation);
     }
 
-    private static String updateReferencedValueIndex(String pathToReferencedValue, String indexManipulation) throws DereferenceException{
-        if(indexManipulation.isEmpty()) {
-            return pathToReferencedValue;
-        } else {
-            String index = getPropertyName(pathToReferencedValue);
 
-            if(!StringUtils.isNumeric(index))
-                throw new DereferenceException("current referenced value is not an item of an array");
+    private static String performIndexManipulation(StringBuilder pathBuilder, String indexManipulation) throws DereferenceException {
+        String index = getPropertyName(pathBuilder.toString());
 
-            int updatedIndex = Integer.parseInt(index) + Integer.parseInt(indexManipulation);
+        if(!StringUtils.isNumeric(index))
+            throw new DereferenceException("current referenced value is not an item of an array");
 
-            if(updatedIndex < 0)
-                throw  new DereferenceException("updated index of an referenced value less then zero");
+        int updatedIndex = Integer.parseInt(index) + Integer.parseInt(indexManipulation);
 
-            return getParentPointer(pathToReferencedValue) + "/" + updatedIndex;
-        }
+        if(updatedIndex < 0)
+            throw  new DereferenceException("updated index of an referenced value less then zero");
+
+        return pathBuilder
+                .delete(pathBuilder.lastIndexOf("/"),pathBuilder.length())
+                .append("/")
+                .append(updatedIndex)
+                .toString();
     }
 
     public IdentifierType getType(){
@@ -113,7 +111,7 @@ public class FragmentIdentifier {
     }
 
     public static IdentifierType getType(String identifier){
-        if(identifier.equals("") || identifier.startsWith("/"))
+        if(identifier.isEmpty() || identifier.startsWith("/"))
             return IdentifierType.JSON_POINTER;
         else if(Character.isDigit(identifier.charAt(0)))
             return IdentifierType.RELATIVE_JSON_POINTER;
@@ -121,9 +119,9 @@ public class FragmentIdentifier {
             return IdentifierType.PLAIN_NAME;
     }
 
-    enum IdentifierType{
+    public enum IdentifierType{
         JSON_POINTER,
         RELATIVE_JSON_POINTER,
-        PLAIN_NAME;
+        PLAIN_NAME
     }
 }
