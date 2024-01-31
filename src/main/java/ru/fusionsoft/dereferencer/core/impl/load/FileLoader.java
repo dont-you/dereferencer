@@ -13,7 +13,7 @@ import java.nio.file.Paths;
 public class FileLoader implements SourceLoader {
     @Override
     public boolean canLoad(URL url) {
-        return url.getHost().equals("") && !url.getPath().equals("");
+        return url.getHost().isEmpty() && !url.getPath().isEmpty();
     }
 
     @Override
