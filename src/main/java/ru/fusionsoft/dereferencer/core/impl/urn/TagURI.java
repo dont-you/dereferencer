@@ -25,13 +25,13 @@ public class TagURI implements Comparable<TagURI> {
 
         if (isSub < 0)
             return null;
-        else if(isSub > 0)
-            return String.join("/",Arrays.copyOfRange(nameSpaceSpecificParts, supTagURI.nameSpaceSpecificParts.length - 1, nameSpaceSpecificParts.length)).concat(".yaml");
+        else if (isSub > 0)
+            return String.join("/", Arrays.copyOfRange(nameSpaceSpecificParts, supTagURI.nameSpaceSpecificParts.length - 1, nameSpaceSpecificParts.length)).concat(".yaml");
         else
             return "";
     }
 
-    public int isSub(TagURI supTagURI){
+    public int isSub(TagURI supTagURI) {
         if (!supTagURI.taggingEntity.equals(taggingEntity)
                 || nameSpaceSpecificParts.length < supTagURI.nameSpaceSpecificParts.length)
             return -1;
@@ -42,13 +42,13 @@ public class TagURI implements Comparable<TagURI> {
                 return -1;
         }
 
-        if(supTagURI.nameSpaceSpecificParts[supTagURI.nameSpaceSpecificParts.length - 1].equals("*"))
+        if (supTagURI.nameSpaceSpecificParts[supTagURI.nameSpaceSpecificParts.length - 1].equals("*"))
             return 1;
 
         return 0;
     }
 
-    public static URI resolve(URI locator, String dynamicPartOfLocator){
+    public static URI resolve(URI locator, String dynamicPartOfLocator) {
         return Paths.get(locator.getPath()).resolveSibling(dynamicPartOfLocator).toUri();
     }
 

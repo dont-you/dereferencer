@@ -41,7 +41,7 @@ public class GitHubLoader implements SourceLoader {
         gitHub = new GitHubBuilder().withOAuthToken(token).build();
     }
 
-    public void configureGitHubLoader(GitHub gitHub) throws IOException {
+    public void configureGitHubLoader(GitHub gitHub) {
         this.gitHub = gitHub;
     }
 }

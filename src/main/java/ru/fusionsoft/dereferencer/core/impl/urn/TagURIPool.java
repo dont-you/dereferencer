@@ -32,7 +32,7 @@ public class TagURIPool implements URNPool {
 
         for (Entry<TagURI, URI> tagEntry : tags.entrySet()) {
             String currentSubPart = processedTag.getSubPart(tagEntry.getKey());
-            if (currentSubPart!=null &&( subPart==null || subPart.length() > currentSubPart.length())) {
+            if (currentSubPart != null && (subPart == null || subPart.length() > currentSubPart.length())) {
                 locator = tagEntry.getValue();
                 subPart = currentSubPart;
             }

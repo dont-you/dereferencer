@@ -1,9 +1,6 @@
 package ru.fusionsoft.dereferencer.core.impl.file;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import ru.fusionsoft.dereferencer.core.File;
-import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
-import ru.fusionsoft.dereferencer.core.exceptions.DereferenceRuntimeException;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -14,7 +11,7 @@ public class Reference {
     private JsonNode fragment;
 
     public Reference(FragmentIdentifier fragmentIdentifier) {
-        if(fragmentIdentifier==null)
+        if (fragmentIdentifier == null)
             throw new NullPointerException("fragment identifier should not be null");
 
         this.fragmentIdentifier = fragmentIdentifier;
@@ -32,12 +29,12 @@ public class Reference {
     }
 
     public boolean isResolved() {
-        return fragment!=null;
+        return fragment != null;
     }
 
-    public void subscribe(ReferenceListener listener){
+    public void subscribe(ReferenceListener listener) {
         listeners.add(listener);
-        if(fragment!=null)
+        if (fragment != null)
             listener.update(this);
     }
 

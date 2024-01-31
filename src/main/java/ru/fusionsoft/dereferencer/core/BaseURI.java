@@ -23,7 +23,7 @@ public class BaseURI implements Comparable<BaseURI> {
         duplicates.add(this.canonical);
     }
 
-    public void updateCanonical(URL canonical){
+    public void updateCanonical(URL canonical) {
         try {
             this.canonical = this.canonical.resolve(canonical.toURI());
         } catch (URISyntaxException e) {

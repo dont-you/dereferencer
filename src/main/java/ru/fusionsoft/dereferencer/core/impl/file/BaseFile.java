@@ -12,9 +12,10 @@ import ru.fusionsoft.dereferencer.core.File;
 import ru.fusionsoft.dereferencer.core.FileRegister;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceRuntimeException;
+
 import static ru.fusionsoft.dereferencer.core.impl.file.FragmentIdentifier.IdentifierType.*;
 
-public class BaseFile implements File, Comparable<BaseFile>, ReferenceListener{
+public class BaseFile implements File, Comparable<BaseFile>, ReferenceListener {
     protected final URI baseURI;
     protected final FileRegister fileRegister;
     protected final JsonNode source;
@@ -46,17 +47,18 @@ public class BaseFile implements File, Comparable<BaseFile>, ReferenceListener{
     }
 
     @Override
-    final public void resolve(){
+    final public void resolve() {
         beforeResolvingHook();
         exploreSource("", source);
         setCanResponseToTrue();
         afterResolvingHook();
     }
 
-    protected void beforeResolvingHook(){}
+    protected void beforeResolvingHook() {
+    }
 
-    final protected void exploreSource(String pathToSource, JsonNode source){
-        source.fields().forEachRemaining(field -> resolveNode(pathToSource, decodeFieldKey(field.getKey()),field.getValue()));
+    final protected void exploreSource(String pathToSource, JsonNode source) {
+        source.fields().forEachRemaining(field -> resolveNode(pathToSource, decodeFieldKey(field.getKey()), field.getValue()));
     }
 
     private String decodeFieldKey(String fieldKey) {
@@ -67,27 +69,28 @@ public class BaseFile implements File, Comparable<BaseFile>, ReferenceListener{
         else
             return fieldKey;
     }
-    protected void resolveNode(String pathToNode, String nodeKey, JsonNode nodeValue){
+
+    protected void resolveNode(String pathToNode, String nodeKey, JsonNode nodeValue) {
         if (nodeKey.equals("$anchor")) {
             anchors.put(nodeValue.asText(), derefedSource.at(pathToNode));
         } else if (nodeKey.equals("$ref")) {
             processReference(pathToNode, nodeValue.asText());
-        } else if(nodeValue.isArray()) {
+        } else if (nodeValue.isArray()) {
             String currentPath = pathToNode.concat("/").concat(nodeKey);
-            IntStream.range(0,nodeValue.size())
-                    .forEach(i -> exploreSource(currentPath.concat("/").concat(String.valueOf(i)),nodeValue.get(i)));
-        } else if(nodeValue.isObject()){
+            IntStream.range(0, nodeValue.size())
+                    .forEach(i -> exploreSource(currentPath.concat("/").concat(String.valueOf(i)), nodeValue.get(i)));
+        } else if (nodeValue.isObject()) {
             exploreSource(pathToNode.concat("/").concat(nodeKey), nodeValue);
         }
     }
 
-    private void processReference(String pathToReference, String referenceValue){
+    private void processReference(String pathToReference, String referenceValue) {
         try {
             Reference targetReference = Character.isDigit(referenceValue.charAt(0)) ?
                     processRelJsonPtrReference(pathToReference, referenceValue) :
                     processURIReference(referenceValue);
 
-            references.put(targetReference,pathToReference);
+            references.put(targetReference, pathToReference);
             targetReference.subscribe(this);
         } catch (URISyntaxException | DereferenceException e) {
             System.err.println("could not resolve reference with value- " + referenceValue
@@ -111,15 +114,16 @@ public class BaseFile implements File, Comparable<BaseFile>, ReferenceListener{
         return getFileFromFileReg(absoluteURI).getFragment(fragmentIdentifier);
     }
 
-    private void setCanResponseToTrue(){
+    private void setCanResponseToTrue() {
         canResponse = true;
         requests.values().forEach(ref -> {
-            if(!ref.isResolved())
+            if (!ref.isResolved())
                 ref.setFragment(resolveFragment(ref.getFragmentIdentifier()));
         });
     }
 
-    protected void afterResolvingHook(){}
+    protected void afterResolvingHook() {
+    }
 
     protected BaseFile getFileFromFileReg(URI targetUri) throws DereferenceException {
         if (targetUri.equals(baseURI))
@@ -138,7 +142,7 @@ public class BaseFile implements File, Comparable<BaseFile>, ReferenceListener{
         if (targetReference == null) {
             targetReference = new Reference(requestedPtr);
             requests.put(requestedPtr, targetReference);
-            if(canResponse)
+            if (canResponse)
                 targetReference.setFragment(resolveFragment(requestedPtr));
         }
 
@@ -148,7 +152,7 @@ public class BaseFile implements File, Comparable<BaseFile>, ReferenceListener{
     private JsonNode resolveFragment(FragmentIdentifier ptrToFragment) {
         if (ptrToFragment.getType() == JSON_POINTER) {
             return derefedSource.at(ptrToFragment.getIdentifier());
-        } else if (ptrToFragment.getType() == PLAIN_NAME){
+        } else if (ptrToFragment.getType() == PLAIN_NAME) {
             return anchors.get(ptrToFragment.getIdentifier());
         } else {
             throw new DereferenceRuntimeException("some unexpected error while resolving fragment: relative json pointer not evaluated");
@@ -165,7 +169,7 @@ public class BaseFile implements File, Comparable<BaseFile>, ReferenceListener{
         setDereferencedValue(new FragmentIdentifier(references.get(reference)), reference.getFragment());
     }
 
-    private void setDereferencedValue(FragmentIdentifier ptrToRef, JsonNode dereferencedValue){
+    private void setDereferencedValue(FragmentIdentifier ptrToRef, JsonNode dereferencedValue) {
         ((ObjectNode) derefedSource.at(ptrToRef.getIdentifier())).removeAll();
         JsonNode parentNode = derefedSource.at(FragmentIdentifier.getParentPointer(ptrToRef));
 

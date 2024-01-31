@@ -14,7 +14,7 @@ import java.net.URI;
 public class Dereferencer {
     private final FileRegister fileRegister;
 
-    public Dereferencer(@NotNull URNPool urnPool,@NotNull LoaderFactory loaderFactory,@NotNull FileFactory fileFactory,@NotNull URI defaultBaseURI){
+    public Dereferencer(@NotNull URNPool urnPool, @NotNull LoaderFactory loaderFactory, @NotNull FileFactory fileFactory, @NotNull URI defaultBaseURI) {
         fileRegister = new FileRegister(urnPool, loaderFactory, fileFactory, defaultBaseURI);
     }
 

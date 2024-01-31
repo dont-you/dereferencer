@@ -5,7 +5,7 @@ public class DereferenceRuntimeException extends RuntimeException {
         super(msg);
     }
 
-    public DereferenceRuntimeException(String msg,Throwable t) {
-        super(msg,t);
+    public DereferenceRuntimeException(String msg, Throwable t) {
+        super(msg, t);
     }
 }

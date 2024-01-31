@@ -45,7 +45,7 @@ public class FileRegister {
         if (fileBaseURI.getCanonical().getScheme().equals("urn")) {
             URL url = urnPool.getLocator(fileBaseURI.getCanonical());
 
-            if(url==null)
+            if (url == null)
                 throw new DereferenceException("could not resolve urn: " + fileBaseURI.getCanonical());
 
             fileBaseURI.updateCanonical(url);
@@ -108,7 +108,7 @@ public class FileRegister {
 
     private File makeFile(BaseURI baseURI, JsonNode sourceJson) throws DereferenceException {
         URL updateURNCacheURl = urnPool.updateCache(baseURI.getCanonical(), loaderFactory);
-        if(updateURNCacheURl!=null)
+        if (updateURNCacheURl != null)
             // TODO add logger
             System.out.println("urn pool cache updated by " + updateURNCacheURl);
 
