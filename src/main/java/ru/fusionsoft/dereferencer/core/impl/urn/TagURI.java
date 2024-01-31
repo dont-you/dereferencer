@@ -1,7 +1,9 @@
 package ru.fusionsoft.dereferencer.core.impl.urn;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.net.URI;
-import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 public class TagURI implements Comparable<TagURI> {
@@ -18,43 +20,36 @@ public class TagURI implements Comparable<TagURI> {
         return new TagURI(parts[0], parts[1]);
     }
 
-    public static boolean isSub(TagURI subTagUri, TagURI supTagUri) {
-        if (!subTagUri.taggingEntity.equals(supTagUri.taggingEntity))
-            return false;
+    public @Nullable String getSubPart(TagURI supTagURI) {
+        int isSub = isSub(supTagURI);
 
-        String[] supParts = supTagUri.nameSpaceSpecificParts;
-        String[] subParts = subTagUri.nameSpaceSpecificParts;
-
-        if (supParts.length > subParts.length)
-            return false;
-
-        for (int i = 0; i < supParts.length; i++) {
-            if (!supParts[i].equals(subParts[i]) && !supParts[i].equals("*"))
-                return false;
-        }
-        return true;
+        if (isSub < 0)
+            return null;
+        else if(isSub > 0)
+            return String.join("/",Arrays.copyOfRange(nameSpaceSpecificParts, supTagURI.nameSpaceSpecificParts.length - 1, nameSpaceSpecificParts.length)).concat(".yaml");
+        else
+            return "";
     }
 
-    public static URI resolve(TagURI target, URI locator) throws URISyntaxException {
-        String removablePart = String.join("/", target.nameSpaceSpecificParts).concat(".yaml");
-        StringBuilder addablePart = new StringBuilder();
-        boolean locatorContainsRemovablePart = false;
+    public int isSub(TagURI supTagURI){
+        if (!supTagURI.taggingEntity.equals(taggingEntity)
+                || nameSpaceSpecificParts.length < supTagURI.nameSpaceSpecificParts.length)
+            return -1;
 
-        while (!locatorContainsRemovablePart) {
-            if (locator.toString().endsWith(removablePart)) {
-                locatorContainsRemovablePart = true;
-            } else {
-                String add = removablePart.substring(removablePart.lastIndexOf("/") + 1);
-                removablePart = removablePart.substring(0, removablePart.lastIndexOf("/") + 1);
-                addablePart.insert(0, add + "/");
-            }
+        for (int i = 0; i < supTagURI.nameSpaceSpecificParts.length; i++) {
+            if (!nameSpaceSpecificParts[i].equals(supTagURI.nameSpaceSpecificParts[i])
+                    && !supTagURI.nameSpaceSpecificParts[i].equals("*"))
+                return -1;
         }
 
-        return locator.resolve(addablePart.deleteCharAt(addablePart.lastIndexOf("/")).toString());
+        if(supTagURI.nameSpaceSpecificParts[supTagURI.nameSpaceSpecificParts.length - 1].equals("*"))
+            return 1;
+
+        return 0;
     }
 
-    public int getPrefixSize() {
-        return nameSpaceSpecificParts.length;
+    public static URI resolve(URI locator, String dynamicPartOfLocator){
+        return Paths.get(locator.getPath()).resolveSibling(dynamicPartOfLocator).toUri();
     }
 
     @Override

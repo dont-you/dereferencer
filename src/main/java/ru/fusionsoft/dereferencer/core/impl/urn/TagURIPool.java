@@ -6,7 +6,6 @@ import ru.fusionsoft.dereferencer.core.URNPool;
 
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Map;
@@ -29,19 +28,19 @@ public class TagURIPool implements URNPool {
     public @Nullable URL getLocator(URI urn) {
         TagURI processedTag = TagURI.parse(URI.create(urn.getSchemeSpecificPart()));
         URI locator = null;
-        int prefixSizeOfBaseTag = -1;
+        String subPart = null;
 
         for (Entry<TagURI, URI> tagEntry : tags.entrySet()) {
-            int currentPrefixSize = tagEntry.getKey().getPrefixSize();
-            if (TagURI.isSub(processedTag, tagEntry.getKey()) && prefixSizeOfBaseTag < currentPrefixSize) {
+            String currentSubPart = processedTag.getSubPart(tagEntry.getKey());
+            if (currentSubPart!=null &&( subPart==null || subPart.length() > currentSubPart.length())) {
                 locator = tagEntry.getValue();
-                prefixSizeOfBaseTag = currentPrefixSize;
+                subPart = currentSubPart;
             }
         }
 
         try {
-            return TagURI.resolve(processedTag, locator).toURL();
-        } catch (URISyntaxException | MalformedURLException e) {
+            return locator != null ? TagURI.resolve(locator, subPart).toURL() : null;
+        } catch (MalformedURLException e) {
             return null;
         }
     }
@@ -68,7 +67,7 @@ public class TagURIPool implements URNPool {
 
             while (originTags.hasNext()) {
                 Entry<String, JsonNode> tag = originTags.next();
-                parsedTags.put(new TagURI(tagEntity.getKey(), tag.getKey()), baseURI.resolve(tag.getValue().asText()));
+                parsedTags.put(new TagURI(tagEntity.getKey(), tag.getKey()), baseURI.resolve(tag.getValue().asText().concat("/*")));
             }
         }
         return parsedTags;
