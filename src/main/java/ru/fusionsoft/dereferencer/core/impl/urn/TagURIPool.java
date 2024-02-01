@@ -4,7 +4,6 @@ import org.jetbrains.annotations.Nullable;
 import ru.fusionsoft.dereferencer.core.LoaderFactory;
 import ru.fusionsoft.dereferencer.core.URNPool;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Iterator;
@@ -25,33 +24,26 @@ public class TagURIPool implements URNPool {
     }
 
     @Override
-    public @Nullable URL getLocator(URI urn) {
+    public @Nullable URI getLocator(URI urn) {
         TagURI processedTag = TagURI.parse(URI.create(urn.getSchemeSpecificPart()));
-        URI locator = null;
-        String subPart = null;
+        TagURI searchedTagURI = tags.keySet().stream()
+                .filter(tagURI -> tagURI.isSup(processedTag))
+                .min(TagURI::compareTo)
+                .orElse(null);
 
-        for (Entry<TagURI, URI> tagEntry : tags.entrySet()) {
-            String currentSubPart = processedTag.getSubPart(tagEntry.getKey());
-            if (currentSubPart != null && (subPart == null || subPart.length() > currentSubPart.length())) {
-                locator = tagEntry.getValue();
-                subPart = currentSubPart;
-            }
-        }
-
-        try {
-            return locator != null ? TagURI.resolve(locator, subPart).toURL() : null;
-        } catch (MalformedURLException e) {
+        if(searchedTagURI == null)
             return null;
-        }
+
+        return TagURI.resolve(tags.get(searchedTagURI), processedTag.getSubPart(searchedTagURI));
     }
 
     @Override
-    public @Nullable URL updateCache(URI uri, LoaderFactory loaderFactory) {
+    public @Nullable URI updateCache(URI uri, LoaderFactory loaderFactory) {
         try {
             URL urlToOrigins = uri.resolve(".origins.yaml").toURL();
             JsonNode jsonNode = yamlMapper.readTree(loaderFactory.getSourceLoader(urlToOrigins).loadSource(urlToOrigins));
             tags.putAll(parseOrigins(urlToOrigins.toURI(), jsonNode));
-            return urlToOrigins;
+            return urlToOrigins.toURI();
         } catch (Exception e) {
             return null;
         }

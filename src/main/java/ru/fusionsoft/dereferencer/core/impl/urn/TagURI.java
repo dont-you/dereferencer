@@ -21,34 +21,27 @@ public class TagURI implements Comparable<TagURI> {
     }
 
     public @Nullable String getSubPart(TagURI supTagURI) {
-        int isSub = isSub(supTagURI);
-
-        if (isSub < 0)
-            return null;
-        else if (isSub > 0)
-            return String.join("/", Arrays.copyOfRange(nameSpaceSpecificParts, supTagURI.nameSpaceSpecificParts.length - 1, nameSpaceSpecificParts.length)).concat(".yaml");
+        if(supTagURI.nameSpaceSpecificParts[supTagURI.nameSpaceSpecificParts.length - 1].equals("*"))
+            return String.join("/",Arrays.copyOfRange(nameSpaceSpecificParts, supTagURI.nameSpaceSpecificParts.length - 1, nameSpaceSpecificParts.length)).concat(".yaml");
         else
             return "";
     }
 
-    public int isSub(TagURI supTagURI) {
-        if (!supTagURI.taggingEntity.equals(taggingEntity)
-                || nameSpaceSpecificParts.length < supTagURI.nameSpaceSpecificParts.length)
-            return -1;
+    public boolean isSup(TagURI subTagURI){
+        if (!taggingEntity.equals(subTagURI.taggingEntity)
+                || subTagURI.nameSpaceSpecificParts.length < nameSpaceSpecificParts.length)
+            return false;
 
-        for (int i = 0; i < supTagURI.nameSpaceSpecificParts.length; i++) {
-            if (!nameSpaceSpecificParts[i].equals(supTagURI.nameSpaceSpecificParts[i])
-                    && !supTagURI.nameSpaceSpecificParts[i].equals("*"))
-                return -1;
+        for (int i = 0; i < nameSpaceSpecificParts.length; i++) {
+            if (!nameSpaceSpecificParts[i].equals(subTagURI.nameSpaceSpecificParts[i])
+                    && !nameSpaceSpecificParts[i].equals("*"))
+                return false;
         }
 
-        if (supTagURI.nameSpaceSpecificParts[supTagURI.nameSpaceSpecificParts.length - 1].equals("*"))
-            return 1;
-
-        return 0;
+        return true;
     }
 
-    public static URI resolve(URI locator, String dynamicPartOfLocator) {
+    public static URI resolve(URI locator, String dynamicPartOfLocator){
         return Paths.get(locator.getPath()).resolveSibling(dynamicPartOfLocator).toUri();
     }
 
