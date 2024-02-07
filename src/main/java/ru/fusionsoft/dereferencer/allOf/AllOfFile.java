@@ -18,7 +18,6 @@ public class AllOfFile extends BaseFile {
     JsonNode mergedJson;
 
     public AllOfFile(FileRegister fileRegister, URI baseURI, JsonNode source) {
-        // TODO refactor
         super(fileRegister, baseURI, source);
         pathsToNotMergedAllOfs = new Stack<>();
         mergedJson = derefedSource;
@@ -37,36 +36,46 @@ public class AllOfFile extends BaseFile {
 
     private void mergeAllOfArrays() {
         for (String pathToAllOf : pathsToNotMergedAllOfs) {
-            ArrayNode allOf = (ArrayNode) derefedSource.at(pathToAllOf + "/" + "allOf");
-            JsonNode merged = MissingNode.getInstance();
-
-            for(int i = 0 ; i < allOf.size() ; i ++){
-                merged = mergeJsonNodes(merged, allOf.get(i));
-            }
-
-            ((ObjectNode) derefedSource.at(pathToAllOf))
-                    .remove("allOf");
-            ((ObjectNode) derefedSource.at(pathToAllOf))
-                    .replace("allOf", merged);
-            ((ObjectNode) derefedSource.at(FragmentIdentifier.getParentPointer(pathToAllOf)))
-                    .set(FragmentIdentifier.getPropertyName(pathToAllOf), merged);
+            setMergedAllOf(
+                    pathToAllOf,
+                    mergeAllOf((ArrayNode) derefedSource.at(pathToAllOf + "/" + "allOf"))
+            );
         }
+    }
+
+    private JsonNode mergeAllOf(ArrayNode allOf) {
+        JsonNode merged = MissingNode.getInstance();
+
+        for (int i = 0; i < allOf.size(); i++) {
+            merged = mergeJsonNodes(merged, allOf.get(i));
+        }
+
+        return merged;
+    }
+
+    private void setMergedAllOf(String pathToAllOf, JsonNode mergedAllOf) {
+        ((ObjectNode) derefedSource.at(pathToAllOf))
+                .remove("allOf");
+        ((ObjectNode) derefedSource.at(pathToAllOf))
+                .replace("allOf", mergedAllOf);
+        ((ObjectNode) derefedSource.at(FragmentIdentifier.getParentPointer(pathToAllOf)))
+                .set(FragmentIdentifier.getPropertyName(pathToAllOf), mergedAllOf);
     }
 
     private JsonNode mergeJsonNodes(JsonNode leftNode, JsonNode rightNode) {
         if (leftNode.isObject() && rightNode.isObject())
-            return mergeObjectNodes((ObjectNode) leftNode,(ObjectNode) rightNode);
+            return mergeObjectNodes((ObjectNode) leftNode, (ObjectNode) rightNode);
         else if (leftNode.isArray() && rightNode.isArray())
             return mergeArrayNodes((ArrayNode) leftNode, (ArrayNode) rightNode);
         else
             return rightNode;
     }
 
-    private ObjectNode mergeObjectNodes(ObjectNode leftNode, ObjectNode rightNode){
+    private ObjectNode mergeObjectNodes(ObjectNode leftNode, ObjectNode rightNode) {
         ObjectNode mergedNode = rightNode.deepCopy();
         leftNode.fields().forEachRemaining(nodeEntry -> {
             String propertyName = nodeEntry.getKey();
-            if(rightNode.has(propertyName))
+            if (rightNode.has(propertyName))
                 mergedNode.replace(propertyName, mergeJsonNodes(nodeEntry.getValue(), rightNode.get(propertyName)));
             else
                 mergedNode.set(propertyName, nodeEntry.getValue());
