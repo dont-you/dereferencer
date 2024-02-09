@@ -13,7 +13,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -41,18 +42,19 @@ public class GitHubLoaderTest {
     }
 
     @Test
-    public void Test_load_json_file() throws IOException {
-        testLoadMethod(new URL("https://github.com/dont-you/tests/blob/main/test.json"), "dont-you/tests","test.json","main");
-        testLoadMethod(new URL("https://github.com/dont-you/tests/blob/main/path/to/test.json"), "dont-you/tests","path/to/test.json","main");
-        testLoadMethod(new URL("https://github.com/ivan/dereferencer/raw/develop/test.json"), "ivan/dereferencer","test.json","develop");
+    public void Test_load_json_file() throws IOException, URISyntaxException {
+        testLoadMethod(new URI("https://github.com/dont-you/tests/blob/main/test.json"), "dont-you/tests", "test.json", "main");
+        testLoadMethod(new URI("https://github.com/dont-you/tests/blob/main/path/to/test.json"), "dont-you/tests", "path/to/test.json", "main");
+        testLoadMethod(new URI("https://github.com/ivan/dereferencer/raw/develop/test.json"), "ivan/dereferencer", "test.json", "develop");
     }
 
-    private void testLoadMethod(URL url, String projectPath, String filePath, String ref) throws IOException {
+    private void testLoadMethod(URI uri, String projectPath, String filePath, String ref) throws IOException {
         initGitHubMocs(projectPath, filePath, ref);
 
-        InputStream actualStream = gitHubLoader.loadSource(url);
+        InputStream actualStream = gitHubLoader.loadSource(uri);
         assertEquals(expectedStream, actualStream);
     }
+
     private void initGitHubMocs(String projectPath, String filePath, String ref) throws IOException {
         Mockito.when(mockedGitHub.getRepository(projectPath)).thenReturn(mockedRepo);
         Mockito.when(mockedRepo.getFileContent(filePath, ref)).thenReturn(mockedContent);

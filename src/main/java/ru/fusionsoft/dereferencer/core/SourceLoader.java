@@ -2,17 +2,17 @@ package ru.fusionsoft.dereferencer.core;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 
 import org.apache.tika.Tika;
 
 public interface SourceLoader {
-    boolean canLoad(URL url);
+    boolean canLoad(URI uri);
 
-    InputStream loadSource(URL url) throws URISyntaxException, IOException;
+    InputStream loadSource(URI uri) throws URISyntaxException, IOException;
 
-    SourceType getSourceType(URL url) throws URISyntaxException, IOException;
+    SourceType getSourceType(URI uri) throws URISyntaxException, IOException;
 
     enum SourceType {
         JSON,

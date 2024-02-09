@@ -6,7 +6,7 @@ import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 import ru.fusionsoft.dereferencer.core.impl.load.BaseLoaderFactory;
 
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
 
 public class GitLoaderFactory implements LoaderFactory {
     private final BaseLoaderFactory baseLoaderFactory;
@@ -32,12 +32,12 @@ public class GitLoaderFactory implements LoaderFactory {
     }
 
     @Override
-    public SourceLoader getSourceLoader(URL url) throws DereferenceException {
-        if (gitHubLoader.canLoad(url))
+    public SourceLoader getSourceLoader(URI uri) throws DereferenceException {
+        if (gitHubLoader.canLoad(uri))
             return gitHubLoader;
-        else if (gitLabLoader.canLoad(url))
+        else if (gitLabLoader.canLoad(uri))
             return gitLabLoader;
         else
-            return baseLoaderFactory.getSourceLoader(url);
+            return baseLoaderFactory.getSourceLoader(uri);
     }
 }

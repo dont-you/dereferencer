@@ -5,7 +5,7 @@ import ru.fusionsoft.dereferencer.core.SourceLoader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+import java.net.URI;
 
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.GitLabApiException;
@@ -19,13 +19,13 @@ public class GitLabLoader implements SourceLoader {
     }
 
     @Override
-    public boolean canLoad(URL url) {
-        return url.getProtocol().concat("://").concat(url.getHost()).equals(gitLabApi.getGitLabServerUrl());
+    public boolean canLoad(URI uri) {
+        return uri.getScheme().concat("://").concat(uri.getHost()).equals(gitLabApi.getGitLabServerUrl());
     }
 
     @Override
-    public InputStream loadSource(URL url) throws IOException {
-        String[] segments = url.getPath().split("/", 7);
+    public InputStream loadSource(URI uri) throws IOException {
+        String[] segments = uri.getPath().split("/", 7);
         String projectPath = segments[1] + "/" + segments[2];
         String ref = segments[5];
         String filePath = segments[6];
@@ -40,8 +40,8 @@ public class GitLabLoader implements SourceLoader {
     }
 
     @Override
-    public SourceType getSourceType(URL url) {
-        return SourceType.resolveSourceTypeByPath(url.getPath());
+    public SourceType getSourceType(URI uri) {
+        return SourceType.resolveSourceTypeByPath(uri.getPath());
     }
 
     public void configureGitLabLoader(String token, String host) {

@@ -11,10 +11,8 @@ import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -56,7 +54,7 @@ public class FileRegister {
         }
 
         try {
-            JsonNode sourceJson = loadSource(fileBaseURI.getCanonical().toURL());
+            JsonNode sourceJson = loadSource(fileBaseURI.getCanonical());
             URI idFieldURI = getIdField(sourceJson);
 
             if (idFieldURI != null)
@@ -71,10 +69,7 @@ public class FileRegister {
         } catch (URISyntaxException e) {
             throw new DereferenceException(
                     "could not parse id field from file with uri: " + fileBaseURI.getCanonical());
-        } catch (MalformedURLException e) {
-            throw new DereferenceException("could not parse url from uri " + fileBaseURI.getCanonical());
         }
-
     }
 
     public File get(@NotNull JsonNode sourceJson) throws DereferenceException {
@@ -119,11 +114,11 @@ public class FileRegister {
         return lookingFile;
     }
 
-    private JsonNode loadSource(URL url) throws DereferenceException {
+    private JsonNode loadSource(URI uri) throws DereferenceException {
         try {
-            SourceLoader sourceLoader = loaderFactory.getSourceLoader(url);
-            SourceLoader.SourceType sourceType = sourceLoader.getSourceType(url);
-            InputStream stream = sourceLoader.loadSource(url);
+            SourceLoader sourceLoader = loaderFactory.getSourceLoader(uri);
+            SourceLoader.SourceType sourceType = sourceLoader.getSourceType(uri);
+            InputStream stream = sourceLoader.loadSource(uri);
 
             if (sourceType.isYaml()) {
                 Object obj = yamlMapper.readValue(stream, Object.class);
@@ -133,7 +128,7 @@ public class FileRegister {
             }
 
         } catch (URISyntaxException | IOException e) {
-            throw new DereferenceException("exception while getting file from url - " + url, e);
+            throw new DereferenceException("exception while getting file from url - " + uri, e);
         }
     }
 }

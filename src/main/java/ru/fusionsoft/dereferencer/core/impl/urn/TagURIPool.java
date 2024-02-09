@@ -8,7 +8,6 @@ import ru.fusionsoft.dereferencer.core.LoaderFactory;
 import ru.fusionsoft.dereferencer.core.URNPool;
 
 import java.net.URI;
-import java.net.URL;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -37,13 +36,13 @@ public class TagURIPool implements URNPool {
     @Override
     public @Nullable URI updateCache(URI uri, LoaderFactory loaderFactory) {
         try {
-            URL urlToOrigins = uri.resolve(".origins.yaml").toURL();
-            JsonNode jsonNode = yamlMapper.readTree(loaderFactory.getSourceLoader(urlToOrigins).loadSource(urlToOrigins));
+            URI uriToOrigins = uri.resolve(".origins.yaml");
+            JsonNode jsonNode = yamlMapper.readTree(loaderFactory.getSourceLoader(uriToOrigins).loadSource(uriToOrigins));
             jsonNode.fields().forEachRemaining(tagEntity -> tagEntity.getValue().fields().forEachRemaining(tag -> {
                 URI locator = tag.getKey().endsWith("*") ? uri.resolve(tag.getValue().asText().concat("/*")) : uri.resolve(tag.getValue().asText());
                 tags.put(new TagURI(tagEntity.getKey(), tag.getKey()), locator);
             }));
-            return urlToOrigins.toURI();
+            return uriToOrigins;
         } catch (Exception e) {
             return null;
         }

@@ -1,9 +1,9 @@
 package ru.fusionsoft.dereferencer.core;
 
-import java.net.URL;
+import java.net.URI;
 
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 
 public interface LoaderFactory {
-    SourceLoader getSourceLoader(URL url) throws DereferenceException;
+    SourceLoader getSourceLoader(URI uri) throws DereferenceException;
 }

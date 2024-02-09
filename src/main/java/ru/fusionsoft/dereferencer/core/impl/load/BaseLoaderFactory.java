@@ -4,7 +4,7 @@ import ru.fusionsoft.dereferencer.core.LoaderFactory;
 import ru.fusionsoft.dereferencer.core.SourceLoader;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 
-import java.net.URL;
+import java.net.URI;
 
 public class BaseLoaderFactory implements LoaderFactory {
 
@@ -17,12 +17,12 @@ public class BaseLoaderFactory implements LoaderFactory {
     }
 
     @Override
-    public SourceLoader getSourceLoader(URL url) throws DereferenceException {
-        if (fileLoader.canLoad(url))
+    public SourceLoader getSourceLoader(URI uri) throws DereferenceException {
+        if (fileLoader.canLoad(uri))
             return fileLoader;
-        else if (HTTPLoader.canLoad(url))
+        else if (HTTPLoader.canLoad(uri))
             return HTTPLoader;
         else
-            throw new DereferenceException("source loader for resource with url " + url + " is not implemented");
+            throw new DereferenceException("source loader for resource with url " + uri + " is not implemented");
     }
 }

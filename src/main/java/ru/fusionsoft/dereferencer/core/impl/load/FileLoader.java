@@ -6,24 +6,24 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Paths;
 
 public class FileLoader implements SourceLoader {
     @Override
-    public boolean canLoad(URL url) {
-        return url.getHost().isEmpty() && !url.getPath().isEmpty();
+    public boolean canLoad(URI uri) {
+        return uri.getHost()==null && !uri.getPath().isEmpty();
     }
 
     @Override
-    public InputStream loadSource(URL url) throws URISyntaxException, IOException {
-        File file = Paths.get(url.toURI()).toFile();
+    public InputStream loadSource(URI uri) throws URISyntaxException, IOException {
+        File file = Paths.get(uri).toFile();
         return new FileInputStream(file);
     }
 
     @Override
-    public SourceType getSourceType(URL url) {
-        return SourceType.resolveSourceTypeByPath(url.getPath());
+    public SourceType getSourceType(URI uri) {
+        return SourceType.resolveSourceTypeByPath(uri.getPath());
     }
 }
