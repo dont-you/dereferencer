@@ -23,7 +23,7 @@ public class FileRegister {
     private final LoaderFactory loaderFactory;
     private final FileFactory fileFactory;
     private final URI defaultBaseURI;
-    private final Map<BaseURI, File> cache;
+    private final Map<URI, File> cache;
 
     public FileRegister(URNPool urnPool, LoaderFactory loaderFactory, FileFactory fileFactory, URI defaultBaseURI) {
         this.urnPool = urnPool;
@@ -34,41 +34,40 @@ public class FileRegister {
     }
 
     public File get(@NotNull URI uri) throws DereferenceException {
-        BaseURI fileBaseURI = new BaseURI(defaultBaseURI, uri);
-        File lookingFile = cache.get(fileBaseURI);
+        uri = defaultBaseURI.resolve(uri);
+        File lookingFile = cache.get(uri);
 
         if (lookingFile != null)
             return lookingFile;
 
-        if (fileBaseURI.getCanonical().getScheme().equals("urn")) {
-            URI urn = urnPool.getLocator(fileBaseURI.getCanonical());
+        if (uri.getScheme().equals("urn")) {
+            uri = urnPool.getLocator(uri);
 
-            if (urn == null)
-                throw new DereferenceException("could not resolve urn: " + fileBaseURI.getCanonical());
+            if (uri == null)
+                throw new DereferenceException("could not resolve urn");
 
-            fileBaseURI.updateCanonical(urn);
-            lookingFile = cache.get(fileBaseURI);
+            lookingFile = cache.get(uri);
 
             if (lookingFile != null)
                 return lookingFile;
         }
 
         try {
-            JsonNode sourceJson = loadSource(fileBaseURI.getCanonical());
+            JsonNode sourceJson = loadSource(uri);
             URI idFieldURI = getIdField(sourceJson);
 
             if (idFieldURI != null)
-                fileBaseURI.updateCanonical(idFieldURI);
+                uri = idFieldURI;
 
-            lookingFile = cache.get(fileBaseURI);
+            lookingFile = cache.get(uri);
 
             if (lookingFile != null)
                 return lookingFile;
 
-            return makeFile(fileBaseURI, sourceJson);
+            return makeFile(uri, sourceJson);
         } catch (URISyntaxException e) {
             throw new DereferenceException(
-                    "could not parse id field from file with uri: " + fileBaseURI.getCanonical());
+                    "could not parse id field from file with uri: " + uri);
         }
     }
 
@@ -79,13 +78,13 @@ public class FileRegister {
             if (idFieldURI == null)
                 throw new DereferenceException("anonymous schema should have field '$id'");
 
-            BaseURI fileBaseURI = new BaseURI(defaultBaseURI, idFieldURI);
-            File lookingFile = cache.get(fileBaseURI);
+            URI uri = defaultBaseURI.resolve(idFieldURI);
+            File lookingFile = cache.get(uri);
 
             if (lookingFile != null)
                 return lookingFile;
 
-            return makeFile(fileBaseURI, sourceJson);
+            return makeFile(uri, sourceJson);
 
         } catch (URISyntaxException e) {
             throw new DereferenceException(
@@ -101,14 +100,14 @@ public class FileRegister {
         return null;
     }
 
-    private File makeFile(BaseURI baseURI, JsonNode sourceJson) throws DereferenceException {
-        URI updateURNCacheURl = urnPool.updateCache(baseURI.getCanonical(), loaderFactory);
+    private File makeFile(URI uri, JsonNode sourceJson) throws DereferenceException {
+        URI updateURNCacheURl = urnPool.updateCache(uri, loaderFactory);
         if (updateURNCacheURl != null)
             // TODO add logger
             System.out.println("urn pool cache updated by " + updateURNCacheURl);
 
-        File lookingFile = fileFactory.makeFile(this, baseURI.getCanonical(), sourceJson);
-        cache.put(baseURI, lookingFile);
+        File lookingFile = fileFactory.makeFile(this, uri, sourceJson);
+        cache.put(uri, lookingFile);
         lookingFile.resolve();
 
         return lookingFile;
