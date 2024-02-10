@@ -12,35 +12,6 @@ public interface SourceLoader {
 
     InputStream loadSource(URI uri) throws URISyntaxException, IOException;
 
-    SourceType getSourceType(URI uri) throws URISyntaxException, IOException;
+    String getMimeType(URI uri) throws IOException;
 
-    enum SourceType {
-        JSON,
-        YAML,
-        NOT_IMPLEMENTED;
-
-        private static final Tika tika = new Tika();
-
-        public boolean isYaml() {
-            return this.equals(YAML);
-        }
-
-        public boolean isJson() {
-            return this.equals(JSON);
-        }
-
-        public static SourceType resolveSourceTypeByPath(String path) {
-            return resolveSourceTypeByMimeType(tika.detect(path));
-        }
-
-        public static SourceType resolveSourceTypeByMimeType(String extension) {
-            if (extension.contains("json") || extension.contains("schema+json")
-                    || extension.contains("schema-instance+json"))
-                return JSON;
-            else if (extension.contains("x-yaml") || extension.contains("yaml"))
-                return YAML;
-            else
-                return NOT_IMPLEMENTED;
-        }
-    }
 }

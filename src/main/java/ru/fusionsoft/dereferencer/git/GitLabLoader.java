@@ -40,8 +40,10 @@ public class GitLabLoader implements SourceLoader {
     }
 
     @Override
-    public SourceType getSourceType(URI uri) {
-        return SourceType.resolveSourceTypeByPath(uri.getPath());
+    public String getMimeType(URI uri) {
+        String path = uri.getPath();
+        return path.substring(path.lastIndexOf(".") + 1);
+
     }
 
     public void configureGitLabLoader(String token, String host) {

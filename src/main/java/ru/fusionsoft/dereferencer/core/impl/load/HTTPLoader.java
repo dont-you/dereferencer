@@ -22,9 +22,9 @@ public class HTTPLoader implements SourceLoader {
     }
 
     @Override
-    public SourceType getSourceType(URI uri) throws IOException {
+    public String getMimeType(URI uri) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
         connection.setRequestMethod("HEAD");
-        return SourceType.resolveSourceTypeByMimeType(connection.getContentType());
+        return connection.getContentType();
     }
 }

@@ -2,8 +2,6 @@ package ru.fusionsoft.dereferencer.core;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.jetbrains.annotations.NotNull;
 
 import org.jetbrains.annotations.Nullable;
@@ -17,18 +15,18 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class FileRegister {
-    public static ObjectMapper jsonMapper = new ObjectMapper();
-    public static ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
     private final URNPool urnPool;
     private final LoaderFactory loaderFactory;
     private final FileFactory fileFactory;
+    private final TypeAdapter typeAdapter;
     private final URI defaultBaseURI;
     private final Map<URI, File> cache;
 
-    public FileRegister(URNPool urnPool, LoaderFactory loaderFactory, FileFactory fileFactory, URI defaultBaseURI) {
+    public FileRegister(URNPool urnPool, LoaderFactory loaderFactory, FileFactory fileFactory, TypeAdapter typeAdapter, URI defaultBaseURI) {
         this.urnPool = urnPool;
         this.loaderFactory = loaderFactory;
         this.fileFactory = fileFactory;
+        this.typeAdapter = typeAdapter;
         this.defaultBaseURI = defaultBaseURI;
         cache = new TreeMap<>();
     }
@@ -116,16 +114,9 @@ public class FileRegister {
     private JsonNode loadSource(URI uri) throws DereferenceException {
         try {
             SourceLoader sourceLoader = loaderFactory.getSourceLoader(uri);
-            SourceLoader.SourceType sourceType = sourceLoader.getSourceType(uri);
+            String mimeType = sourceLoader.getMimeType(uri);
             InputStream stream = sourceLoader.loadSource(uri);
-
-            if (sourceType.isYaml()) {
-                Object obj = yamlMapper.readValue(stream, Object.class);
-                return jsonMapper.readTree(jsonMapper.writeValueAsString(obj));
-            } else {
-                return jsonMapper.readTree(stream);
-            }
-
+            return typeAdapter.readJsonFrom(stream, mimeType);
         } catch (URISyntaxException | IOException e) {
             throw new DereferenceException("exception while getting file from url - " + uri, e);
         }
