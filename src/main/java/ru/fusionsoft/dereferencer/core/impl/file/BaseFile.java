@@ -47,6 +47,11 @@ public class BaseFile implements File, Comparable<BaseFile>, ReferenceListener {
     }
 
     @Override
+    public URI getBaseURI() {
+        return baseURI;
+    }
+
+    @Override
     final public void resolve() {
         beforeResolvingHook();
         exploreSource("", source);

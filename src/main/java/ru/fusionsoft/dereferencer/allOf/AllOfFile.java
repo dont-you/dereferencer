@@ -29,6 +29,11 @@ public class AllOfFile extends BaseFile {
     }
 
     @Override
+    public URI getBaseURI() {
+        return baseURI;
+    }
+
+    @Override
     protected final void afterResolvingHook() {
         if (!pathsToNotMergedAllOfs.empty())
             mergeAllOfArrays();

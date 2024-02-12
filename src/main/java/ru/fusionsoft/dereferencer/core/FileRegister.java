@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import org.jetbrains.annotations.NotNull;
 
-import org.jetbrains.annotations.Nullable;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 
 import java.io.IOException;
@@ -50,52 +49,15 @@ public class FileRegister {
                 return lookingFile;
         }
 
-        try {
-            JsonNode sourceJson = loadSource(uri);
-            URI idFieldURI = getIdField(sourceJson);
+        JsonNode sourceJson = loadSource(uri);
+        lookingFile = makeFile(uri, sourceJson);
 
-            if (idFieldURI != null)
-                uri = idFieldURI;
+        if (cache.containsKey(lookingFile.getBaseURI()))
+            return cache.get(lookingFile.getBaseURI());
 
-            lookingFile = cache.get(uri);
-
-            if (lookingFile != null)
-                return lookingFile;
-
-            return makeFile(uri, sourceJson);
-        } catch (URISyntaxException e) {
-            throw new DereferenceException(
-                    "could not parse id field from file with uri: " + uri);
-        }
-    }
-
-    public File get(@NotNull JsonNode sourceJson) throws DereferenceException {
-        try {
-            URI idFieldURI = getIdField(sourceJson);
-
-            if (idFieldURI == null)
-                throw new DereferenceException("anonymous schema should have field '$id'");
-
-            URI uri = defaultBaseURI.resolve(idFieldURI);
-            File lookingFile = cache.get(uri);
-
-            if (lookingFile != null)
-                return lookingFile;
-
-            return makeFile(uri, sourceJson);
-
-        } catch (URISyntaxException e) {
-            throw new DereferenceException(
-                    "could not parse id field from file anonymous schema: ");
-        }
-    }
-
-    private @Nullable URI getIdField(JsonNode source) throws URISyntaxException {
-        if (source.has("$id")) {
-            return new URI(source.get("$id").asText());
-        }
-
-        return null;
+        cache.put(uri, lookingFile);
+        lookingFile.resolve();
+        return lookingFile;
     }
 
     private File makeFile(URI uri, JsonNode sourceJson) throws DereferenceException {
@@ -104,11 +66,7 @@ public class FileRegister {
             // TODO add logger
             System.out.println("urn pool cache updated by " + updateURNCacheURl);
 
-        File lookingFile = fileFactory.makeFile(this, uri, sourceJson);
-        cache.put(uri, lookingFile);
-        lookingFile.resolve();
-
-        return lookingFile;
+        return fileFactory.makeFile(this, uri, sourceJson);
     }
 
     private JsonNode loadSource(URI uri) throws DereferenceException {

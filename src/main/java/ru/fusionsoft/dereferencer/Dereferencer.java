@@ -19,7 +19,4 @@ public class Dereferencer {
         return fileRegister.get(uri).getDerefedJson();
     }
 
-    public JsonNode anonymousDereference(@NotNull JsonNode jsonNode) throws DereferenceException {
-        return fileRegister.get(jsonNode).getDerefedJson();
-    }
 }
