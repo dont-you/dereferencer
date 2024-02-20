@@ -61,7 +61,7 @@ public class BaseFile implements File, Comparable<BaseFile>, ReferenceListener {
     }
 
     final protected void exploreSource(String pathToSource, JsonNode source) {
-        if(source.isArray())
+        if (source.isArray())
             IntStream.range(0, source.size()).forEach(i -> exploreSource(pathToSource.concat("/").concat(String.valueOf(i)), source.get(i)));
         else
             source.fields().forEachRemaining(field -> resolveNode(pathToSource, decodeFieldKey(field.getKey()), field.getValue()));
@@ -87,18 +87,23 @@ public class BaseFile implements File, Comparable<BaseFile>, ReferenceListener {
 
     private void processReference(String pathToReference, String referenceValue) {
         try {
-            Reference targetReference = Character.isDigit(referenceValue.charAt(0)) ?
-                    processRelJsonPtrReference(pathToReference, referenceValue) :
-                    processURIReference(referenceValue);
-
+            Reference targetReference = makeReference(pathToReference, referenceValue);
             references.put(targetReference, pathToReference);
             targetReference.subscribe(this);
         } catch (URISyntaxException | DereferenceException e) {
-            System.err.println("could not resolve reference with value- " + referenceValue
-                    + " \nin a file - " + baseURI
-                    + " \nwith msg - " + e.getMessage()
-            );
+            System.err.println("could not resolve reference with value- " + referenceValue + " \nin a file - " + baseURI + " \nwith msg - " + e.getMessage());
         }
+    }
+
+    private Reference makeReference(String pathToReference, String referencedValue) throws DereferenceException, URISyntaxException {
+        Reference reference;
+
+        if(Character.isDigit(referencedValue.charAt(0)))
+            reference = processRelJsonPtrReference(pathToReference, referencedValue);
+        else
+            reference = processURIReference(referencedValue);
+
+        return reference;
     }
 
     private Reference processRelJsonPtrReference(String pathToReferencedValue, String referencedValue) throws DereferenceException {
@@ -149,6 +154,7 @@ public class BaseFile implements File, Comparable<BaseFile>, ReferenceListener {
 
         return targetReference;
     }
+
 
     private JsonNode resolveFragment(FragmentIdentifier ptrToFragment) {
         if (ptrToFragment.getType() == FragmentIdentifier.IdentifierType.JSON_POINTER) {
