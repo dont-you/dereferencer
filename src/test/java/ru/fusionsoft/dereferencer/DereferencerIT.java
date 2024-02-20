@@ -8,6 +8,7 @@ import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLConnection;
 import java.nio.file.Paths;
 
 import static org.junit.Assert.assertEquals;
@@ -25,9 +26,13 @@ public class DereferencerIT {
    }
    @Test
    public void delme()
-           throws URISyntaxException {
-        URI uri = new URI("file:/home/who/Work/Projects");
-        System.out.println(new URI("Work/Projects/src").relativize(uri));
+           throws URISyntaxException, IOException {
+        URI uri = new URI("file:/home/who/Work/Projects/Dereferencer/src/test/resources/test-schemas/schemas/cycle-schema/cycle_schema_A.json");
+       URLConnection urlConnection = uri.toURL().openConnection();
+       urlConnection.connect();
+       System.out.println(jsonMapper.readTree(urlConnection.getInputStream()));
+       System.out.println(urlConnection.getURL());
+       System.out.println(urlConnection.getContentType());
    }
 
    @Test

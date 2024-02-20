@@ -5,19 +5,14 @@ import java.nio.file.Paths;
 
 import ru.fusionsoft.dereferencer.allOf.AllOfFileFactory;
 import ru.fusionsoft.dereferencer.core.*;
-import ru.fusionsoft.dereferencer.core.impl.file.BaseFileFactory;
-import ru.fusionsoft.dereferencer.core.impl.load.BaseLoaderFactory;
-import ru.fusionsoft.dereferencer.core.impl.urn.TagURIPool;
+import ru.fusionsoft.dereferencer.core.file.BaseFileFactory;
 
 public class DereferencerBuilder {
-    private URNPool urnPool;
-    private LoaderFactory loaderFactory;
     private FileFactory fileFactory;
-    private TypeAdapter typeAdapter;
     private URI defaultBaseURI;
 
     private DereferencerBuilder() {
-        setUrnPool(new TagURIPool()).setLoaderFactory(new BaseLoaderFactory()).setFileFactory(new BaseFileFactory()).setTypeAdapter(new BaseTypeAdapter())
+        setFileFactory(new BaseFileFactory())
                 .setDefaultBaseURI(Paths.get(".").toAbsolutePath().normalize().toUri());
     }
 
@@ -26,7 +21,7 @@ public class DereferencerBuilder {
     }
 
     public Dereferencer build() {
-        return new Dereferencer(urnPool, loaderFactory, fileFactory, typeAdapter, defaultBaseURI);
+        return new Dereferencer(fileFactory, defaultBaseURI);
     }
 
     public DereferencerBuilder enableAllOfMerge() {
@@ -34,19 +29,6 @@ public class DereferencerBuilder {
         return this;
     }
 
-    public DereferencerBuilder setUrnPool(URNPool urnPool) {
-        this.urnPool = urnPool;
-        return this;
-    }
-
-    public DereferencerBuilder setTypeAdapter(TypeAdapter typeAdapter) {
-        this.typeAdapter = typeAdapter;
-        return this;
-    }
-    public DereferencerBuilder setLoaderFactory(LoaderFactory loaderFactory) {
-        this.loaderFactory = loaderFactory;
-        return this;
-    }
 
     public DereferencerBuilder setFileFactory(FileFactory fileFactory) {
         this.fileFactory = fileFactory;

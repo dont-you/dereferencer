@@ -1,4 +1,4 @@
-package ru.fusionsoft.dereferencer.core.impl.urn;
+package ru.fusionsoft.dereferencer.core.load.urn;
 
 import org.jetbrains.annotations.Nullable;
 

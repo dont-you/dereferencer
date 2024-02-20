@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import ru.fusionsoft.dereferencer.core.FileRegister;
-import ru.fusionsoft.dereferencer.core.impl.file.BaseFile;
-import ru.fusionsoft.dereferencer.core.impl.file.FragmentIdentifier;
+import ru.fusionsoft.dereferencer.core.file.BaseFile;
+import ru.fusionsoft.dereferencer.core.file.FragmentIdentifier;
 
 import java.net.URI;
 import java.util.*;

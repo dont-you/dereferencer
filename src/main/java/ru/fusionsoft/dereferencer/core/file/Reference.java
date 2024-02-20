@@ -1,4 +1,4 @@
-package ru.fusionsoft.dereferencer.core.impl.file;
+package ru.fusionsoft.dereferencer.core.file;
 
 import com.fasterxml.jackson.databind.JsonNode;
 

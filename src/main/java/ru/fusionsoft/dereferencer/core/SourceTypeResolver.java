@@ -8,12 +8,11 @@ import org.apache.tika.Tika;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class BaseTypeAdapter implements TypeAdapter {
+public class SourceTypeResolver{
     public static ObjectMapper jsonMapper = new ObjectMapper();
     public static ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
-    @Override
-    public JsonNode readJsonFrom(InputStream inputStream, String mimetype) throws IOException {
+    public static JsonNode readJsonFrom(InputStream inputStream, String mimetype) throws IOException {
         if (FileType.resolveSourceTypeByMimeType(mimetype) == FileType.YAML) {
             return yamlMapper.readTree(inputStream);
         } else {

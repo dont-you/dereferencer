@@ -1,4 +1,4 @@
-package ru.fusionsoft.dereferencer.core.impl.file;
+package ru.fusionsoft.dereferencer.core.file;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -12,8 +12,6 @@ import ru.fusionsoft.dereferencer.core.File;
 import ru.fusionsoft.dereferencer.core.FileRegister;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceRuntimeException;
-
-import static ru.fusionsoft.dereferencer.core.impl.file.FragmentIdentifier.IdentifierType.*;
 
 public class BaseFile implements File, Comparable<BaseFile>, ReferenceListener {
     protected final URI baseURI;
@@ -155,9 +153,9 @@ public class BaseFile implements File, Comparable<BaseFile>, ReferenceListener {
     }
 
     private JsonNode resolveFragment(FragmentIdentifier ptrToFragment) {
-        if (ptrToFragment.getType() == JSON_POINTER) {
+        if (ptrToFragment.getType() == FragmentIdentifier.IdentifierType.JSON_POINTER) {
             return derefedSource.at(ptrToFragment.getIdentifier());
-        } else if (ptrToFragment.getType() == PLAIN_NAME) {
+        } else if (ptrToFragment.getType() == FragmentIdentifier.IdentifierType.PLAIN_NAME) {
             return anchors.get(ptrToFragment.getIdentifier());
         } else {
             throw new DereferenceRuntimeException("some unexpected error while resolving fragment: relative json pointer not evaluated");

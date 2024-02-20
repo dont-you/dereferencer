@@ -1,7 +1,5 @@
 package ru.fusionsoft.dereferencer.git;
 
-import ru.fusionsoft.dereferencer.core.SourceLoader;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,8 +7,9 @@ import java.net.URI;
 
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.GitLabApiException;
+import ru.fusionsoft.dereferencer.core.load.URLResourceLoader;
 
-public class GitLabLoader implements SourceLoader {
+public class GitLabLoader extends URLResourceLoader {
 
     private GitLabApi gitLabApi;
 
@@ -19,16 +18,15 @@ public class GitLabLoader implements SourceLoader {
     }
 
     @Override
-    public boolean canLoad(URI uri) {
-        return uri.getScheme().concat("://").concat(uri.getHost()).equals(gitLabApi.getGitLabServerUrl());
-    }
-
-    @Override
-    public InputStream loadSource(URI uri) throws IOException {
-        String[] segments = uri.getPath().split("/", 7);
+    protected InputStream openStream(URI retrieval) throws IOException {
+        String[] segments = retrieval.getPath().split("/", 7);
         String projectPath = segments[1] + "/" + segments[2];
         String ref = segments[5];
         String filePath = segments[6];
+        return getFile(projectPath, filePath, ref);
+    }
+
+    private InputStream getFile(String projectPath, String filePath, String ref) throws IOException {
         try {
             return new ByteArrayInputStream(
                     gitLabApi.getRepositoryFileApi().getFile(projectPath, filePath, ref).getDecodedContentAsBytes());
@@ -40,10 +38,15 @@ public class GitLabLoader implements SourceLoader {
     }
 
     @Override
-    public String getMimeType(URI uri) {
-        String path = uri.getPath();
+    protected String getMimeType(URI retrieval) throws IOException {
+        String path = retrieval.getPath();
         return path.substring(path.lastIndexOf(".") + 1);
 
+    }
+
+    @Override
+    protected boolean canLoad(URI retrieval) {
+        return retrieval.getScheme().concat("://").concat(retrieval.getHost()).equals(gitLabApi.getGitLabServerUrl());
     }
 
     public void configureGitLabLoader(String token, String host) {

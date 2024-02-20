@@ -11,8 +11,8 @@ import java.net.URI;
 public class Dereferencer {
     private final FileRegister fileRegister;
 
-    public Dereferencer(@NotNull URNPool urnPool, @NotNull LoaderFactory loaderFactory, @NotNull FileFactory fileFactory, @NotNull TypeAdapter typeAdapter, @NotNull URI defaultBaseURI) {
-        fileRegister = new FileRegister(urnPool, loaderFactory, fileFactory, typeAdapter, defaultBaseURI);
+    public Dereferencer(@NotNull FileFactory fileFactory, @NotNull URI defaultBaseURI) {
+        fileRegister = new FileRegister(fileFactory, defaultBaseURI);
     }
 
     public JsonNode dereference(@NotNull URI uri) throws DereferenceException {

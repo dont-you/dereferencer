@@ -1,6 +1,5 @@
 package ru.fusionsoft.dereferencer.git;
 
-import ru.fusionsoft.dereferencer.core.SourceLoader;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,9 +7,10 @@ import java.net.URI;
 
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
+import ru.fusionsoft.dereferencer.core.load.URLResourceLoader;
 
 
-public class GitHubLoader implements SourceLoader {
+public class GitHubLoader extends URLResourceLoader {
 
     private GitHub gitHub;
 
@@ -19,13 +19,8 @@ public class GitHubLoader implements SourceLoader {
     }
 
     @Override
-    public boolean canLoad(URI uri) {
-        return uri.getHost().equals("github.com");
-    }
-
-    @Override
-    public InputStream loadSource(URI uri) throws IOException {
-        String[] segments = uri.getPath().split("/", 6);
+    protected InputStream openStream(URI retrieval) throws IOException {
+        String[] segments = retrieval.getPath().split("/", 6);
         String projectPath = segments[1] + "/" + segments[2];
         String ref = segments[4];
         String filePath = segments[5];
@@ -33,10 +28,14 @@ public class GitHubLoader implements SourceLoader {
     }
 
     @Override
-    public String getMimeType(URI uri) {
-        String path = uri.getPath();
-        return path.substring(path.lastIndexOf(".") + 1);
+    protected String getMimeType(URI retrieval) {
+        String path = retrieval.getPath();
+        return path.substring(path.lastIndexOf("."));
+    }
 
+    @Override
+    protected boolean canLoad(URI retrieval) {
+        return retrieval.getHost().equals("github.com");
     }
 
     public void configureGitHubLoader(String token) throws IOException {
