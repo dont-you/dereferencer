@@ -61,7 +61,10 @@ public class BaseFile implements File, Comparable<BaseFile>, ReferenceListener {
     }
 
     final protected void exploreSource(String pathToSource, JsonNode source) {
-        source.fields().forEachRemaining(field -> resolveNode(pathToSource, decodeFieldKey(field.getKey()), field.getValue()));
+        if(source.isArray())
+            IntStream.range(0, source.size()).forEach(i -> exploreSource(pathToSource.concat("/").concat(String.valueOf(i)), source.get(i)));
+        else
+            source.fields().forEachRemaining(field -> resolveNode(pathToSource, decodeFieldKey(field.getKey()), field.getValue()));
     }
 
     private String decodeFieldKey(String fieldKey) {
@@ -74,17 +77,12 @@ public class BaseFile implements File, Comparable<BaseFile>, ReferenceListener {
     }
 
     protected void resolveNode(String pathToNode, String nodeKey, JsonNode nodeValue) {
-        if (nodeKey.equals("$anchor")) {
+        if (nodeKey.equals("$anchor"))
             anchors.put(nodeValue.asText(), derefedSource.at(pathToNode));
-        } else if (nodeKey.equals("$ref")) {
+        else if (nodeKey.equals("$ref"))
             processReference(pathToNode, nodeValue.asText());
-        } else if (nodeValue.isArray()) {
-            String currentPath = pathToNode.concat("/").concat(nodeKey);
-            IntStream.range(0, nodeValue.size())
-                    .forEach(i -> exploreSource(currentPath.concat("/").concat(String.valueOf(i)), nodeValue.get(i)));
-        } else if (nodeValue.isObject()) {
+        else if (nodeValue.isArray() || nodeValue.isObject())
             exploreSource(pathToNode.concat("/").concat(nodeKey), nodeValue);
-        }
     }
 
     private void processReference(String pathToReference, String referenceValue) {

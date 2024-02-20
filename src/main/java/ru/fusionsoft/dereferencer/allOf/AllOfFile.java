@@ -103,13 +103,9 @@ public class AllOfFile extends BaseFile {
 
     @Override
     protected void resolveNode(String pathToNode, String nodeKey, JsonNode nodeValue) {
-        if (nodeKey.equals("allOf")) {
+        if (nodeKey.equals("allOf"))
             pathsToNotMergedAllOfs.push(pathToNode);
-            String currentPath = pathToNode.concat("/").concat(nodeKey);
-            IntStream.range(0, nodeValue.size())
-                    .forEach(i -> exploreSource(currentPath.concat("/").concat(String.valueOf(i)), nodeValue.get(i)));
-        } else {
-            super.resolveNode(pathToNode, nodeKey, nodeValue);
-        }
+
+        super.resolveNode(pathToNode, nodeKey, nodeValue);
     }
 }
