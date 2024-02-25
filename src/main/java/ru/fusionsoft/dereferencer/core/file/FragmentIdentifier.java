@@ -9,7 +9,6 @@ import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceRuntimeException;
 
 import java.util.Objects;
-import java.util.stream.IntStream;
 
 public class FragmentIdentifier {
     private final String identifier;
@@ -51,61 +50,64 @@ public class FragmentIdentifier {
         return ((FragmentIdentifier) obj).identifier.equals(identifier);
     }
 
-    public static JsonNode evaluateRelativeJsonPointer(JsonNode jsonDocument, String pathToReferencedValue, String referencedValue) throws DereferenceException {
-        if (getType(referencedValue) != IdentifierType.RELATIVE_JSON_POINTER)
-            throw new DereferenceRuntimeException("the fragment identifier must be a relative json pointer");
+    public static JsonNode evaluateRelativeJsonPointer(JsonNode jsonDocument, String referencedValue, String relativePointer) throws DereferenceException{
+        if(getType(relativePointer) != IdentifierType.RELATIVE_JSON_POINTER)
+            throw new DereferenceException("errors while evaluation relative json pointer - " + relativePointer);
 
-        boolean endsWithHash = referencedValue.endsWith("#");
-        referencedValue = endsWithHash ? referencedValue.substring(0, referencedValue.length() - 1) : referencedValue;
+        return completeEvaluation(jsonDocument, calculateReferencedValue(referencedValue, relativePointer), relativePointer);
+    }
 
-        String[] parts = referencedValue.split("/", 2);
-        String calculatedReferencedValue = calculateReferencedValue(parts[0], pathToReferencedValue);
-        String jsonPointer = parts.length > 1 ? "/".concat(parts[1]) : "";
-
-        if (endsWithHash) {
-            String objectMember = getPropertyName(calculatedReferencedValue);
-            return StringUtils.isNumeric(objectMember) ? IntNode.valueOf(Integer.parseInt(objectMember)) : TextNode.valueOf(objectMember);
+    private static JsonNode completeEvaluation(JsonNode jsonDocument, String referencedValue, String relativePointer){
+        if(relativePointer.endsWith("#")){
+            String memberName = getPropertyName(referencedValue);
+            return StringUtils.isNumeric(memberName) ? IntNode.valueOf(Integer.parseInt(memberName)) : TextNode.valueOf(memberName);
         } else {
-            return jsonDocument.at(calculatedReferencedValue.concat(jsonPointer));
+            String jsonPointer = relativePointer.substring(relativePointer.indexOf("/"));
+            return jsonPointer.length() > 1 ? jsonDocument.at(referencedValue.concat(jsonPointer)) : jsonDocument.at(referencedValue);
         }
     }
 
-    private static String calculateReferencedValue(String prefix, String pathToReferencedValue) throws DereferenceException {
-        int integerPrefix = 0;
-        String indexManipulation = "";
+    private static String calculateReferencedValue(String initialReferencedValue, String relativePointer) throws DereferenceException{
+        int nonNegativeInteger = getLongestDigitSequence(relativePointer);
+        StringBuilder updatedReferencedValue = new StringBuilder(initialReferencedValue);
 
-        for (int i = 0; i < prefix.length(); i++) {
-            if (prefix.charAt(i) == '-' || prefix.charAt(i) == '+') {
-                indexManipulation = pathToReferencedValue.substring(i, prefix.length());
-                break;
+        for(int i = 0 ; i < nonNegativeInteger ; i++){
+            if(updatedReferencedValue.isEmpty())
+                throw new DereferenceException("errors while evaluation relative json pointer - " + relativePointer + ", non negative integer is too big");
+
+            updatedReferencedValue.delete(updatedReferencedValue.lastIndexOf("/"), updatedReferencedValue.length());
+        }
+
+        return performIndexManipulation(updatedReferencedValue, relativePointer, String.valueOf(nonNegativeInteger).length());
+    }
+
+    private static String performIndexManipulation(StringBuilder updatedReferencedValue, String relativePointer, int startOfIndexManipulation){
+        char op = relativePointer.charAt(startOfIndexManipulation);
+
+        if(op == '-' || op == '+'){
+            int indexManipulation = getLongestDigitSequence(relativePointer.substring(startOfIndexManipulation+1));
+            indexManipulation = op == '-' ? indexManipulation*-1 : indexManipulation;
+            int updatedIndex = Integer.parseInt(getPropertyName(updatedReferencedValue.toString())) + indexManipulation;
+            updatedReferencedValue.replace(updatedReferencedValue.lastIndexOf("/"), updatedReferencedValue.length(), String.valueOf(updatedIndex));
+        }
+
+        return updatedReferencedValue.toString();
+    }
+
+    private static int getLongestDigitSequence(String line){
+        int num = 0;
+        int factor = 1;
+
+        for (char c: line.toCharArray()){
+            if(Character.isDigit(c)){
+                num = num*factor + Character.getNumericValue(c);
+                factor*=10;
             } else {
-                integerPrefix += Character.getNumericValue(prefix.charAt(i));
+                break;
             }
         }
 
-        StringBuilder pathBuilder = new StringBuilder(pathToReferencedValue);
-        IntStream.range(0, integerPrefix).forEach(i -> pathBuilder.delete(pathBuilder.lastIndexOf("/"), pathBuilder.length()));
-
-        return indexManipulation.isEmpty() ? pathBuilder.toString() : performIndexManipulation(pathBuilder, indexManipulation);
-    }
-
-
-    private static String performIndexManipulation(StringBuilder pathBuilder, String indexManipulation) throws DereferenceException {
-        String index = getPropertyName(pathBuilder.toString());
-
-        if (!StringUtils.isNumeric(index))
-            throw new DereferenceException("current referenced value is not an item of an array");
-
-        int updatedIndex = Integer.parseInt(index) + Integer.parseInt(indexManipulation);
-
-        if (updatedIndex < 0)
-            throw new DereferenceException("updated index of an referenced value less then zero");
-
-        return pathBuilder
-                .delete(pathBuilder.lastIndexOf("/"), pathBuilder.length())
-                .append("/")
-                .append(updatedIndex)
-                .toString();
+        return num;
     }
 
     public IdentifierType getType() {
