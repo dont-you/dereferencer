@@ -1,0 +1,8 @@
+location1,2023:
+  schemas.*: "./location1/schemas/"
+  schemas.models.*: "./location1/schemas/models/"
+  schemas.models.schedule: "./location1/schemas/models/schedule-model.yaml/"
+
+location2,2023:
+  schemas.*: "./location2/schemas/"
+  schemas.models.*: "./location2/schemas/models/"

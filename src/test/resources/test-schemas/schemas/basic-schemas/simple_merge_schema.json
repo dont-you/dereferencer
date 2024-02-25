@@ -1,0 +1,69 @@
+{
+    "test": {
+     "allOf":[
+        {
+            "test":1,
+            "someObj":{
+                "array": [1,2,3],
+                "nested": {
+                    "prop1": {
+                        "type": "string",
+                        "test":1
+                    },
+                    "prop2": 1,
+                    "prop3": 1
+                }
+
+            }
+            ,"required":["full_name","pet_name"]
+        },
+        {
+            "test":2,
+            "someObj":{
+                "array": [1,2,3,4],
+                "nested": {
+                    "prop1": 2,
+                    "prop2": 2,
+                    "prop5": 2
+                }
+            }
+        },
+        {
+            "test":3,
+            "someObj":{
+                "array": [5],
+                "nested": {
+                    "prop1": 3,
+                    "prop2": 3,
+                    "prop3": 3
+                }
+            }
+            ,"required":["age","full_name"]
+        },
+        {
+            "test":{},
+            "someObj":{
+                "array": [6],
+                "nested": {
+                    "prop1": {
+                        "type": "string"
+                    },
+                    "prop2": 4,
+                    "prop4": 4
+                }
+
+            }
+        },
+        {
+            "someObj":{
+                "nested": {
+                    "prop1": {
+                        "type": "string",
+                        "newField": "fieldValue"
+                    }
+                }
+            }
+        }
+    ]
+    }
+}

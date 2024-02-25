@@ -1,0 +1,6 @@
+{
+  "propertyes": {
+    "$ref": "./cycle_schema_B.json"
+  },
+  "prop": 1
+}
