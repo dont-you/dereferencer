@@ -2,6 +2,7 @@ package ru.fusionsoft.dereferencer.core.load.urn;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 import ru.fusionsoft.dereferencer.core.load.urn.TagURI;
@@ -24,12 +25,15 @@ public class TagURIResolver extends URNResolver {
             URI uriToOrigins = uri.resolve(".origins.yaml");
             JsonNode jsonNode = yamlMapper.readTree(load(uriToOrigins));
             jsonNode.fields().forEachRemaining(tagEntity -> tagEntity.getValue().fields().forEachRemaining(tag -> {
-                URI locator = tag.getKey().endsWith("*") ? uri.resolve(tag.getValue().asText().concat("/*")) : uri.resolve(tag.getValue().asText());
-                tags.put(new TagURI(tagEntity.getKey(), tag.getKey()), locator);
+                tags.put(new TagURI(tagEntity.getKey(), tag.getKey()), makeLocator(tag.getKey(), tag.getValue().asText(), uriToOrigins));
             }));
         } catch (Exception e) {
             // TODO LOG
         }
+    }
+
+    private URI makeLocator(String tag, String locator, URI baseURI){
+        return tag.endsWith("*") ? baseURI.resolve(locator.concat("/*")) : baseURI.resolve(locator);
     }
 
     @Override
