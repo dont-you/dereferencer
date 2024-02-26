@@ -10,8 +10,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import ru.fusionsoft.dereferencer.core.Resource;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
+import ru.fusionsoft.dereferencer.core.load.URLLoader;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -26,11 +26,14 @@ public class GitLabLoaderTest {
     RepositoryFileApi mockedRepo;
     @Mock
     RepositoryFile mockedFile;
+
+    @Mock
+    URLLoader urlLoader;
     private GitLabLoader gitLabLoader;
 
     @Before
     public void init() {
-        gitLabLoader = new GitLabLoader();
+        gitLabLoader = new GitLabLoader(urlLoader);
         gitLabLoader.configureGitLabLoader(mockedGitLab);
     }
 
@@ -42,7 +45,7 @@ public class GitLabLoaderTest {
 
     private void testLoadMethod(URI uri, String projectPath, String filePath, String ref) throws GitLabApiException, DereferenceException {
         initGitLabMocs(projectPath, filePath, ref);
-        gitLabLoader.load(new Resource(uri));
+        gitLabLoader.load(uri);
 
         Mockito.verify(mockedGitLab, Mockito.times(1)).getRepositoryFileApi();
         Mockito.verify(mockedRepo, Mockito.times(1)).getFile(projectPath, filePath, ref);

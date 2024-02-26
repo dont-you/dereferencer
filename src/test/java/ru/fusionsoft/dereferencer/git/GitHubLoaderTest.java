@@ -12,6 +12,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import ru.fusionsoft.dereferencer.core.Resource;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
+import ru.fusionsoft.dereferencer.core.load.URLLoader;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,11 +36,14 @@ public class GitHubLoaderTest {
     @Mock
     InputStream expectedStream;
 
+    @Mock
+    URLLoader urlLoader;
+
     private GitHubLoader gitHubLoader;
 
     @Before
     public void init() throws IOException {
-        gitHubLoader = new GitHubLoader();
+        gitHubLoader = new GitHubLoader(urlLoader);
         gitHubLoader.configureGitHubLoader(mockedGitHub);
     }
 
@@ -53,8 +57,7 @@ public class GitHubLoaderTest {
     private void testLoadMethod(URI uri, String projectPath, String filePath, String ref) throws IOException, DereferenceException {
         initGitHubMocs(projectPath, filePath, ref);
 
-        Resource resource = new Resource(uri);
-        gitHubLoader.load(resource);
+        Resource resource = gitHubLoader.load(uri);
         InputStream actualStream = resource.getStream();
         assertEquals(expectedStream, actualStream);
     }
