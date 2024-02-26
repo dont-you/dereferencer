@@ -2,28 +2,29 @@ package ru.fusionsoft.dereferencer.core.load.urn;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
-import ru.fusionsoft.dereferencer.core.load.urn.TagURI;
-import ru.fusionsoft.dereferencer.core.load.urn.URNResolver;
+import ru.fusionsoft.dereferencer.core.load.BaseResourceCenter;
 
 import java.net.URI;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class TagURIResolver extends URNResolver {
+public class TagURIResolver implements URNResolver {
     private static final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+    private BaseResourceCenter baseResourceCenter;
     private final Map<TagURI, URI> tags;
 
-    public TagURIResolver() {
+    public TagURIResolver(BaseResourceCenter baseResourceCenter) {
+        this.baseResourceCenter = baseResourceCenter;
         tags = new TreeMap<>();
     }
+
     @Override
-    public void updatePool(URI uri){
+    public void updatePool(URI uri) {
         try {
             URI uriToOrigins = uri.resolve(".origins.yaml");
-            JsonNode jsonNode = yamlMapper.readTree(load(uriToOrigins));
+            JsonNode jsonNode = yamlMapper.readTree(baseResourceCenter.loadOnlyStream(uriToOrigins));
             jsonNode.fields().forEachRemaining(tagEntity -> tagEntity.getValue().fields().forEachRemaining(tag -> {
                 tags.put(new TagURI(tagEntity.getKey(), tag.getKey()), makeLocator(tag.getKey(), tag.getValue().asText(), uriToOrigins));
             }));
@@ -32,7 +33,7 @@ public class TagURIResolver extends URNResolver {
         }
     }
 
-    private URI makeLocator(String tag, String locator, URI baseURI){
+    private URI makeLocator(String tag, String locator, URI baseURI) {
         return tag.endsWith("*") ? baseURI.resolve(locator.concat("/*")) : baseURI.resolve(locator);
     }
 
@@ -48,5 +49,9 @@ public class TagURIResolver extends URNResolver {
             throw new DereferenceException("could not resolve urn " + urn);
 
         return TagURI.resolve(tags.get(searchedTagURI), processedTag.getSubPart(searchedTagURI));
+    }
+
+    public void setBaseResourceCenter(BaseResourceCenter baseResourceCenter) {
+        this.baseResourceCenter = baseResourceCenter;
     }
 }

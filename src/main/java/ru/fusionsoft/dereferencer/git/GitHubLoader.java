@@ -7,14 +7,16 @@ import java.net.URI;
 
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
-import ru.fusionsoft.dereferencer.core.load.URLResourceLoader;
+import ru.fusionsoft.dereferencer.core.load.Loader;
+import ru.fusionsoft.dereferencer.core.load.LoaderDecorator;
 
 
-public class GitHubLoader extends URLResourceLoader {
+public class GitHubLoader extends LoaderDecorator {
 
     private GitHub gitHub;
 
-    GitHubLoader() throws IOException {
+    GitHubLoader(Loader loader) throws IOException {
+        super(loader);
         gitHub = new GitHubBuilder().build();
     }
 

@@ -7,13 +7,15 @@ import java.net.URI;
 
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.GitLabApiException;
-import ru.fusionsoft.dereferencer.core.load.URLResourceLoader;
+import ru.fusionsoft.dereferencer.core.load.Loader;
+import ru.fusionsoft.dereferencer.core.load.LoaderDecorator;
 
-public class GitLabLoader extends URLResourceLoader {
+public class GitLabLoader extends LoaderDecorator {
 
     private GitLabApi gitLabApi;
 
-    GitLabLoader() {
+    GitLabLoader(Loader loader) {
+        super(loader);
         configureGitLabLoader("", "https://gitlab.com");
     }
 
@@ -38,7 +40,7 @@ public class GitLabLoader extends URLResourceLoader {
     }
 
     @Override
-    protected String getMimeType(URI retrieval) throws IOException {
+    protected String getMimeType(URI retrieval) {
         String path = retrieval.getPath();
         return path.substring(path.lastIndexOf(".") + 1);
 

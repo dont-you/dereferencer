@@ -6,26 +6,26 @@ import ru.fusionsoft.dereferencer.core.load.urn.URNResolver;
 public class BaseResourceCenterBuilder {
     private final BaseResourceCenter baseResourceCenter;
 
-    private BaseResourceCenterBuilder(){
+    private BaseResourceCenterBuilder() {
         baseResourceCenter = new BaseResourceCenter();
-        baseResourceCenter.setURNResolver(new TagURIResolver()).addURLLoader(new HTTPLoader()).addURLLoader(new FileSystemLoader());
+        setURNResolver(new TagURIResolver(baseResourceCenter)).setLoader(new URLLoader());
     }
 
-    public static BaseResourceCenterBuilder getInstance(){
+    public static BaseResourceCenterBuilder getInstance() {
         return new BaseResourceCenterBuilder();
     }
 
-    public BaseResourceCenter build(){
+    public BaseResourceCenter build() {
         return baseResourceCenter;
     }
 
-    public BaseResourceCenterBuilder setURNResolver(URNResolver urnResolver){
+    public BaseResourceCenterBuilder setURNResolver(URNResolver urnResolver) {
         baseResourceCenter.setURNResolver(urnResolver);
         return this;
     }
 
-    public BaseResourceCenterBuilder addURLLoader(URLResourceLoader urlResourceLoader){
-        baseResourceCenter.addURLLoader(urlResourceLoader);
+    public BaseResourceCenterBuilder setLoader(Loader loader) {
+        baseResourceCenter.setLoader(loader);
         return this;
     }
 }

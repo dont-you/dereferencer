@@ -9,54 +9,46 @@ import java.io.InputStream;
 import java.net.URI;
 
 public class BaseResourceCenter implements ResourceCenter {
-    private URLResourceLoader urlChain;
+    private Loader loader;
     private URNResolver urnResolver;
 
-    public BaseResourceCenter(){
-        urlChain=null;
-        urnResolver=null;
+    BaseResourceCenter() {
+        loader = null;
+        urnResolver = null;
     }
 
     @Override
     public Resource load(URI uri) throws DereferenceException {
-        Resource resource = new Resource(uri);
-
-        if(uri.getScheme()!=null && uri.getScheme().equals("urn"))
-            resource.updateRetrieval(urnResolver.resolve(uri));
-
-        urnResolver.updatePool(uri);
-        urlChain.load(resource);
-        return resource;
+        if (uri.getScheme() != null && uri.getScheme().equals("urn")) {
+            URI updated = urnResolver.resolve(uri);
+            Resource resource = loader.load(updated);
+            resource.addDuplicate(uri);
+            urnResolver.updatePool(updated);
+            return resource;
+        } else {
+            Resource resource = loader.load(uri);
+            urnResolver.updatePool(uri);
+            return resource;
+        }
     }
 
     public InputStream loadOnlyStream(URI uri) throws DereferenceException {
-        Resource resource = new Resource(uri);
-        urlChain.load(resource);
-        return resource.getStream();
+        return loader.load(uri).getStream();
     }
 
-    public URLResourceLoader getURLChain() {
-        return urlChain;
+    public Loader getLoader() {
+        return loader;
     }
 
-    public BaseResourceCenter addURLLoader(URLResourceLoader urlResourceLoader){
-        urlResourceLoader.setNextLoader(urlChain);
-        this.urlChain = urlResourceLoader;
-        return this;
+    public void setLoader(Loader loader) {
+        this.loader = loader;
     }
 
-    public BaseResourceCenter clearURLChain(){
-        urlChain.nextLoader = null;
-        return this;
-    }
-
-    public BaseResourceCenter setURNResolver(URNResolver urnResolver){
+    public void setURNResolver(URNResolver urnResolver) {
         this.urnResolver = urnResolver;
-        this.urnResolver.setBaseResourceCenter(this);
-        return this;
     }
 
-    public URNResolver getURNResolver(){
+    public URNResolver getURNResolver() {
         return this.urnResolver;
     }
 }

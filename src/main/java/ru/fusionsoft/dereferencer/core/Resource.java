@@ -27,6 +27,10 @@ public class Resource {
         return duplicates.toArray(URI[]::new);
     }
 
+    public void addDuplicate(URI uri) {
+        duplicates.add(uri);
+    }
+
     public URI getRetrieval() {
         return retrieval;
     }
