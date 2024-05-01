@@ -1,6 +1,7 @@
 package ru.fusionsoft.dereferencer;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import ru.fusionsoft.dereferencer.core.DereferencedFile;
 import ru.fusionsoft.dereferencer.core.FileRegister;
 import ru.fusionsoft.dereferencer.core.cycles.LoopControl;
 
