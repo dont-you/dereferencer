@@ -19,12 +19,13 @@ import java.util.stream.Collectors;
 public class Dereferencer {
     private final ExecutorService executorService;
     private final FileRegister fileRegister;
-
     private final LoopControl loopControl;
+    private final URI defaultBaseURI;
 
-    public Dereferencer(ExecutorService executorService, FileRegister fileRegister){
+    public Dereferencer(ExecutorService executorService, FileRegister fileRegister, URI defaultBaseURI){
         this.executorService = executorService;
         this.fileRegister = fileRegister;
+        this.defaultBaseURI = defaultBaseURI;
         loopControl = new LoopControl();
     }
 
@@ -37,7 +38,7 @@ public class Dereferencer {
     }
 
     public JsonNode dereference(URI uri) throws ExecutionException, InterruptedException {
-        return executorService.submit(dereferenceCall(uri, this)).get();
+        return executorService.submit(dereferenceCall(defaultBaseURI.resolve(uri), this)).get();
     }
 
     public Map<String, JsonNode> dereference(URI fileBaseURI, Map<String, String> refMaps) throws ExecutionException, InterruptedException {
