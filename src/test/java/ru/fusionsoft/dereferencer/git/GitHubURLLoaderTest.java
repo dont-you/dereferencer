@@ -10,7 +10,6 @@ import org.kohsuke.github.GitHub;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import ru.fusionsoft.dereferencer.core.Resource;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 import ru.fusionsoft.dereferencer.core.load.URLLoader;
 
