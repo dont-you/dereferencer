@@ -11,26 +11,24 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
 public class Dereferencer {
     private final ExecutorService executorService;
     private final FileRegister fileRegister;
     private final LoopControl loopControl;
     private final URI defaultBaseURI;
+    private final Map<URI, Future<JsonNode>> tasks;
 
     public Dereferencer(ExecutorService executorService, FileRegister fileRegister, URI defaultBaseURI){
         this.executorService = executorService;
         this.fileRegister = fileRegister;
         this.defaultBaseURI = defaultBaseURI;
+        this.tasks = new ConcurrentHashMap<>();
         loopControl = new LoopControl();
-    }
-
-    public int getMappingsSize(){
-        return loopControl.size();
     }
 
     public void exit() {
@@ -52,39 +50,44 @@ public class Dereferencer {
     }
 
     private Map<String, Future<JsonNode>> callDereferenceTasks(URI fileBaseURI, Map<String, String> refMaps) {
-        return refMaps.entrySet()
-                .stream()
-                .map(ref -> Map.entry(ref.getKey(), executorService.submit(dereferenceCall(fileBaseURI, ref.getKey(), ref.getValue()))))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        Map<String, Future<JsonNode>> calls = new HashMap<>();
+
+        for(Map.Entry<String, String> ref: refMaps.entrySet()){
+            if(Character.isDigit(ref.getValue().charAt(0))){
+                Future<JsonNode> future = executorService.submit(dereferenceCall(fileBaseURI, RelativeJsonPointer.parseFromString(ref.getKey(), ref.getValue()), ref.getValue()));
+                calls.put(ref.getKey(), future);
+            } else {
+                URI targetURI = fileBaseURI.resolve(ref.getValue());
+
+                if(tasks.containsKey(targetURI)){
+                    calls.put(ref.getKey(), tasks.get(targetURI));
+                } else {
+                    Future<JsonNode> future = executorService.submit(dereferenceCall(fileBaseURI, targetURI, ref.getKey()));
+                    tasks.put(targetURI, future);
+                    calls.put(ref.getKey(), future);
+                }
+            }
+        }
+
+        return calls;
     }
 
     private DereferenceTask dereferenceCall(URI uri, Dereferencer dereferencer) {
-        return new DereferenceTask() {
-            @Override
-            public JsonNode call() throws URISyntaxException, IOException, ExecutionException, InterruptedException {
-                DereferencedFile file = fileRegister.get(makeAbsoluteURI(uri));
-                return file.getFragment("", dereferencer);
-            }
+        return () -> {
+            DereferencedFile file = fileRegister.get(makeAbsoluteURI(uri));
+            return file.getFragment("", dereferencer);
         };
     }
 
-    private DereferenceTask dereferenceCall(URI consumerBaseURI, String requestPoint, String reference) {
-        return new DereferenceTask() {
-            @Override
-            public JsonNode call() throws URISyntaxException, IOException, ExecutionException, InterruptedException {
-                if (Character.isDigit(reference.charAt(0))) {
-                    return evaluateRelativeJsonPointer(consumerBaseURI, reference, requestPoint);
-                } else {
-                    URI targetURI = consumerBaseURI.resolve(reference);
-                    return evaluateJsonPointer(consumerBaseURI, targetURI, targetURI.getFragment(), requestPoint);
-                }
-            }
-        };
+    private DereferenceTask dereferenceCall(URI consumerBaseURI, URI targetURI, String requestPoint) {
+        return () -> evaluateJsonPointer(consumerBaseURI, targetURI, targetURI.getFragment(), requestPoint);
     }
 
-    private JsonNode evaluateRelativeJsonPointer(URI consumerBaseURI, String reference, String requestPoint) throws URISyntaxException, IOException, ExecutionException, InterruptedException {
-        RelativeJsonPointer relativeJsonPointer = RelativeJsonPointer.parseFromString(requestPoint, reference);
+    private DereferenceTask dereferenceCall(URI consumerBaseURI, RelativeJsonPointer relativeJsonPointer, String requestPoint) {
+        return () -> evaluateRelativeJsonPointer(consumerBaseURI, relativeJsonPointer, requestPoint);
+    }
 
+    private JsonNode evaluateRelativeJsonPointer(URI consumerBaseURI, RelativeJsonPointer relativeJsonPointer, String requestPoint) throws URISyntaxException, IOException, ExecutionException, InterruptedException {
         if (relativeJsonPointer.isEvaluationCompletesWithObjectMember())
             return relativeJsonPointer.getObjectMember();
         else
