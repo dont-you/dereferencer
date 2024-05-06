@@ -10,7 +10,7 @@ import java.net.URI;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class TagURIResolver implements URNResolver {
+public class TagURIResolver extends URNResolver {
     private static final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
     private BaseResourceCenter baseResourceCenter;
     private final Map<TagURI, URI> tags;
@@ -21,7 +21,7 @@ public class TagURIResolver implements URNResolver {
     }
 
     @Override
-    public void updatePool(URI uri) {
+    protected void updatePool(URI uri) {
         try {
             URI uriToOrigins = uri.resolve(".origins.yaml");
             JsonNode jsonNode = yamlMapper.readTree(baseResourceCenter.loadOnlyStream(uriToOrigins));
@@ -38,7 +38,7 @@ public class TagURIResolver implements URNResolver {
     }
 
     @Override
-    public URI resolve(URI urn) throws DereferenceException {
+    public URI resolve(URI urn) {
         TagURI processedTag = TagURI.parse(URI.create(urn.getSchemeSpecificPart()));
         TagURI searchedTagURI = tags.keySet().stream()
                 .filter(tagURI -> tagURI.isSup(processedTag))
@@ -46,7 +46,7 @@ public class TagURIResolver implements URNResolver {
                 .orElse(null);
 
         if (searchedTagURI == null)
-            throw new DereferenceException("could not resolve urn " + urn);
+            return passToNextHandler(urn);
 
         return TagURI.resolve(tags.get(searchedTagURI), processedTag.getSubPart(searchedTagURI));
     }
