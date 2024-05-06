@@ -5,6 +5,7 @@ import ru.fusionsoft.dereferencer.Dereferencer;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -16,7 +17,7 @@ public class CachingFileProxy implements DereferencedFile{
     Lock notifyingLock;
 
     public CachingFileProxy(){
-        this.requests = new HashMap<>();
+        this.requests = new ConcurrentHashMap<>();
         this.dereferencedFile = null;
         this.waitingLock = new ReentrantLock();
         this.notifyingLock = new ReentrantLock();
@@ -36,7 +37,11 @@ public class CachingFileProxy implements DereferencedFile{
             return requests.get(path);
         } else{
             JsonNode fragment = dereferencedFile.getFragment(path, dereferencer);
-            requests.put(path, fragment);
+            try{
+                requests.put(path, fragment);
+            } catch (ClassCastException classCastException){
+                System.out.println(classCastException.fillInStackTrace());
+            }
             return fragment;
         }
     }
@@ -49,7 +54,11 @@ public class CachingFileProxy implements DereferencedFile{
             return requests.get(path);
         } else{
             JsonNode fragment = dereferencedFile.getFragmentImmediately(path, dereferencer);
-            requests.put(path, fragment);
+            try{
+                requests.put(path, fragment);
+            } catch (ClassCastException classCastException){
+                System.out.println(classCastException.fillInStackTrace());
+            }
             return fragment;
         }
     }
