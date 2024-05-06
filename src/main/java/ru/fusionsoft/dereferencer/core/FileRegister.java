@@ -1,5 +1,7 @@
 package ru.fusionsoft.dereferencer.core;
 
+import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -13,10 +15,12 @@ import java.util.concurrent.locks.ReentrantLock;
 public class FileRegister {
     private final Map<URI, CachingFileProxy> cache;
     private final DereferencedFileFactory dereferencedFileFactory;
+    private final ResourceCenter resourceCenter;
     private final Lock sameFileLock;
 
-    public FileRegister(DereferencedFileFactory fileFactory){
+    public FileRegister(DereferencedFileFactory fileFactory, ResourceCenter resourceCenter){
         this.dereferencedFileFactory = fileFactory;
+        this.resourceCenter = resourceCenter;
         cache = new ConcurrentHashMap<>();
         sameFileLock = new ReentrantLock();
     }
@@ -31,9 +35,9 @@ public class FileRegister {
         return initialProxy==null ? cache.get(uri) : loadFile(uri, initialProxy);
     }
 
-    private DereferencedFile loadFile(URI uri, CachingFileProxy initialProxy) throws URISyntaxException, IOException {
+    private DereferencedFile loadFile(URI uri, CachingFileProxy initialProxy) throws URISyntaxException, IOException{
         var proxies = new ArrayList<>(Collections.singletonList(initialProxy));
-        URLConnection urlConnection = uri.toURL().openConnection();
+        URLConnection urlConnection =  resourceCenter.load(uri);
 
         proxies.add(createAndPutToCache(urlConnection.getURL().toURI()));
         configureProxies(proxies, makeFile(urlConnection, proxies));

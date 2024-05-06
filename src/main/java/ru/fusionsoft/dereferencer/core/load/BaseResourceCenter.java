@@ -1,47 +1,51 @@
 package ru.fusionsoft.dereferencer.core.load;
 
-import ru.fusionsoft.dereferencer.core.Resource;
 import ru.fusionsoft.dereferencer.core.ResourceCenter;
-import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 import ru.fusionsoft.dereferencer.core.load.urn.URNResolver;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URLConnection;
 
 public class BaseResourceCenter implements ResourceCenter {
-    private Loader loader;
+    private URLLoader urlLoader;
     private URNResolver urnResolver;
 
-    BaseResourceCenter() {
-        loader = null;
+    public BaseResourceCenter(URLLoader urlLoader) {
+        this.urlLoader = urlLoader;
         urnResolver = null;
     }
 
+    public BaseResourceCenter(URLLoader urlLoader, URNResolver urnResolver) {
+        this.urlLoader = urlLoader;
+        this.urnResolver = urnResolver;
+    }
+
     @Override
-    public Resource load(URI uri) throws DereferenceException {
+    public URLConnection load(URI uri) throws IOException {
+        if(urnResolver==null)
+            return urlLoader.load(uri);
+
         if (uri.getScheme() != null && uri.getScheme().equals("urn")) {
-            URI updated = urnResolver.resolve(uri);
-            Resource resource = loader.load(updated);
-            resource.addDuplicate(uri);
-            urnResolver.updatePool(updated);
-            return resource;
+            uri = urnResolver.resolve(uri);
         } else {
-            Resource resource = loader.load(uri);
-            urnResolver.updatePool(uri);
-            return resource;
+            urnResolver.update(uri);
         }
+
+        return urlLoader.load(uri);
     }
 
-    public InputStream loadOnlyStream(URI uri) throws DereferenceException {
-        return loader.load(uri).getStream();
+    public InputStream loadOnlyStream(URI uri) throws IOException {
+        return urlLoader.load(uri).getInputStream();
     }
 
-    public Loader getLoader() {
-        return loader;
+    public URLLoader getLoader() {
+        return urlLoader;
     }
 
-    public void setLoader(Loader loader) {
-        this.loader = loader;
+    public void setLoader(URLLoader URLLoader) {
+        this.urlLoader = URLLoader;
     }
 
     public void setURNResolver(URNResolver urnResolver) {

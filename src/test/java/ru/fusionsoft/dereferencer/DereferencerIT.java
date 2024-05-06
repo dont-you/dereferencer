@@ -4,11 +4,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import ru.fusionsoft.dereferencer.allof.MergedFileFactory;
 import ru.fusionsoft.dereferencer.core.DereferencedFileFactory;
 import ru.fusionsoft.dereferencer.core.FileRegister;
+import ru.fusionsoft.dereferencer.core.ResourceCenter;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
+import ru.fusionsoft.dereferencer.core.load.BaseResourceCenter;
+import ru.fusionsoft.dereferencer.core.load.DefaultLoader;
 
 import java.io.IOException;
 import java.net.URI;
@@ -16,6 +20,7 @@ import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
@@ -24,7 +29,19 @@ import static org.junit.Assert.assertTrue;
 public class DereferencerIT {
 
     ObjectMapper jsonMapper = new ObjectMapper();
-    static Dereferencer dereferencer = new Dereferencer(Executors.newCachedThreadPool(), new FileRegister(new MergedFileFactory()), Paths.get(".").toAbsolutePath().normalize().toUri());
+
+    @BeforeClass
+    public static void init(){
+        ResourceCenter resourceCenter = new BaseResourceCenter(new DefaultLoader());
+        FileRegister fileRegister = new FileRegister(new MergedFileFactory(), resourceCenter);
+        ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
+        URI defaultPath =  Paths.get(".").toAbsolutePath().normalize().toUri();
+
+        dereferencer = new Dereferencer(executorService, fileRegister, defaultPath);
+    }
+
+
+    static Dereferencer dereferencer;
 
     @Test
     public void Test_simple_schema_With_cycle() throws DereferenceException, ExecutionException, InterruptedException {
@@ -32,15 +49,10 @@ public class DereferencerIT {
         dereferencer.dereference(URI.create("./src/test/resources/test-schemas/schemas/cycle-schema/cycle_schema_A.json"));
         assertTrue(true);
    }
+
    @Test
    public void delme()
-           throws URISyntaxException, IOException {
-        URI uri = new URI("file:/home/who/Work/Projects/Dereferencer/src/test/resources/test-schemas/schemas/cycle-schema/cycle_schema_A.json");
-       URLConnection urlConnection = uri.toURL().openConnection();
-       urlConnection.connect();
-       System.out.println(jsonMapper.readTree(urlConnection.getInputStream()));
-       System.out.println(urlConnection.getURL());
-       System.out.println(urlConnection.getContentType());
+           throws IOException, ExecutionException, InterruptedException {
    }
 
    @Test
@@ -87,13 +99,15 @@ public class DereferencerIT {
 //        assertEquals(expected, actual);
     }
 
+
     @Test
     public void fuzTest() throws DereferenceException, IOException, ExecutionException, InterruptedException {
+
 //        Dereferencer dereferencer = DereferencerBuilder.builder().enableAllOfMerge().build();
 //        Dereferencer dereferencer = DereferencerBuilder.builder().build();
         String HOME = System.getenv().get("HOME");
 
-//        JsonNode json1 = dereferencer.dereference(URI.create(HOME+"/Work/schemes/fipc.json").normalize());
+//        JsonNode json1 = dereferencer.dereference(URI.create(HOME+"/Schemes/schemes/fipc.yaml").normalize());
 //        System.out.println(json1);
 
         JsonNode json2 = dereferencer.dereference(URI.create(HOME+"/Schemes/service/fipc-db-service.yaml").normalize());
@@ -102,7 +116,7 @@ public class DereferencerIT {
 //        JsonNode expected = jsonMapper.readTree(Paths.get(URI.create("file://" + HOME + "/Work/fipc-it-with-merge.json").normalize()).toFile());
 //        System.out.println(json2.equals(expected));
 
-//        assertEquals(jsonMapper.readTree(Paths.get(URI.create("file://" + HOME + "/Work/fipc-it-with-merge.json").normalize()).toFile()), json2);
+        assertEquals(jsonMapper.readTree(Paths.get(URI.create("file://" + HOME + "/Work/fipc-it-with-merge.json").normalize()).toFile()), json2);
 //        assertEquals(jsonMapper.readTree(Paths.get(URI.create("file://" + HOME + "/Work/fipc-it.json").normalize()).toFile()), json2);
     }
 
