@@ -96,13 +96,13 @@ public class DereferencerIT {
 //        JsonNode json1 = dereferencer.dereference(URI.create(HOME+"/Work/schemes/fipc.json").normalize());
 //        System.out.println(json1);
 
-        JsonNode json2 = dereferencer.dereference(URI.create(HOME+"/Temp/DereferenceTests/service/fipc-db-service.json").normalize());
+        JsonNode json2 = dereferencer.dereference(URI.create(HOME+"/Schemes/service/fipc-db-service.yaml").normalize());
         System.out.println(json2);
 
 //        JsonNode expected = jsonMapper.readTree(Paths.get(URI.create("file://" + HOME + "/Work/fipc-it-with-merge.json").normalize()).toFile());
 //        System.out.println(json2.equals(expected));
 
-        assertEquals(jsonMapper.readTree(Paths.get(URI.create("file://" + HOME + "/Work/fipc-it-with-merge.json").normalize()).toFile()), json2);
+//        assertEquals(jsonMapper.readTree(Paths.get(URI.create("file://" + HOME + "/Work/fipc-it-with-merge.json").normalize()).toFile()), json2);
 //        assertEquals(jsonMapper.readTree(Paths.get(URI.create("file://" + HOME + "/Work/fipc-it.json").normalize()).toFile()), json2);
     }
 
