@@ -23,7 +23,7 @@ public class BaseResourceCenter implements ResourceCenter {
     }
 
     @Override
-    public URLConnection load(URI uri) throws IOException {
+    public Resource load(URI uri) throws IOException {
         if(urnResolver==null)
             return urlLoader.load(uri);
 

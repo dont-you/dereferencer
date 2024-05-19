@@ -2,6 +2,9 @@ package ru.fusionsoft.dereferencer;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.gitlab4j.api.GitLabApi;
+import org.gitlab4j.api.RepositoryFileApi;
+import org.gitlab4j.api.models.RepositoryFile;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -53,18 +56,11 @@ public class DereferencerIT {
    @Test
    public void delme()
            throws IOException, ExecutionException, InterruptedException {
+       GitLabApi gitLabApi = new GitLabApi("", "https://gitlab.com");
    }
 
    @Test
    public void debug_cases(){
-        try{
-            URI uriToDebugCase = URI.create(System.getenv().get("HOME")+"/Temp/DereferenceTests/test2.json");
-//            Dereferencer dereferencer = DereferencerBuilder.builder().build();
-            JsonNode node = dereferencer.dereference(uriToDebugCase);
-//            System.out.println(node);
-        } catch (Exception e){
-            e.printStackTrace();
-        }
    }
 
    @Test

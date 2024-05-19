@@ -4,12 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.apache.tika.Tika;
+import ru.fusionsoft.dereferencer.core.load.Resource;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLConnection;
 
 public class DereferencedFileFactory {
 
@@ -17,9 +16,9 @@ public class DereferencedFileFactory {
     protected static final ObjectMapper jsonMapper = new ObjectMapper();
     protected static final Tika tika = new Tika();
 
-    public final DereferencedFile makeFile(URLConnection urlConnection) throws IOException, URISyntaxException {
-        JsonNode source = readJsonFromInputStream(urlConnection.getInputStream(), urlConnection.getURL().toURI());
-        URI baseURI = establishBaseURI(urlConnection.getURL().toURI(), source);
+    public final DereferencedFile makeFile(Resource resource) throws IOException{
+        JsonNode source = readJsonFromInputStream(resource.getInputStream(), resource.getRetrievalURI());
+        URI baseURI = establishBaseURI(resource.getRetrievalURI(), source);
         return makeInstance(baseURI, source);
     }
 

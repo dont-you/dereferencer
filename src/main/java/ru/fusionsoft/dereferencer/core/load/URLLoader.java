@@ -7,5 +7,5 @@ import java.net.URI;
 import java.net.URLConnection;
 
 public interface URLLoader {
-    URLConnection load(URI uri) throws IOException;
+    Resource load(URI uri) throws IOException;
 }

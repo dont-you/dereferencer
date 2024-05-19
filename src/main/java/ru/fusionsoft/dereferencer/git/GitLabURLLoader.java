@@ -9,6 +9,7 @@ import java.net.URLConnection;
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.GitLabApiException;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
+import ru.fusionsoft.dereferencer.core.load.Resource;
 import ru.fusionsoft.dereferencer.core.load.URLLoader;
 
 public class GitLabURLLoader implements URLLoader{
@@ -48,7 +49,7 @@ public class GitLabURLLoader implements URLLoader{
     }
 
     @Override
-    public URLConnection load(URI uri) throws IOException {
+    public Resource load(URI uri) throws IOException {
         // TODO
         return null;
     }

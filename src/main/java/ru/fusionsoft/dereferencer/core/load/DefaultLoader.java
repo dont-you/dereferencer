@@ -11,15 +11,18 @@ import java.net.URLConnection;
 public class DefaultLoader implements URLLoader {
 
     @Override
-    public URLConnection load(URI uri) {
+    public Resource load(URI uri) {
         try {
             URLConnection urlConnection = uri.toURL().openConnection();
             urlConnection.connect();
-            return urlConnection;
+            return new Resource(urlConnection);
         } catch (IOException e) {
             // TODO
             throw  new RuntimeException("");
 //            throw new DereferenceException("errors when retrieving a source from " + uri + " by " + uri.getScheme()+" proto");
+        } catch (URISyntaxException e) {
+            // TODO
+            throw new RuntimeException(e);
         }
     }
 }

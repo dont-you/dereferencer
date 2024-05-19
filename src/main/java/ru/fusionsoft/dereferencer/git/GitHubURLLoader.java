@@ -9,6 +9,7 @@ import java.net.URLConnection;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
+import ru.fusionsoft.dereferencer.core.load.Resource;
 import ru.fusionsoft.dereferencer.core.load.URLLoader;
 
 
@@ -29,7 +30,7 @@ public class GitHubURLLoader implements URLLoader {
     }
 
     @Override
-    public URLConnection load(URI uri) throws IOException {
+    public Resource load(URI uri) throws IOException {
         String[] segments = uri.getPath().split("/", 6);
         String projectPath = segments[1] + "/" + segments[2];
         String ref = segments[4];

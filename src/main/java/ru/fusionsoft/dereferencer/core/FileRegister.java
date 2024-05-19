@@ -1,6 +1,7 @@
 package ru.fusionsoft.dereferencer.core;
 
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
+import ru.fusionsoft.dereferencer.core.load.Resource;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -37,16 +38,16 @@ public class FileRegister {
 
     private DereferencedFile loadFile(URI uri, CachingFileProxy initialProxy) throws URISyntaxException, IOException{
         var proxies = new ArrayList<>(Collections.singletonList(initialProxy));
-        URLConnection urlConnection =  resourceCenter.load(uri);
+        Resource resource =  resourceCenter.load(uri);
 
-        proxies.add(createAndPutToCache(urlConnection.getURL().toURI()));
-        configureProxies(proxies, makeFile(urlConnection, proxies));
+        proxies.add(createAndPutToCache(resource.getRetrievalURI()));
+        configureProxies(proxies, makeFile(resource, proxies));
 
         return initialProxy;
     }
 
-    private DereferencedFile makeFile(URLConnection urlConnection, List<CachingFileProxy> proxies) throws IOException, URISyntaxException {
-        DereferencedFile targetFile = dereferencedFileFactory.makeFile(urlConnection);
+    private DereferencedFile makeFile(Resource resource, List<CachingFileProxy> proxies) throws IOException, URISyntaxException {
+        DereferencedFile targetFile = dereferencedFileFactory.makeFile(resource);
         proxies.add(createAndPutToCache(targetFile.getBaseURI()));
 
         return targetFile;
