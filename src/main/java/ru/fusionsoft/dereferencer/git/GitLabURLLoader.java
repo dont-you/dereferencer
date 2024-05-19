@@ -4,19 +4,24 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLConnection;
 
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.GitLabApiException;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
+import ru.fusionsoft.dereferencer.core.load.DefaultLoader;
 import ru.fusionsoft.dereferencer.core.load.Resource;
 import ru.fusionsoft.dereferencer.core.load.URLLoader;
 
 public class GitLabURLLoader implements URLLoader{
 
     private GitLabApi gitLabApi;
+    private String host;
+    private final DefaultLoader defaultLoader;
 
-    GitLabURLLoader() {
+    GitLabURLLoader() throws URISyntaxException {
+        this.defaultLoader = new DefaultLoader();
         configureGitLabLoader("", "https://gitlab.com");
     }
 
@@ -39,16 +44,20 @@ public class GitLabURLLoader implements URLLoader{
         }
     }
 
-    public void configureGitLabLoader(String token, String host) {
-        gitLabApi = new GitLabApi(host, token);
+    public void configureGitLabLoader(String token, String host) throws URISyntaxException {
+        configureGitLabLoader(new GitLabApi(host, token));
     }
 
-    public void configureGitLabLoader(GitLabApi gitLabApi) {
+    public void configureGitLabLoader(GitLabApi gitLabApi) throws URISyntaxException {
         this.gitLabApi = gitLabApi;
+        this.host = new URI(gitLabApi.getGitLabServerUrl()).getHost();
     }
 
     @Override
     public Resource load(URI uri) throws IOException {
+        if(!uri.getHost().equals(host))
+            return defaultLoader.load(uri);
+
         return new Resource(uri, openStream(uri));
     }
 }

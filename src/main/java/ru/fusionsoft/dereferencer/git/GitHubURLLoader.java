@@ -9,6 +9,7 @@ import java.net.URLConnection;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
+import ru.fusionsoft.dereferencer.core.load.DefaultLoader;
 import ru.fusionsoft.dereferencer.core.load.Resource;
 import ru.fusionsoft.dereferencer.core.load.URLLoader;
 
@@ -16,9 +17,11 @@ import ru.fusionsoft.dereferencer.core.load.URLLoader;
 public class GitHubURLLoader implements URLLoader {
 
     private GitHub gitHub;
+    private final DefaultLoader defaultLoader;
 
     GitHubURLLoader() throws IOException {
         gitHub = new GitHubBuilder().build();
+        defaultLoader = new DefaultLoader();
     }
 
     public void configureGitHubLoader(String token) throws IOException {
@@ -31,10 +34,14 @@ public class GitHubURLLoader implements URLLoader {
 
     @Override
     public Resource load(URI uri) throws IOException {
+        if(!uri.getHost().equals("github.com"))
+            return defaultLoader.load(uri);
+
         String[] segments = uri.getPath().split("/", 6);
         String projectPath = segments[1] + "/" + segments[2];
         String ref = segments[4];
         String filePath = segments[5];
+
         return new Resource(uri, gitHub.getRepository(projectPath).getFileContent(filePath, ref).read());
     }
 }
