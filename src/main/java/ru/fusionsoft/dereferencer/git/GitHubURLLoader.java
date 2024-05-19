@@ -4,6 +4,7 @@ package ru.fusionsoft.dereferencer.git;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLConnection;
 
 import org.kohsuke.github.GitHub;
@@ -33,7 +34,7 @@ public class GitHubURLLoader implements URLLoader {
     }
 
     @Override
-    public Resource load(URI uri) throws IOException {
+    public Resource load(URI uri) throws IOException, URISyntaxException {
         if(!uri.getHost().equals("github.com"))
             return defaultLoader.load(uri);
 

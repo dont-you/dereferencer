@@ -54,7 +54,7 @@ public class GitLabURLLoader implements URLLoader{
     }
 
     @Override
-    public Resource load(URI uri) throws IOException {
+    public Resource load(URI uri) throws IOException, URISyntaxException {
         if(!uri.getHost().equals(host))
             return defaultLoader.load(uri);
 

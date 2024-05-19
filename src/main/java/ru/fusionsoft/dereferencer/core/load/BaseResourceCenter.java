@@ -6,6 +6,7 @@ import ru.fusionsoft.dereferencer.core.load.urn.URNResolver;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLConnection;
 
 public class BaseResourceCenter implements ResourceCenter {
@@ -23,7 +24,7 @@ public class BaseResourceCenter implements ResourceCenter {
     }
 
     @Override
-    public Resource load(URI uri) throws IOException {
+    public Resource load(URI uri) throws IOException, URISyntaxException {
         if(urnResolver==null)
             return urlLoader.load(uri);
 
@@ -36,7 +37,7 @@ public class BaseResourceCenter implements ResourceCenter {
         return urlLoader.load(uri);
     }
 
-    public InputStream loadOnlyStream(URI uri) throws IOException {
+    public InputStream loadOnlyStream(URI uri) throws IOException, URISyntaxException {
         return urlLoader.load(uri).getInputStream();
     }
 

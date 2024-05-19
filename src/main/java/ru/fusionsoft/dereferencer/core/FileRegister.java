@@ -49,7 +49,7 @@ public class FileRegister {
     private Resource getResource(URI uri) throws DereferenceException{
         try {
             return resourceCenter.load(uri);
-        } catch (IOException e) {
+        } catch (IOException | URISyntaxException e) {
             throw new DereferenceException("couldn't load resource from uri - " + uri + ", with msg - " + e.getMessage());
         }
     }
