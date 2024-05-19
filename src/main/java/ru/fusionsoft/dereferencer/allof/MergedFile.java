@@ -2,6 +2,7 @@ package ru.fusionsoft.dereferencer.allof;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.jetbrains.annotations.NotNull;
 import ru.fusionsoft.dereferencer.Dereferencer;
 import ru.fusionsoft.dereferencer.core.FileImpl;
 
@@ -13,7 +14,7 @@ public class MergedFile extends FileImpl {
     private Merger merger;
     private Set<String> notMerged;
 
-    public MergedFile(URI baseURI, JsonNode source) {
+    public MergedFile(@NotNull URI baseURI, @NotNull JsonNode source) {
         super(baseURI, source);
     }
 
@@ -25,8 +26,12 @@ public class MergedFile extends FileImpl {
 
     @Override
     protected void resolveNode(String pathToNode, String nodeKey, JsonNode nodeValue) {
-        if (nodeKey.equals("allOf"))
+        if (nodeKey.equals("allOf")){
             notMerged.add(pathToNode);
+
+            if(!nodeValue.isArray())
+                throw new RuntimeException("allOf by path - " + pathToNode + "/" + nodeKey + " should be array");
+        }
 
         super.resolveNode(pathToNode, nodeKey, nodeValue);
     }
