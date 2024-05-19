@@ -10,17 +10,17 @@ public class RelativeJsonPointer {
     private final String jsonPointer;
     private final boolean evaluationCompletesWithObjectMember;
 
-    private RelativeJsonPointer(String jsonPointer, boolean evaluationCompletesWithObjectMember){
+    private RelativeJsonPointer(String jsonPointer, boolean evaluationCompletesWithObjectMember) {
         this.jsonPointer = jsonPointer;
         this.evaluationCompletesWithObjectMember = evaluationCompletesWithObjectMember;
     }
 
-    public static RelativeJsonPointer parseFromString(String requestPoint, String relativePointer){
+    public static RelativeJsonPointer parseFromString(String requestPoint, String relativePointer) {
         boolean endsWithHash = relativePointer.endsWith("#");
         String referencedValue = calculateReferencedValue(requestPoint, relativePointer);
         String jsonPointer;
 
-        if(endsWithHash){
+        if (endsWithHash) {
             jsonPointer = referencedValue;
         } else {
             jsonPointer = relativePointer.substring(relativePointer.indexOf("/"));
@@ -29,12 +29,13 @@ public class RelativeJsonPointer {
 
         return new RelativeJsonPointer(jsonPointer, endsWithHash);
     }
-    private static String calculateReferencedValue(String initialReferencedValue, String relativePointer){
+
+    private static String calculateReferencedValue(String initialReferencedValue, String relativePointer) {
         int nonNegativeInteger = getLongestDigitSequence(relativePointer);
         StringBuilder updatedReferencedValue = new StringBuilder(initialReferencedValue);
 
-        for(int i = 0 ; i < nonNegativeInteger ; i++){
-            if(updatedReferencedValue.isEmpty())
+        for (int i = 0; i < nonNegativeInteger; i++) {
+            if (updatedReferencedValue.isEmpty())
                 throw new RuntimeException("errors while evaluation relative json pointer - " + relativePointer + ", non negative integer is too big");
 
             updatedReferencedValue.delete(updatedReferencedValue.lastIndexOf("/"), updatedReferencedValue.length());
@@ -43,12 +44,12 @@ public class RelativeJsonPointer {
         return performIndexManipulation(updatedReferencedValue, relativePointer, String.valueOf(nonNegativeInteger).length());
     }
 
-    private static String performIndexManipulation(StringBuilder updatedReferencedValue, String relativePointer, int startOfIndexManipulation){
+    private static String performIndexManipulation(StringBuilder updatedReferencedValue, String relativePointer, int startOfIndexManipulation) {
         char op = relativePointer.charAt(startOfIndexManipulation);
 
-        if(op == '-' || op == '+'){
-            int indexManipulation = getLongestDigitSequence(relativePointer.substring(startOfIndexManipulation+1));
-            indexManipulation = op == '-' ? indexManipulation*-1 : indexManipulation;
+        if (op == '-' || op == '+') {
+            int indexManipulation = getLongestDigitSequence(relativePointer.substring(startOfIndexManipulation + 1));
+            indexManipulation = op == '-' ? indexManipulation * -1 : indexManipulation;
             int updatedIndex = Integer.parseInt(getPropertyName(updatedReferencedValue.toString())) + indexManipulation;
             updatedReferencedValue.replace(updatedReferencedValue.lastIndexOf("/"), updatedReferencedValue.length(), String.valueOf(updatedIndex));
         }
@@ -60,14 +61,14 @@ public class RelativeJsonPointer {
         return identifier.substring(identifier.lastIndexOf("/") + 1);
     }
 
-    private static int getLongestDigitSequence(String line){
+    private static int getLongestDigitSequence(String line) {
         int num = 0;
         int factor = 1;
 
-        for (char c: line.toCharArray()){
-            if(Character.isDigit(c)){
-                num = num*factor + Character.getNumericValue(c);
-                factor*=10;
+        for (char c : line.toCharArray()) {
+            if (Character.isDigit(c)) {
+                num = num * factor + Character.getNumericValue(c);
+                factor *= 10;
             } else {
                 break;
             }
@@ -75,15 +76,16 @@ public class RelativeJsonPointer {
 
         return num;
     }
-    public boolean isEvaluationCompletesWithObjectMember(){
+
+    public boolean isEvaluationCompletesWithObjectMember() {
         return evaluationCompletesWithObjectMember;
     }
 
-    public String getJsonPointer(){
+    public String getJsonPointer() {
         return jsonPointer;
     }
 
-    public JsonNode getObjectMember(){
+    public JsonNode getObjectMember() {
         String memberName = getPropertyName(jsonPointer);
         return StringUtils.isNumeric(memberName) ? IntNode.valueOf(Integer.parseInt(memberName)) : TextNode.valueOf(memberName);
     }

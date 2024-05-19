@@ -3,14 +3,10 @@ package ru.fusionsoft.dereferencer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.gitlab4j.api.GitLabApi;
-import org.gitlab4j.api.RepositoryFileApi;
-import org.gitlab4j.api.models.RepositoryFile;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import ru.fusionsoft.dereferencer.allof.MergedFileFactory;
-import ru.fusionsoft.dereferencer.core.DereferencedFileFactory;
 import ru.fusionsoft.dereferencer.core.FileRegister;
 import ru.fusionsoft.dereferencer.core.ResourceCenter;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
@@ -19,8 +15,6 @@ import ru.fusionsoft.dereferencer.core.load.DefaultLoader;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLConnection;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -31,41 +25,44 @@ import static org.junit.Assert.assertTrue;
 
 public class DereferencerIT {
 
+    static Dereferencer dereferencer;
     ObjectMapper jsonMapper = new ObjectMapper();
 
     @BeforeClass
-    public static void init(){
+    public static void init() {
         ResourceCenter resourceCenter = new BaseResourceCenter(new DefaultLoader());
         FileRegister fileRegister = new FileRegister(new MergedFileFactory(), resourceCenter);
         ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
-        URI defaultPath =  Paths.get(".").toAbsolutePath().normalize().toUri();
+        URI defaultPath = Paths.get(".").toAbsolutePath().normalize().toUri();
 
         dereferencer = new Dereferencer(executorService, fileRegister, defaultPath);
     }
 
-
-    static Dereferencer dereferencer;
+    @AfterClass
+    public static void doSome() {
+        dereferencer.exit();
+    }
 
     @Test
     public void Test_simple_schema_With_cycle() throws DereferenceException, ExecutionException, InterruptedException {
 //        Dereferencer dereferencer = DereferencerBuilder.builder().build();
         dereferencer.dereference(URI.create("./src/test/resources/test-schemas/schemas/cycle-schema/cycle_schema_A.json"));
         assertTrue(true);
-   }
+    }
 
-   @Test
-   public void delme()
-           throws IOException, ExecutionException, InterruptedException {
-       GitLabApi gitLabApi = new GitLabApi("", "https://gitlab.com");
-   }
+    @Test
+    public void delme()
+            throws IOException, ExecutionException, InterruptedException {
+        GitLabApi gitLabApi = new GitLabApi("", "https://gitlab.com");
+    }
 
-   @Test
-   public void debug_cases(){
-   }
+    @Test
+    public void debug_cases() {
+    }
 
-   @Test
-   public void Test_simple_schema_With_plain_name_fragment_reference()
-           throws IOException, DereferenceException, ExecutionException, InterruptedException {
+    @Test
+    public void Test_simple_schema_With_plain_name_fragment_reference()
+            throws IOException, DereferenceException, ExecutionException, InterruptedException {
 //        Dereferencer dereferencer = DereferencerBuilder.builder().build();
         JsonNode actual = dereferencer.dereference(URI.create("./src/test/resources/test-schemas/schemas/basic-schemas/simple_anchor_schema.json"));
         JsonNode expected = jsonMapper.readTree(Paths
@@ -74,9 +71,9 @@ public class DereferencerIT {
         assertEquals(expected, actual);
     }
 
-   @Test
-   public void Test_schema_With_relative_json_pointers()
-           throws IOException, DereferenceException, ExecutionException, InterruptedException {
+    @Test
+    public void Test_schema_With_relative_json_pointers()
+            throws IOException, DereferenceException, ExecutionException, InterruptedException {
 //        Dereferencer dereferencer = DereferencerBuilder.builder().build();
         JsonNode actual = dereferencer.dereference(URI.create("./src/test/resources/test-schemas/schemas/basic-schemas/relative_json_pointers.json"));
         JsonNode expected = jsonMapper.readTree(Paths
@@ -85,16 +82,15 @@ public class DereferencerIT {
         assertEquals(expected, actual);
     }
 
-   @Test
-   public void Test_schema_With_urn_references()
-           throws IOException, DereferenceException, ExecutionException, InterruptedException {
+    @Test
+    public void Test_schema_With_urn_references()
+            throws IOException, DereferenceException, ExecutionException, InterruptedException {
 //       Dereferencer dereferencer = new Dereferencer(Executors.newVirtualThreadPerTaskExecutor(), new FileRegister(new DereferencedFileFactory()));
 //        JsonNode actual = dereferencer.dereference(URI.create("./src/test/resources/test-schemas/schemas/urn-resolving/test_urn_resolving.yaml"));
 //        JsonNode expected = jsonMapper.readTree(Paths
 //                .get("./src/test/resources/test-schemas/expected-result/dereferenced_test_urn_resolving.json").toFile());
 //        assertEquals(expected, actual);
     }
-
 
     @Test
     public void fuzTest() throws DereferenceException, IOException, ExecutionException, InterruptedException {
@@ -106,7 +102,7 @@ public class DereferencerIT {
 //        JsonNode json1 = dereferencer.dereference(URI.create(HOME+"/Schemes/schemes/fipc.yaml").normalize());
 //        System.out.println(json1);
 
-        JsonNode json2 = dereferencer.dereference(URI.create(HOME+"/Schemes/service/fipc-db-service.yaml").normalize());
+        JsonNode json2 = dereferencer.dereference(URI.create(HOME + "/Schemes/service/fipc-db-service.yaml").normalize());
         System.out.println(json2);
 
 //        JsonNode expected = jsonMapper.readTree(Paths.get(URI.create("file://" + HOME + "/Work/fipc-it-with-merge.json").normalize()).toFile());
@@ -133,11 +129,6 @@ public class DereferencerIT {
     public void test()
             throws IOException, DereferenceException {
 
-    }
-
-    @AfterClass
-    public static void doSome(){
-        dereferencer.exit();
     }
 
 }

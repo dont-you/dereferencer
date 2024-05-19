@@ -1,8 +1,5 @@
 package ru.fusionsoft.dereferencer.core.load;
 
-import org.apache.tika.Tika;
-import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;

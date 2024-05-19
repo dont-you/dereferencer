@@ -1,29 +1,29 @@
 package ru.fusionsoft.dereferencer.core;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import ru.fusionsoft.dereferencer.Dereferencer;
 
 import java.net.URI;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class CachingFileProxy implements DereferencedFile{
+public class CachingFileProxy implements DereferencedFile {
     Map<String, JsonNode> requests;
     DereferencedFile dereferencedFile;
     Lock waitingLock;
     Lock notifyingLock;
 
-    public CachingFileProxy(){
+    public CachingFileProxy() {
         this.requests = new ConcurrentHashMap<>();
         this.dereferencedFile = null;
         this.waitingLock = new ReentrantLock();
         this.notifyingLock = new ReentrantLock();
     }
-    void setFile(DereferencedFile dereferencedFile){
-        synchronized (this){
+
+    void setFile(DereferencedFile dereferencedFile) {
+        synchronized (this) {
             this.dereferencedFile = dereferencedFile;
             this.notify();
         }
@@ -33,9 +33,9 @@ public class CachingFileProxy implements DereferencedFile{
     public JsonNode getFragment(String path, Dereferencer dereferencer) {
         waitFileResolution();
 
-        if(requests.containsKey(path)){
+        if (requests.containsKey(path)) {
             return requests.get(path);
-        } else{
+        } else {
             JsonNode fragment = dereferencedFile.getFragment(path, dereferencer);
             requests.put(path, fragment);
             return fragment;
@@ -46,19 +46,19 @@ public class CachingFileProxy implements DereferencedFile{
     public JsonNode getFragmentImmediately(String path, Dereferencer dereferencer) {
         waitFileResolution();
 
-        if(requests.containsKey(path)){
+        if (requests.containsKey(path)) {
             return requests.get(path);
-        } else{
+        } else {
             JsonNode fragment = dereferencedFile.getFragmentImmediately(path, dereferencer);
             requests.put(path, fragment);
             return fragment;
         }
     }
 
-    public void waitFileResolution(){
+    public void waitFileResolution() {
         waitingLock.lock();
-        synchronized (this){
-            while (dereferencedFile==null){
+        synchronized (this) {
+            while (dereferencedFile == null) {
                 try {
                     wait();
                 } catch (InterruptedException e) {
@@ -76,13 +76,13 @@ public class CachingFileProxy implements DereferencedFile{
     }
 
     @Override
-    public int hashCode(){
+    public int hashCode() {
         waitFileResolution();
         return dereferencedFile.hashCode();
     }
 
     @Override
-    public boolean equals(Object o){
+    public boolean equals(Object o) {
         waitFileResolution();
         return dereferencedFile.equals(o);
     }

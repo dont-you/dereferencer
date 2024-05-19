@@ -8,7 +8,7 @@ import java.net.URI;
 
 public class MergedFileFactory extends DereferencedFileFactory {
     @Override
-    public DereferencedFile makeInstance(URI baseURI, JsonNode source){
-        return new MergedFile(baseURI,source);
+    public DereferencedFile makeInstance(URI baseURI, JsonNode source) {
+        return new MergedFile(baseURI, source);
     }
 }

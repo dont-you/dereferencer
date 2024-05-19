@@ -1,24 +1,22 @@
 package ru.fusionsoft.dereferencer.git;
 
+import org.gitlab4j.api.GitLabApi;
+import org.gitlab4j.api.GitLabApiException;
+import ru.fusionsoft.dereferencer.core.load.DefaultLoader;
+import ru.fusionsoft.dereferencer.core.load.Resource;
+import ru.fusionsoft.dereferencer.core.load.URLLoader;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLConnection;
 
-import org.gitlab4j.api.GitLabApi;
-import org.gitlab4j.api.GitLabApiException;
-import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
-import ru.fusionsoft.dereferencer.core.load.DefaultLoader;
-import ru.fusionsoft.dereferencer.core.load.Resource;
-import ru.fusionsoft.dereferencer.core.load.URLLoader;
+public class GitLabURLLoader implements URLLoader {
 
-public class GitLabURLLoader implements URLLoader{
-
+    private final DefaultLoader defaultLoader;
     private GitLabApi gitLabApi;
     private String host;
-    private final DefaultLoader defaultLoader;
 
     GitLabURLLoader() throws URISyntaxException {
         this.defaultLoader = new DefaultLoader();
@@ -55,7 +53,7 @@ public class GitLabURLLoader implements URLLoader{
 
     @Override
     public Resource load(URI uri) throws IOException, URISyntaxException {
-        if(!uri.getHost().equals(host))
+        if (!uri.getHost().equals(host))
             return defaultLoader.load(uri);
 
         return new Resource(uri, openStream(uri));

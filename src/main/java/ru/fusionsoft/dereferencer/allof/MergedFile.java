@@ -8,17 +8,17 @@ import ru.fusionsoft.dereferencer.core.FileImpl;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 
 public class MergedFile extends FileImpl {
     private Merger merger;
     private Set<String> notMerged;
+
     public MergedFile(URI baseURI, JsonNode source) {
         super(baseURI, source);
     }
 
     @Override
-    protected void init(){
+    protected void init() {
         merger = new Merger();
         notMerged = Collections.newSetFromMap(new ConcurrentHashMap<>());
     }
@@ -40,7 +40,7 @@ public class MergedFile extends FileImpl {
     }
 
     @Override
-    public JsonNode getFragmentImmediately(String path, Dereferencer dereferencer){
+    public JsonNode getFragmentImmediately(String path, Dereferencer dereferencer) {
         path = resolveAnchorToPath(path);
         JsonNode response = super.getFragmentImmediately(path, dereferencer);
         mergeFromPath(path);
@@ -51,10 +51,10 @@ public class MergedFile extends FileImpl {
         List<String> combined = new ArrayList<>(notMerged.stream().filter(notMergedArray -> notMergedArray.startsWith(path)).toList());
         combined.sort(Comparator.reverseOrder());
 
-        for(String pathToNotMerged: combined){
+        for (String pathToNotMerged : combined) {
             JsonNode merged = merger.merge(derefedSource.at(pathToNotMerged + "/allOf").deepCopy());
-            synchronized (this){
-                if(notMerged.contains(pathToNotMerged)){
+            synchronized (this) {
+                if (notMerged.contains(pathToNotMerged)) {
                     notMerged.remove(pathToNotMerged);
                     setMergedAllOf(pathToNotMerged, merged);
                 }

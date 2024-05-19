@@ -1,4 +1,5 @@
 package ru.fusionsoft.dereferencer.core.cycles;
+
 import ru.fusionsoft.dereferencer.core.DereferencedFile;
 
 import java.util.Objects;
@@ -24,7 +25,7 @@ public class Reference {
     }
 
     @Override
-    public boolean equals(Object o){
+    public boolean equals(Object o) {
         return this.hash == o.hashCode();
     }
 

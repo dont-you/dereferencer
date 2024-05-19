@@ -20,14 +20,18 @@ public class TagURI implements Comparable<TagURI> {
         return new TagURI(parts[0], parts[1]);
     }
 
+    public static URI resolve(URI locator, String dynamicPartOfLocator) {
+        return Paths.get(locator.getPath()).resolveSibling(dynamicPartOfLocator).toUri();
+    }
+
     public @Nullable String getSubPart(TagURI supTagURI) {
-        if(supTagURI.nameSpaceSpecificParts[supTagURI.nameSpaceSpecificParts.length - 1].equals("*"))
-            return String.join("/",Arrays.copyOfRange(nameSpaceSpecificParts, supTagURI.nameSpaceSpecificParts.length - 1, nameSpaceSpecificParts.length)).concat(".yaml");
+        if (supTagURI.nameSpaceSpecificParts[supTagURI.nameSpaceSpecificParts.length - 1].equals("*"))
+            return String.join("/", Arrays.copyOfRange(nameSpaceSpecificParts, supTagURI.nameSpaceSpecificParts.length - 1, nameSpaceSpecificParts.length)).concat(".yaml");
         else
             return "";
     }
 
-    public boolean isSup(TagURI subTagURI){
+    public boolean isSup(TagURI subTagURI) {
         if (!taggingEntity.equals(subTagURI.taggingEntity)
                 || subTagURI.nameSpaceSpecificParts.length < nameSpaceSpecificParts.length)
             return false;
@@ -39,10 +43,6 @@ public class TagURI implements Comparable<TagURI> {
         }
 
         return true;
-    }
-
-    public static URI resolve(URI locator, String dynamicPartOfLocator){
-        return Paths.get(locator.getPath()).resolveSibling(dynamicPartOfLocator).toUri();
     }
 
     @Override

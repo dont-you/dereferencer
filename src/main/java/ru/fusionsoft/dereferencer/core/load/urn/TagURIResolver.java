@@ -3,7 +3,6 @@ package ru.fusionsoft.dereferencer.core.load.urn;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 import ru.fusionsoft.dereferencer.core.load.BaseResourceCenter;
 
 import java.net.URI;
@@ -12,8 +11,8 @@ import java.util.TreeMap;
 
 public class TagURIResolver extends URNResolver {
     private static final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
-    private BaseResourceCenter baseResourceCenter;
     private final Map<TagURI, URI> tags;
+    private BaseResourceCenter baseResourceCenter;
 
     public TagURIResolver(BaseResourceCenter baseResourceCenter) {
         this.baseResourceCenter = baseResourceCenter;

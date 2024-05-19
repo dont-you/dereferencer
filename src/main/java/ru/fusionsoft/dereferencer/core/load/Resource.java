@@ -14,7 +14,7 @@ public class Resource {
         this(urlConnection.getURL().toURI(), urlConnection.getInputStream());
     }
 
-    public Resource(URI retrievalURI, InputStream inputStream){
+    public Resource(URI retrievalURI, InputStream inputStream) {
         this.retrievalURI = retrievalURI;
         this.inputStream = inputStream;
     }

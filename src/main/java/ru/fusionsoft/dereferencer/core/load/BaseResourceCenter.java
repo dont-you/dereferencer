@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLConnection;
 
 public class BaseResourceCenter implements ResourceCenter {
     private URLLoader urlLoader;
@@ -25,7 +24,7 @@ public class BaseResourceCenter implements ResourceCenter {
 
     @Override
     public Resource load(URI uri) throws IOException, URISyntaxException {
-        if(urnResolver==null)
+        if (urnResolver == null)
             return urlLoader.load(uri);
 
         if (uri.getScheme() != null && uri.getScheme().equals("urn")) {
@@ -49,11 +48,11 @@ public class BaseResourceCenter implements ResourceCenter {
         this.urlLoader = URLLoader;
     }
 
-    public void setURNResolver(URNResolver urnResolver) {
-        this.urnResolver = urnResolver;
-    }
-
     public URNResolver getURNResolver() {
         return this.urnResolver;
+    }
+
+    public void setURNResolver(URNResolver urnResolver) {
+        this.urnResolver = urnResolver;
     }
 }

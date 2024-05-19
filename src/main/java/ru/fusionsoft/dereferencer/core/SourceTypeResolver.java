@@ -8,7 +8,7 @@ import org.apache.tika.Tika;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class SourceTypeResolver{
+public class SourceTypeResolver {
     public static ObjectMapper jsonMapper = new ObjectMapper();
     public static ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 

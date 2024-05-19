@@ -1,4 +1,5 @@
 package ru.fusionsoft.dereferencer.core.cycles;
+
 import ru.fusionsoft.dereferencer.core.DereferencedFile;
 
 import java.util.Collections;
@@ -52,7 +53,7 @@ public class LoopControl {
         references.remove(new Reference(consumerFile, producerFile, requestPoint + "/", endPoint + "/"));
     }
 
-    public int size(){
+    public int size() {
         return references.size();
     }
 }

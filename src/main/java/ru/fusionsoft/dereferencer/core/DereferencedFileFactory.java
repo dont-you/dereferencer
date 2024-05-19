@@ -16,7 +16,7 @@ public class DereferencedFileFactory {
     protected static final ObjectMapper jsonMapper = new ObjectMapper();
     protected static final Tika tika = new Tika();
 
-    public final DereferencedFile makeFile(Resource resource) throws IOException{
+    public final DereferencedFile makeFile(Resource resource) throws IOException {
         JsonNode source = readJsonFromInputStream(resource.getInputStream(), resource.getRetrievalURI());
         URI baseURI = establishBaseURI(resource.getRetrievalURI(), source);
         return makeInstance(baseURI, source);
@@ -25,7 +25,7 @@ public class DereferencedFileFactory {
     protected JsonNode readJsonFromInputStream(InputStream inputStream, URI retrievalURI) throws IOException {
         String mimetype = tika.detect(retrievalURI.toURL());
 
-        if(mimetype.contains("json") || mimetype.contains("schema+json"))
+        if (mimetype.contains("json") || mimetype.contains("schema+json"))
             return jsonMapper.readTree(inputStream);
         else if (mimetype.contains("x-yaml") || mimetype.contains("yaml"))
             return yamlMapper.readTree(inputStream);
@@ -34,14 +34,14 @@ public class DereferencedFileFactory {
 
     }
 
-    protected URI establishBaseURI(URI retrievalURI, JsonNode source){
-        if(source.has("$id"))
+    protected URI establishBaseURI(URI retrievalURI, JsonNode source) {
+        if (source.has("$id"))
             return retrievalURI.resolve(source.get("$id").asText());
         else
             return retrievalURI;
     }
 
-    protected DereferencedFile makeInstance(URI baseURI, JsonNode source){
-        return new FileImpl(baseURI,source);
+    protected DereferencedFile makeInstance(URI baseURI, JsonNode source) {
+        return new FileImpl(baseURI, source);
     }
 }

@@ -24,7 +24,7 @@ public class Dereferencer {
     private final URI defaultBaseURI;
     private final Map<URI, Future<JsonNode>> tasks;
 
-    public Dereferencer(ExecutorService executorService, FileRegister fileRegister, URI defaultBaseURI){
+    public Dereferencer(ExecutorService executorService, FileRegister fileRegister, URI defaultBaseURI) {
         this.executorService = executorService;
         this.fileRegister = fileRegister;
         this.defaultBaseURI = defaultBaseURI;
@@ -36,11 +36,11 @@ public class Dereferencer {
         executorService.shutdownNow();
     }
 
-    public JsonNode dereference(URI uri){
+    public JsonNode dereference(URI uri) {
         return getResultFromFuture(executorService.submit(dereferenceCall(defaultBaseURI.resolve(uri), this)));
     }
 
-    public Map<String, JsonNode> dereference(URI fileBaseURI, Map<String, String> refMaps){
+    public Map<String, JsonNode> dereference(URI fileBaseURI, Map<String, String> refMaps) {
         var response = new HashMap<String, JsonNode>();
 
         for (Map.Entry<String, Future<JsonNode>> futureRef : callDereferenceTasks(fileBaseURI, refMaps).entrySet()) {
@@ -53,14 +53,14 @@ public class Dereferencer {
     private Map<String, Future<JsonNode>> callDereferenceTasks(URI fileBaseURI, Map<String, String> refMaps) {
         Map<String, Future<JsonNode>> calls = new HashMap<>();
 
-        for(Map.Entry<String, String> ref: refMaps.entrySet()){
-            if(Character.isDigit(ref.getValue().charAt(0))){
+        for (Map.Entry<String, String> ref : refMaps.entrySet()) {
+            if (Character.isDigit(ref.getValue().charAt(0))) {
                 Future<JsonNode> future = executorService.submit(dereferenceCall(fileBaseURI, RelativeJsonPointer.parseFromString(ref.getKey(), ref.getValue()), ref.getValue()));
                 calls.put(ref.getKey(), future);
             } else {
                 URI targetURI = fileBaseURI.resolve(ref.getValue());
 
-                if(tasks.containsKey(targetURI)){
+                if (tasks.containsKey(targetURI)) {
                     calls.put(ref.getKey(), tasks.get(targetURI));
                 } else {
                     Future<JsonNode> future = executorService.submit(dereferenceCall(fileBaseURI, targetURI, ref.getKey()));
@@ -88,7 +88,7 @@ public class Dereferencer {
         return () -> evaluateRelativeJsonPointer(consumerBaseURI, relativeJsonPointer, requestPoint);
     }
 
-    private JsonNode evaluateRelativeJsonPointer(URI consumerBaseURI, RelativeJsonPointer relativeJsonPointer, String requestPoint){
+    private JsonNode evaluateRelativeJsonPointer(URI consumerBaseURI, RelativeJsonPointer relativeJsonPointer, String requestPoint) {
         if (relativeJsonPointer.isEvaluationCompletesWithObjectMember())
             return relativeJsonPointer.getObjectMember();
         else
@@ -105,7 +105,7 @@ public class Dereferencer {
             JsonNode response = isThereLoop ? producerFile.getFragmentImmediately(fragment, this) : producerFile.getFragment(fragment, this);
             loopControl.removeMapping(consumerFile, producerFile, requestPoint, fragment);
             return response;
-        } catch (DereferenceException e){
+        } catch (DereferenceException e) {
             // TODO LOG ERROR
             System.out.println("error");
             return MissingNode.getInstance();
@@ -120,7 +120,7 @@ public class Dereferencer {
         }
     }
 
-    private <V> V getResultFromFuture(Future<V> future){
+    private <V> V getResultFromFuture(Future<V> future) {
         try {
             return future.get();
         } catch (InterruptedException | ExecutionException e) {

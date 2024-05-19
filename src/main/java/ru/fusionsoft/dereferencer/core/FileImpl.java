@@ -5,14 +5,12 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.jetbrains.annotations.NotNull;
 import ru.fusionsoft.dereferencer.Dereferencer;
-import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.IntStream;
 
 public class FileImpl implements DereferencedFile {
@@ -39,7 +37,7 @@ public class FileImpl implements DereferencedFile {
         afterDereferencingHook();
     }
 
-    protected void init(){
+    protected void init() {
 
     }
 
@@ -79,7 +77,7 @@ public class FileImpl implements DereferencedFile {
         return derefedSource.at(path);
     }
 
-    private void dereference(Map<String,String> refMap, Dereferencer dereferencer){
+    private void dereference(Map<String, String> refMap, Dereferencer dereferencer) {
         if (!refMap.isEmpty()) {
             processing.putAll(refMap);
 
@@ -93,18 +91,18 @@ public class FileImpl implements DereferencedFile {
 
 
     @Override
-    public JsonNode getFragmentImmediately(String path, Dereferencer dereferencer){
+    public JsonNode getFragmentImmediately(String path, Dereferencer dereferencer) {
         path = resolveAnchorToPath(path);
         dereferenceImmediately(combineItems(path, notDerefed), combineItems(path, processing), dereferencer);
 
         return derefedSource.at(path);
     }
 
-    private void dereferenceImmediately(Map<String,String> combinedNotDerefed, Map<String,String> combinedProcessing, Dereferencer dereferencer){
+    private void dereferenceImmediately(Map<String, String> combinedNotDerefed, Map<String, String> combinedProcessing, Dereferencer dereferencer) {
         Map<String, String> combined = new HashMap<>();
 
-        for(Map.Entry<String, String> target: combinedNotDerefed.entrySet()) {
-            if(!combinedProcessing.containsKey(target.getKey())){
+        for (Map.Entry<String, String> target : combinedNotDerefed.entrySet()) {
+            if (!combinedProcessing.containsKey(target.getKey())) {
                 combined.put(target.getKey(), target.getValue());
             }
         }
@@ -113,13 +111,13 @@ public class FileImpl implements DereferencedFile {
     }
 
     private synchronized void setDereferencedValue(String path, JsonNode dereferencedValue) {
-        if(!derefedSource.at(path).has("$ref"))
+        if (!derefedSource.at(path).has("$ref"))
             return;
 
         setValue(path, dereferencedValue);
     }
 
-    protected void setValue(String path, JsonNode value){
+    protected void setValue(String path, JsonNode value) {
         ((ObjectNode) derefedSource.at(path)).removeAll();
         JsonNode parentNode = derefedSource.at(getParentPointer(path));
 
@@ -161,12 +159,12 @@ public class FileImpl implements DereferencedFile {
 
 
     @Override
-    public int hashCode(){
+    public int hashCode() {
         return hash;
     }
 
     @Override
-    public boolean equals(Object o){
+    public boolean equals(Object o) {
         return this.hash == o.hashCode();
     }
 }
