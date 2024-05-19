@@ -35,8 +35,6 @@ public class GitHubURLLoader implements URLLoader {
         String projectPath = segments[1] + "/" + segments[2];
         String ref = segments[4];
         String filePath = segments[5];
-        // TODO
-//        return gitHub.getRepository(projectPath).getFileContent(filePath, ref).;
-        return null;
+        return new Resource(uri, gitHub.getRepository(projectPath).getFileContent(filePath, ref).read());
     }
 }
