@@ -32,7 +32,7 @@ public class MergedFile extends FileImpl {
     }
 
     @Override
-    public JsonNode getFragment(String path, Dereferencer dereferencer) throws ExecutionException, InterruptedException {
+    public JsonNode getFragment(String path, Dereferencer dereferencer) {
         path = resolveAnchorToPath(path);
         JsonNode response = super.getFragment(path, dereferencer);
         mergeFromPath(path);
@@ -40,7 +40,7 @@ public class MergedFile extends FileImpl {
     }
 
     @Override
-    public JsonNode getFragmentImmediately(String path, Dereferencer dereferencer) throws ExecutionException, InterruptedException {
+    public JsonNode getFragmentImmediately(String path, Dereferencer dereferencer){
         path = resolveAnchorToPath(path);
         JsonNode response = super.getFragmentImmediately(path, dereferencer);
         mergeFromPath(path);

@@ -25,7 +25,7 @@ public class FileRegister {
         cache = new ConcurrentHashMap<>();
         sameFileLock = new ReentrantLock();
     }
-    public DereferencedFile get(URI uri) throws URISyntaxException, IOException {
+    public DereferencedFile get(URI uri) throws DereferenceException{
         CachingFileProxy initialProxy = null;
 
         sameFileLock.lock();
@@ -36,9 +36,9 @@ public class FileRegister {
         return initialProxy==null ? cache.get(uri) : loadFile(uri, initialProxy);
     }
 
-    private DereferencedFile loadFile(URI uri, CachingFileProxy initialProxy) throws URISyntaxException, IOException{
+    private DereferencedFile loadFile(URI uri, CachingFileProxy initialProxy) throws DereferenceException{
         var proxies = new ArrayList<>(Collections.singletonList(initialProxy));
-        Resource resource =  resourceCenter.load(uri);
+        Resource resource = getResource(uri);
 
         proxies.add(createAndPutToCache(resource.getRetrievalURI()));
         configureProxies(proxies, makeFile(resource, proxies));
@@ -46,8 +46,21 @@ public class FileRegister {
         return initialProxy;
     }
 
-    private DereferencedFile makeFile(Resource resource, List<CachingFileProxy> proxies) throws IOException, URISyntaxException {
-        DereferencedFile targetFile = dereferencedFileFactory.makeFile(resource);
+    private Resource getResource(URI uri) throws DereferenceException{
+        try {
+            return resourceCenter.load(uri);
+        } catch (IOException e) {
+            throw new DereferenceException("couldn't load resource from uri - " + uri + ", with msg - " + e.getMessage());
+        }
+    }
+
+    private DereferencedFile makeFile(Resource resource, List<CachingFileProxy> proxies) throws DereferenceException{
+        DereferencedFile targetFile = null;
+        try {
+            targetFile = dereferencedFileFactory.makeFile(resource);
+        } catch (IOException e) {
+            throw new DereferenceException("couldn't make file with uri - " + resource.getRetrievalURI() + ", with msg - " + e.getMessage());
+        }
         proxies.add(createAndPutToCache(targetFile.getBaseURI()));
 
         return targetFile;

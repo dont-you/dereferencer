@@ -30,35 +30,27 @@ public class CachingFileProxy implements DereferencedFile{
     }
 
     @Override
-    public JsonNode getFragment(String path, Dereferencer dereferencer) throws ExecutionException, InterruptedException {
+    public JsonNode getFragment(String path, Dereferencer dereferencer) {
         waitFileResolution();
 
         if(requests.containsKey(path)){
             return requests.get(path);
         } else{
             JsonNode fragment = dereferencedFile.getFragment(path, dereferencer);
-            try{
-                requests.put(path, fragment);
-            } catch (ClassCastException classCastException){
-                System.out.println(classCastException.fillInStackTrace());
-            }
+            requests.put(path, fragment);
             return fragment;
         }
     }
 
     @Override
-    public JsonNode getFragmentImmediately(String path, Dereferencer dereferencer) throws ExecutionException, InterruptedException {
+    public JsonNode getFragmentImmediately(String path, Dereferencer dereferencer) {
         waitFileResolution();
 
         if(requests.containsKey(path)){
             return requests.get(path);
         } else{
             JsonNode fragment = dereferencedFile.getFragmentImmediately(path, dereferencer);
-            try{
-                requests.put(path, fragment);
-            } catch (ClassCastException classCastException){
-                System.out.println(classCastException.fillInStackTrace());
-            }
+            requests.put(path, fragment);
             return fragment;
         }
     }

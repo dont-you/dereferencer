@@ -1,12 +1,13 @@
 package ru.fusionsoft.dereferencer;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.MissingNode;
 import ru.fusionsoft.dereferencer.core.DereferencedFile;
 import ru.fusionsoft.dereferencer.core.FileRegister;
 import ru.fusionsoft.dereferencer.core.cycles.LoopControl;
+import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 import ru.fusionsoft.dereferencer.core.pointers.RelativeJsonPointer;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -35,15 +36,15 @@ public class Dereferencer {
         executorService.shutdownNow();
     }
 
-    public JsonNode dereference(URI uri) throws ExecutionException, InterruptedException {
-        return executorService.submit(dereferenceCall(defaultBaseURI.resolve(uri), this)).get();
+    public JsonNode dereference(URI uri){
+        return getResultFromFuture(executorService.submit(dereferenceCall(defaultBaseURI.resolve(uri), this)));
     }
 
-    public Map<String, JsonNode> dereference(URI fileBaseURI, Map<String, String> refMaps) throws ExecutionException, InterruptedException {
+    public Map<String, JsonNode> dereference(URI fileBaseURI, Map<String, String> refMaps){
         var response = new HashMap<String, JsonNode>();
 
         for (Map.Entry<String, Future<JsonNode>> futureRef : callDereferenceTasks(fileBaseURI, refMaps).entrySet()) {
-            response.put(futureRef.getKey(), futureRef.getValue().get());
+            response.put(futureRef.getKey(), getResultFromFuture(futureRef.getValue()));
         }
 
         return response;
@@ -87,7 +88,7 @@ public class Dereferencer {
         return () -> evaluateRelativeJsonPointer(consumerBaseURI, relativeJsonPointer, requestPoint);
     }
 
-    private JsonNode evaluateRelativeJsonPointer(URI consumerBaseURI, RelativeJsonPointer relativeJsonPointer, String requestPoint) throws URISyntaxException, IOException, ExecutionException, InterruptedException {
+    private JsonNode evaluateRelativeJsonPointer(URI consumerBaseURI, RelativeJsonPointer relativeJsonPointer, String requestPoint){
         if (relativeJsonPointer.isEvaluationCompletesWithObjectMember())
             return relativeJsonPointer.getObjectMember();
         else
@@ -95,14 +96,20 @@ public class Dereferencer {
 
     }
 
-    private JsonNode evaluateJsonPointer(URI consumerBaseURI, URI targetURI, String fragment, String requestPoint) throws URISyntaxException, IOException, ExecutionException, InterruptedException {
-        fragment = fragment == null ? "" : fragment;
-        DereferencedFile producerFile = fileRegister.get(makeAbsoluteURI(targetURI)), consumerFile = fileRegister.get(consumerBaseURI);
-        boolean isThereLoop = loopControl.isThereLoop(consumerFile, producerFile, requestPoint, fragment);
-        loopControl.addMapping(consumerFile, producerFile, requestPoint, fragment);
-        JsonNode response = isThereLoop ? producerFile.getFragmentImmediately(fragment, this) : producerFile.getFragment(fragment, this);
-        loopControl.removeMapping(consumerFile, producerFile, requestPoint, fragment);
-        return response;
+    private JsonNode evaluateJsonPointer(URI consumerBaseURI, URI targetURI, String fragment, String requestPoint) {
+        try {
+            fragment = fragment == null ? "" : fragment;
+            DereferencedFile producerFile = fileRegister.get(makeAbsoluteURI(targetURI)), consumerFile = fileRegister.get(consumerBaseURI);
+            boolean isThereLoop = loopControl.isThereLoop(consumerFile, producerFile, requestPoint, fragment);
+            loopControl.addMapping(consumerFile, producerFile, requestPoint, fragment);
+            JsonNode response = isThereLoop ? producerFile.getFragmentImmediately(fragment, this) : producerFile.getFragment(fragment, this);
+            loopControl.removeMapping(consumerFile, producerFile, requestPoint, fragment);
+            return response;
+        } catch (DereferenceException e){
+            // TODO LOG ERROR
+            System.out.println("error");
+            return MissingNode.getInstance();
+        }
     }
 
     private URI makeAbsoluteURI(URI uri) {
@@ -110,6 +117,14 @@ public class Dereferencer {
             return new URI(uri.getScheme(), uri.getSchemeSpecificPart(), null);
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private <V> V getResultFromFuture(Future<V> future){
+        try {
+            return future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException("unhandled error while trying get result from an asynchronous computation with msg - " + e.getMessage(), e);
         }
     }
 }

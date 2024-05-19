@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.jetbrains.annotations.NotNull;
 import ru.fusionsoft.dereferencer.Dereferencer;
+import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -71,14 +72,14 @@ public class FileImpl implements DereferencedFile {
     }
 
     @Override
-    public JsonNode getFragment(String path, Dereferencer dereferencer) throws ExecutionException, InterruptedException {
+    public JsonNode getFragment(String path, Dereferencer dereferencer) {
         path = resolveAnchorToPath(path);
         dereference(combineItems(path, notDerefed), dereferencer);
 
         return derefedSource.at(path);
     }
 
-    private void dereference(Map<String,String> refMap, Dereferencer dereferencer) throws ExecutionException, InterruptedException {
+    private void dereference(Map<String,String> refMap, Dereferencer dereferencer){
         if (!refMap.isEmpty()) {
             processing.putAll(refMap);
 
@@ -92,14 +93,14 @@ public class FileImpl implements DereferencedFile {
 
 
     @Override
-    public JsonNode getFragmentImmediately(String path, Dereferencer dereferencer) throws ExecutionException, InterruptedException {
+    public JsonNode getFragmentImmediately(String path, Dereferencer dereferencer){
         path = resolveAnchorToPath(path);
         dereferenceImmediately(combineItems(path, notDerefed), combineItems(path, processing), dereferencer);
 
         return derefedSource.at(path);
     }
 
-    private void dereferenceImmediately(Map<String,String> combinedNotDerefed, Map<String,String> combinedProcessing, Dereferencer dereferencer) throws ExecutionException, InterruptedException {
+    private void dereferenceImmediately(Map<String,String> combinedNotDerefed, Map<String,String> combinedProcessing, Dereferencer dereferencer){
         Map<String, String> combined = new HashMap<>();
 
         for(Map.Entry<String, String> target: combinedNotDerefed.entrySet()) {
