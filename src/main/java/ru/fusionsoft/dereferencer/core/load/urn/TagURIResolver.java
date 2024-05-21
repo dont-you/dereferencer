@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import ru.fusionsoft.dereferencer.core.ResourceCenter;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
-import ru.fusionsoft.dereferencer.core.load.BaseResourceCenter;
 
 import java.net.URI;
 import java.util.Map;

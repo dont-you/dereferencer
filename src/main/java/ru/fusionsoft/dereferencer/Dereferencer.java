@@ -2,6 +2,7 @@ package ru.fusionsoft.dereferencer;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.MissingNode;
+import org.jetbrains.annotations.NotNull;
 import ru.fusionsoft.dereferencer.core.DereferencedFile;
 import ru.fusionsoft.dereferencer.core.FileRegister;
 import ru.fusionsoft.dereferencer.core.cycles.LoopControl;
@@ -16,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.logging.Logger;
 
 public class Dereferencer {
     private final ExecutorService executorService;
@@ -23,12 +25,14 @@ public class Dereferencer {
     private final LoopControl loopControl;
     private final URI defaultBaseURI;
     private final Map<URI, Future<JsonNode>> tasks;
+    private final Logger logger;
 
-    Dereferencer(ExecutorService executorService, FileRegister fileRegister, URI defaultBaseURI) {
+    Dereferencer(@NotNull ExecutorService executorService, @NotNull FileRegister fileRegister, @NotNull URI defaultBaseURI, @NotNull Logger logger) {
         this.executorService = executorService;
         this.fileRegister = fileRegister;
         this.defaultBaseURI = defaultBaseURI;
-        this.tasks = new ConcurrentHashMap<>();
+        this.logger = logger;
+        tasks = new ConcurrentHashMap<>();
         loopControl = new LoopControl();
     }
 

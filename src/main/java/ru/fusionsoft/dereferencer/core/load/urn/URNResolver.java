@@ -4,11 +4,14 @@ import ru.fusionsoft.dereferencer.core.ResourceCenter;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 
 import java.net.URI;
+import java.util.logging.Logger;
 
 public abstract class URNResolver {
     protected URNResolver nextResolver;
+    protected Logger logger;
 
-    public URNResolver() {
+    public URNResolver(Logger logger) {
+        this.logger = logger;
         nextResolver = null;
     }
 

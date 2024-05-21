@@ -1,5 +1,6 @@
 package ru.fusionsoft.dereferencer.core;
 
+import org.jetbrains.annotations.NotNull;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 import ru.fusionsoft.dereferencer.core.load.Resource;
 
@@ -13,16 +14,19 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Logger;
 
 public class FileRegister {
     private final Map<URI, CachingFileProxy> cache;
     private final DereferencedFileFactory dereferencedFileFactory;
     private final ResourceCenter resourceCenter;
     private final Lock sameFileLock;
+    private final Logger logger;
 
-    public FileRegister(DereferencedFileFactory fileFactory, ResourceCenter resourceCenter) {
+    FileRegister(@NotNull DereferencedFileFactory fileFactory, @NotNull ResourceCenter resourceCenter, @NotNull Logger logger) {
         this.dereferencedFileFactory = fileFactory;
         this.resourceCenter = resourceCenter;
+        this.logger = logger;
         cache = new ConcurrentHashMap<>();
         sameFileLock = new ReentrantLock();
     }

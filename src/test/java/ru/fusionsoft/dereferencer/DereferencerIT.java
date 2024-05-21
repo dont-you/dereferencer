@@ -7,20 +7,13 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import ru.fusionsoft.dereferencer.allof.MergedFileFactory;
-import ru.fusionsoft.dereferencer.core.DereferencedFileFactory;
-import ru.fusionsoft.dereferencer.core.FileRegister;
 import ru.fusionsoft.dereferencer.core.FileRegisterBuilder;
-import ru.fusionsoft.dereferencer.core.ResourceCenter;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
-import ru.fusionsoft.dereferencer.core.load.BaseResourceCenter;
-import ru.fusionsoft.dereferencer.core.load.DefaultLoader;
 
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

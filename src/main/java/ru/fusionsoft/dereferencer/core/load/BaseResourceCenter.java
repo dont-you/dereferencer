@@ -10,19 +10,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.logging.Logger;
 
 public class BaseResourceCenter implements ResourceCenter {
     private URLLoader urlLoader;
     private URNResolver urnResolver;
+    private Logger logger;
 
-    public BaseResourceCenter(@NotNull URLLoader urlLoader) {
-        this.urlLoader = urlLoader;
-        urnResolver = null;
-    }
-
-    public BaseResourceCenter(@NotNull URLLoader urlLoader, @Nullable URNResolver urnResolver) {
+    BaseResourceCenter(@NotNull URLLoader urlLoader, @Nullable URNResolver urnResolver, @NotNull Logger logger) {
         this.urlLoader = urlLoader;
         this.urnResolver = urnResolver;
+        this.logger = logger;
     }
 
     @Override
