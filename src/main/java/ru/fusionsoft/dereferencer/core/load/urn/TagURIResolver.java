@@ -3,6 +3,7 @@ package ru.fusionsoft.dereferencer.core.load.urn;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import ru.fusionsoft.dereferencer.core.ResourceCenter;
 import ru.fusionsoft.dereferencer.core.load.BaseResourceCenter;
 
 import java.net.URI;
@@ -12,18 +13,16 @@ import java.util.TreeMap;
 public class TagURIResolver extends URNResolver {
     private static final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
     private final Map<TagURI, URI> tags;
-    private BaseResourceCenter baseResourceCenter;
 
-    public TagURIResolver(BaseResourceCenter baseResourceCenter) {
-        this.baseResourceCenter = baseResourceCenter;
+    public TagURIResolver() {
         tags = new TreeMap<>();
     }
 
     @Override
-    protected void updatePool(URI uri) {
+    protected void updatePool(URI uri, ResourceCenter resourceCenter) {
         try {
             URI uriToOrigins = uri.resolve(".origins.yaml");
-            JsonNode jsonNode = yamlMapper.readTree(baseResourceCenter.loadOnlyStream(uriToOrigins));
+            JsonNode jsonNode = yamlMapper.readTree(resourceCenter.load(uriToOrigins).getInputStream());
             jsonNode.fields().forEachRemaining(tagEntity -> tagEntity.getValue().fields().forEachRemaining(tag -> {
                 tags.put(new TagURI(tagEntity.getKey(), tag.getKey()), makeLocator(tag.getKey(), tag.getValue().asText(), uriToOrigins));
             }));
@@ -48,9 +47,5 @@ public class TagURIResolver extends URNResolver {
             return passToNextHandler(urn);
 
         return TagURI.resolve(tags.get(searchedTagURI), processedTag.getSubPart(searchedTagURI));
-    }
-
-    public void setBaseResourceCenter(BaseResourceCenter baseResourceCenter) {
-        this.baseResourceCenter = baseResourceCenter;
     }
 }

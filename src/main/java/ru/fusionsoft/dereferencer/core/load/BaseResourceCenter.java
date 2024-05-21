@@ -1,5 +1,7 @@
 package ru.fusionsoft.dereferencer.core.load;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import ru.fusionsoft.dereferencer.core.ResourceCenter;
 import ru.fusionsoft.dereferencer.core.load.urn.URNResolver;
 
@@ -12,12 +14,12 @@ public class BaseResourceCenter implements ResourceCenter {
     private URLLoader urlLoader;
     private URNResolver urnResolver;
 
-    public BaseResourceCenter(URLLoader urlLoader) {
+    public BaseResourceCenter(@NotNull URLLoader urlLoader) {
         this.urlLoader = urlLoader;
         urnResolver = null;
     }
 
-    public BaseResourceCenter(URLLoader urlLoader, URNResolver urnResolver) {
+    public BaseResourceCenter(@NotNull URLLoader urlLoader, @Nullable URNResolver urnResolver) {
         this.urlLoader = urlLoader;
         this.urnResolver = urnResolver;
     }
@@ -30,7 +32,7 @@ public class BaseResourceCenter implements ResourceCenter {
         if (uri.getScheme() != null && uri.getScheme().equals("urn")) {
             uri = urnResolver.resolve(uri);
         } else {
-            urnResolver.update(uri);
+            urnResolver.update(uri, this);
         }
 
         return urlLoader.load(uri);

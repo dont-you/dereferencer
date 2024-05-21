@@ -1,5 +1,7 @@
 package ru.fusionsoft.dereferencer.core.load.urn;
 
+import ru.fusionsoft.dereferencer.core.ResourceCenter;
+
 import java.net.URI;
 
 public abstract class URNResolver {
@@ -22,15 +24,15 @@ public abstract class URNResolver {
             return nextResolver.resolve(urn);
     }
 
-    public final void update(URI uri) {
+    public final void update(URI uri, ResourceCenter resourceCenter) {
         URNResolver currentResolver = nextResolver;
         while (currentResolver != null) {
-            currentResolver.updatePool(uri);
+            currentResolver.updatePool(uri, resourceCenter);
             currentResolver = currentResolver.nextResolver;
         }
     }
 
-    protected abstract void updatePool(URI uri);
+    protected abstract void updatePool(URI uri, ResourceCenter resourceCenter);
 
     public abstract URI resolve(URI urn);
 }

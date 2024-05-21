@@ -24,7 +24,7 @@ public class Dereferencer {
     private final URI defaultBaseURI;
     private final Map<URI, Future<JsonNode>> tasks;
 
-    public Dereferencer(ExecutorService executorService, FileRegister fileRegister, URI defaultBaseURI) {
+    Dereferencer(ExecutorService executorService, FileRegister fileRegister, URI defaultBaseURI) {
         this.executorService = executorService;
         this.fileRegister = fileRegister;
         this.defaultBaseURI = defaultBaseURI;

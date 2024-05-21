@@ -7,7 +7,9 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import ru.fusionsoft.dereferencer.allof.MergedFileFactory;
+import ru.fusionsoft.dereferencer.core.DereferencedFileFactory;
 import ru.fusionsoft.dereferencer.core.FileRegister;
+import ru.fusionsoft.dereferencer.core.FileRegisterBuilder;
 import ru.fusionsoft.dereferencer.core.ResourceCenter;
 import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 import ru.fusionsoft.dereferencer.core.load.BaseResourceCenter;
@@ -30,12 +32,11 @@ public class DereferencerIT {
 
     @BeforeClass
     public static void init() {
-        ResourceCenter resourceCenter = new BaseResourceCenter(new DefaultLoader());
-        FileRegister fileRegister = new FileRegister(new MergedFileFactory(), resourceCenter);
-        ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
-        URI defaultPath = Paths.get(".").toAbsolutePath().normalize().toUri();
-
-        dereferencer = new Dereferencer(executorService, fileRegister, defaultPath);
+        dereferencer = DereferencerBuilder.builder()
+                .setFileRegister(FileRegisterBuilder.builder()
+                        .setDereferencedFileFactory(new MergedFileFactory())
+                        .build()
+                ).build();
     }
 
     @AfterClass
