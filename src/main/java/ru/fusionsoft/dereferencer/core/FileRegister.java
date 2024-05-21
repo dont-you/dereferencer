@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class FileRegister {
@@ -44,7 +45,10 @@ public class FileRegister {
 
     private DereferencedFile loadFile(URI uri, CachingFileProxy initialProxy) throws DereferenceException {
         var proxies = new ArrayList<>(Collections.singletonList(initialProxy));
+
+        logger.log(Level.INFO, "trying load file by uri - " + uri);
         Resource resource = getResource(uri);
+        logger.log(Level.INFO, "file by uri - " + uri + " successful loaded");
 
         proxies.add(createAndPutToCache(resource.getRetrievalURI()));
         configureProxies(proxies, makeFile(resource, proxies));

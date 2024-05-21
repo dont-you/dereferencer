@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class BaseResourceCenter implements ResourceCenter {
@@ -29,16 +30,15 @@ public class BaseResourceCenter implements ResourceCenter {
             return urlLoader.load(uri);
 
         if (uri.getScheme() != null && uri.getScheme().equals("urn")) {
+            URI urn = uri;
+            logger.log(Level.INFO, "trying resolve urn - " + urn);
             uri = urnResolver.resolve(uri);
+            logger.log(Level.INFO, "urn - " + urn + " resolved to - " + uri);
         } else {
             urnResolver.update(uri, this);
         }
 
         return urlLoader.load(uri);
-    }
-
-    public InputStream loadOnlyStream(URI uri) throws IOException, URISyntaxException {
-        return urlLoader.load(uri).getInputStream();
     }
 
     public URLLoader getLoader() {

@@ -9,25 +9,28 @@ import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 import java.net.URI;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TagURIResolver extends URNResolver {
     private static final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
     private final Map<TagURI, URI> tags;
 
-    public TagURIResolver() {
+    public TagURIResolver(Logger logger) {
+        super(logger);
         tags = new TreeMap<>();
     }
 
     @Override
     protected void updatePool(URI uri, ResourceCenter resourceCenter) {
+        URI uriToOrigins = uri.resolve(".origins.yaml");
         try {
-            URI uriToOrigins = uri.resolve(".origins.yaml");
             JsonNode jsonNode = yamlMapper.readTree(resourceCenter.load(uriToOrigins).getInputStream());
             jsonNode.fields().forEachRemaining(tagEntity -> tagEntity.getValue().fields().forEachRemaining(tag -> {
                 tags.put(new TagURI(tagEntity.getKey(), tag.getKey()), makeLocator(tag.getKey(), tag.getValue().asText(), uriToOrigins));
             }));
         } catch (Exception e) {
-            // TODO LOG
+            logger.log(Level.WARNING, "could not update tag uri pool from - " + uriToOrigins);
         }
     }
 

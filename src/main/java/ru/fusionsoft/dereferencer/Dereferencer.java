@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Dereferencer {
@@ -41,7 +42,11 @@ public class Dereferencer {
     }
 
     public JsonNode dereference(URI uri) {
-        return getResultFromFuture(executorService.submit(dereferenceCall(defaultBaseURI.resolve(uri), this)));
+        logger.log(Level.INFO, "request to dereference file by uri - " + uri);
+        JsonNode result = getResultFromFuture(executorService.submit(dereferenceCall(defaultBaseURI.resolve(uri), this)));
+        logger.log(Level.INFO, "file by uri - " + uri + " successful dereferenced");
+
+        return result;
     }
 
     public Map<String, JsonNode> dereference(URI fileBaseURI, Map<String, String> refMaps) {
@@ -49,6 +54,7 @@ public class Dereferencer {
 
         for (Map.Entry<String, Future<JsonNode>> futureRef : callDereferenceTasks(fileBaseURI, refMaps).entrySet()) {
             response.put(futureRef.getKey(), getResultFromFuture(futureRef.getValue()));
+            logger.log(Level.INFO, "dereference of ref - " + futureRef.getKey() + " with consumer file " + fileBaseURI + " completed");
         }
 
         return response;
@@ -58,6 +64,7 @@ public class Dereferencer {
         Map<String, Future<JsonNode>> calls = new HashMap<>();
 
         for (Map.Entry<String, String> ref : refMaps.entrySet()) {
+            logger.log(Level.INFO, "start dereference ref - " + ref.getValue() + " from consumer file - " + fileBaseURI);
             if (Character.isDigit(ref.getValue().charAt(0))) {
                 Future<JsonNode> future = executorService.submit(dereferenceCall(fileBaseURI, RelativeJsonPointer.parseFromString(ref.getKey(), ref.getValue()), ref.getValue()));
                 calls.put(ref.getKey(), future);
@@ -110,8 +117,7 @@ public class Dereferencer {
             loopControl.removeMapping(consumerFile, producerFile, requestPoint, fragment);
             return response;
         } catch (DereferenceException e) {
-            // TODO LOG ERROR
-            System.out.println("error");
+            logger.log(Level.INFO, "error dereference ref - " + targetURI + " with msg - " + e.getMessage());
             return MissingNode.getInstance();
         }
     }
@@ -120,7 +126,7 @@ public class Dereferencer {
         try {
             return new URI(uri.getScheme(), uri.getSchemeSpecificPart(), null);
         } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("unhandled error while trying make absolute uri by uri - " + uri);
         }
     }
 
