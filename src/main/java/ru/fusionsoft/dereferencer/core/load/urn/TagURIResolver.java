@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import ru.fusionsoft.dereferencer.core.ResourceCenter;
+import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 import ru.fusionsoft.dereferencer.core.load.BaseResourceCenter;
 
 import java.net.URI;
@@ -36,7 +37,7 @@ public class TagURIResolver extends URNResolver {
     }
 
     @Override
-    public URI resolve(URI urn) {
+    public URI resolve(URI urn) throws DereferenceException {
         TagURI processedTag = TagURI.parse(URI.create(urn.getSchemeSpecificPart()));
         TagURI searchedTagURI = tags.keySet().stream()
                 .filter(tagURI -> tagURI.isSup(processedTag))

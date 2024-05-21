@@ -1,6 +1,7 @@
 package ru.fusionsoft.dereferencer.core.load.urn;
 
 import ru.fusionsoft.dereferencer.core.ResourceCenter;
+import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 
 import java.net.URI;
 
@@ -16,15 +17,14 @@ public abstract class URNResolver {
         return nextResolver;
     }
 
-    protected final URI passToNextHandler(URI urn) {
+    protected final URI passToNextHandler(URI urn) throws DereferenceException {
         if (nextResolver == null)
-            //TODO
-            throw new RuntimeException();
+            throw new DereferenceException("handler for the URN - " + urn + " is not defined");
         else
             return nextResolver.resolve(urn);
     }
 
-    public final void update(URI uri, ResourceCenter resourceCenter) {
+    public final void update(URI uri, ResourceCenter resourceCenter){
         URNResolver currentResolver = nextResolver;
         while (currentResolver != null) {
             currentResolver.updatePool(uri, resourceCenter);
@@ -34,5 +34,5 @@ public abstract class URNResolver {
 
     protected abstract void updatePool(URI uri, ResourceCenter resourceCenter);
 
-    public abstract URI resolve(URI urn);
+    public abstract URI resolve(URI urn) throws DereferenceException;
 }

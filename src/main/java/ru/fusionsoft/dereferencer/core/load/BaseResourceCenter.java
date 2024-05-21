@@ -3,6 +3,7 @@ package ru.fusionsoft.dereferencer.core.load;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.fusionsoft.dereferencer.core.ResourceCenter;
+import ru.fusionsoft.dereferencer.core.exceptions.DereferenceException;
 import ru.fusionsoft.dereferencer.core.load.urn.URNResolver;
 
 import java.io.IOException;
@@ -25,7 +26,7 @@ public class BaseResourceCenter implements ResourceCenter {
     }
 
     @Override
-    public Resource load(URI uri) throws IOException, URISyntaxException {
+    public Resource load(URI uri) throws DereferenceException, IOException, URISyntaxException {
         if (urnResolver == null)
             return urlLoader.load(uri);
 

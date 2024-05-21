@@ -7,5 +7,5 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 public interface ResourceCenter {
-    Resource load(URI uri) throws IOException, URISyntaxException;
+    Resource load(URI uri) throws Exception;
 }
